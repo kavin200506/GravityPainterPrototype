@@ -15,43 +15,31 @@ public class TileZone : MonoBehaviour
 
     private void Awake()
     {
-        // Scene prefab instances sometimes have a duplicate TileZone with no material
-        // references; copy from the sibling that was deserialized from the prefab.
-        if (redMat == null || blueMat == null || yellowMat == null || noneMat == null)
+        // Prefab instances sometimes get an extra TileZone with no material refs.
+        // That copy breaks taps/physics (GetComponent returns the wrong instance). Remove it.
+        if (HasAllMaterials())
         {
-            foreach (TileZone other in GetComponents<TileZone>())
+            return;
+        }
+
+        foreach (TileZone other in GetComponents<TileZone>())
+        {
+            if (other == this)
             {
-                if (other == this)
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                if (redMat == null)
-                {
-                    redMat = other.redMat;
-                }
-
-                if (blueMat == null)
-                {
-                    blueMat = other.blueMat;
-                }
-
-                if (yellowMat == null)
-                {
-                    yellowMat = other.yellowMat;
-                }
-
-                if (noneMat == null)
-                {
-                    noneMat = other.noneMat;
-                }
-
-                if (redMat != null && blueMat != null && yellowMat != null && noneMat != null)
-                {
-                    break;
-                }
+            if (other.HasAllMaterials())
+            {
+                Destroy(this);
+                return;
             }
         }
+    }
+
+    private bool HasAllMaterials()
+    {
+        return redMat != null && blueMat != null && yellowMat != null && noneMat != null;
     }
 
     private void Start()
