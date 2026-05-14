@@ -13,6 +13,47 @@ public class TileZone : MonoBehaviour
 
     private Renderer tileRenderer;
 
+    private void Awake()
+    {
+        // Scene prefab instances sometimes have a duplicate TileZone with no material
+        // references; copy from the sibling that was deserialized from the prefab.
+        if (redMat == null || blueMat == null || yellowMat == null || noneMat == null)
+        {
+            foreach (TileZone other in GetComponents<TileZone>())
+            {
+                if (other == this)
+                {
+                    continue;
+                }
+
+                if (redMat == null)
+                {
+                    redMat = other.redMat;
+                }
+
+                if (blueMat == null)
+                {
+                    blueMat = other.blueMat;
+                }
+
+                if (yellowMat == null)
+                {
+                    yellowMat = other.yellowMat;
+                }
+
+                if (noneMat == null)
+                {
+                    noneMat = other.noneMat;
+                }
+
+                if (redMat != null && blueMat != null && yellowMat != null && noneMat != null)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
     private void Start()
     {
         tileRenderer = GetComponent<Renderer>();
@@ -36,20 +77,18 @@ public class TileZone : MonoBehaviour
             tileRenderer = GetComponent<Renderer>();
         }
 
-        switch (zoneType)
+        Material next = zoneType switch
         {
-            case ZoneType.Red:
-                tileRenderer.material = redMat;
-                break;
-            case ZoneType.Blue:
-                tileRenderer.material = blueMat;
-                break;
-            case ZoneType.Yellow:
-                tileRenderer.material = yellowMat;
-                break;
-            default:
-                tileRenderer.material = noneMat;
-                break;
+            ZoneType.Red => redMat,
+            ZoneType.Blue => blueMat,
+            ZoneType.Yellow => yellowMat,
+            _ => noneMat,
+        };
+
+        // Never assign null — Unity uses the pink error material and breaks the look.
+        if (next != null)
+        {
+            tileRenderer.material = next;
         }
     }
 
