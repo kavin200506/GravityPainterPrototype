@@ -93,7 +93,7 @@ public class InputManager : MonoBehaviour
         if (Input.touchCount > 0)
         {
             UnityEngine.Touch t = Input.GetTouch(0);
-            if (t.phase == TouchPhase.Began)
+            if (t.phase == UnityEngine.TouchPhase.Began)
             {
                 screenPosition = t.position;
                 return true;
