@@ -5,6 +5,8 @@ public class BallController : MonoBehaviour
 {
     public float forceStrength = 20f;
     public float maxPlanarSpeed = 4f;
+    [Tooltip("Opposes horizontal motion (rolling friction / drag). Higher = shorter coast.")]
+    public float planarDrag = 2.75f;
     public bool dampWhenNoZone = false;
     public float idlePlanarDamping = 8f;
     public float zoneProbeDistance = 2f;
@@ -25,9 +27,13 @@ public class BallController : MonoBehaviour
     {
         ResolveZoneFromGroundProbe();
 
-        if (currentZone != null || timeSinceLastZoneContact <= zoneRetentionTime)
+        bool onPaintedTile =
+            currentZone != null && currentZone.zoneType != ZoneType.None;
+        bool inRetention = timeSinceLastZoneContact <= zoneRetentionTime;
+
+        if (onPaintedTile)
         {
-            Vector3 direction = currentZone != null ? currentZone.GetForceDirection() : Vector3.zero;
+            Vector3 direction = currentZone.GetForceDirection();
             direction = GetContinuousDirection(direction);
             if (direction.sqrMagnitude > 0.0001f)
             {
@@ -38,10 +44,12 @@ public class BallController : MonoBehaviour
                 ApplyIdleDamping();
             }
         }
-        else if (dampWhenNoZone)
+        else if (dampWhenNoZone && (currentZone != null || inRetention))
         {
             ApplyIdleDamping();
         }
+
+        ApplyPlanarDrag();
 
         ClampPlanarSpeed();
     }
@@ -115,6 +123,23 @@ public class BallController : MonoBehaviour
                 currentZone = null;
             }
         }
+    }
+
+    private void ApplyPlanarDrag()
+    {
+        if (planarDrag <= 0f)
+        {
+            return;
+        }
+
+        Vector3 velocity = rb.linearVelocity;
+        Vector3 planar = new Vector3(velocity.x, 0f, velocity.z);
+        if (planar.sqrMagnitude < 1e-8f)
+        {
+            return;
+        }
+
+        rb.AddForce(-planar * planarDrag, ForceMode.Acceleration);
     }
 
     private void ClampPlanarSpeed()
