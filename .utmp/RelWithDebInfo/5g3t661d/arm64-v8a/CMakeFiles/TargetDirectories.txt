@@ -1,0 +1,5 @@
+U:/Projects/Game Developement/GravityPainterPrototype/.utmp/RelWithDebInfo/5g3t661d/arm64-v8a/CMakeFiles/edit_cache.dir
+U:/Projects/Game Developement/GravityPainterPrototype/.utmp/RelWithDebInfo/5g3t661d/arm64-v8a/CMakeFiles/rebuild_cache.dir
+U:/Projects/Game Developement/GravityPainterPrototype/.utmp/RelWithDebInfo/5g3t661d/arm64-v8a/GameActivity/CMakeFiles/game.dir
+U:/Projects/Game Developement/GravityPainterPrototype/.utmp/RelWithDebInfo/5g3t661d/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+U:/Projects/Game Developement/GravityPainterPrototype/.utmp/RelWithDebInfo/5g3t661d/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir
