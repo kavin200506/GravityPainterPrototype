@@ -5,8 +5,8 @@ public class BallController : MonoBehaviour
 {
     public float forceStrength = 20f;
     public float maxPlanarSpeed = 4f;
-    [Tooltip("Opposes horizontal motion (rolling friction / drag). Higher = shorter coast.")]
-    public float planarDrag = 2.75f;
+    [Tooltip("Opposes horizontal motion on grey tiles / in air only. Higher = shorter coast. 0 = almost no drag.")]
+    public float planarDrag = 1f;
     public bool dampWhenNoZone = false;
     public float idlePlanarDamping = 8f;
     public float zoneProbeDistance = 2f;
@@ -49,7 +49,11 @@ public class BallController : MonoBehaviour
             ApplyIdleDamping();
         }
 
-        ApplyPlanarDrag();
+        // Only slow down off painted tiles — drag here was fighting the push and killed long rolls.
+        if (!onPaintedTile)
+        {
+            ApplyPlanarDrag();
+        }
 
         ClampPlanarSpeed();
     }
