@@ -1220,8 +1220,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28d0609571db24665a08f8391042fd17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallController
-  forceStrength: 22
+  forceStrength: 15
   maxPlanarSpeed: 4
+  planarDrag: 2.75
   dampWhenNoZone: 0
   idlePlanarDamping: 8
   zoneProbeDistance: 2
@@ -1453,6 +1454,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FinishLine
   levelCompletePanel: {fileID: 1540361029}
   pauseGame: 0
+  minSecondsBeforeWin: 0.35
 --- !u!114 &559648605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1989,7 +1991,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1881610259467132094, guid: 7af6ef7e6a8164e6d92b1eee76914323, type: 3}
       propertyPath: zoneType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3808544509251842444, guid: 7af6ef7e6a8164e6d92b1eee76914323, type: 3}
       propertyPath: m_Name
@@ -2814,7 +2816,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 77d0ae360b2b74119a4cb3fe456163fb, type: 2}
     - target: {fileID: 1881610259467132094, guid: 7af6ef7e6a8164e6d92b1eee76914323, type: 3}
       propertyPath: zoneType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1881610259467132094, guid: 7af6ef7e6a8164e6d92b1eee76914323, type: 3}
       propertyPath: yellowMat
