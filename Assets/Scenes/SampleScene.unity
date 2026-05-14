@@ -449,7 +449,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 258906743}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -887,7 +887,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 392445284}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -1120,7 +1120,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 482856692}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -1157,7 +1157,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 483068337}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -1220,8 +1220,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28d0609571db24665a08f8391042fd17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallController
-  forceStrength: 2
+  forceStrength: 15
   maxPlanarSpeed: 4
+  planarDrag: 2.75
   dampWhenNoZone: 0
   idlePlanarDamping: 8
   zoneProbeDistance: 2
@@ -1329,8 +1330,8 @@ Rigidbody:
   m_GameObject: {fileID: 553668209}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0.5
-  m_AngularDamping: 0.5
+  m_LinearDamping: 0.05
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1452,7 +1453,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinishLine
   levelCompletePanel: {fileID: 1540361029}
-  pauseGame: 1
+  pauseGame: 0
+  minSecondsBeforeWin: 0.35
 --- !u!114 &559648605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1477,7 +1479,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 559648603}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -1499,7 +1501,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 569904608}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -1521,7 +1523,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 630487467}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -1642,7 +1644,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 723606908}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -1679,7 +1681,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 795114859}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -1701,7 +1703,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 796554169}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -1810,7 +1812,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 822742152}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -1881,7 +1883,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 861596052}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -1989,7 +1991,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1881610259467132094, guid: 7af6ef7e6a8164e6d92b1eee76914323, type: 3}
       propertyPath: zoneType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3808544509251842444, guid: 7af6ef7e6a8164e6d92b1eee76914323, type: 3}
       propertyPath: m_Name
@@ -2058,7 +2060,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1015553672}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -2080,7 +2082,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1081550634}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -2117,7 +2119,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1090258903}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -2139,7 +2141,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1132247712}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -2725,7 +2727,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1428828462}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -2747,7 +2749,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1447575616}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -2784,7 +2786,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1488878062}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -2814,7 +2816,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 77d0ae360b2b74119a4cb3fe456163fb, type: 2}
     - target: {fileID: 1881610259467132094, guid: 7af6ef7e6a8164e6d92b1eee76914323, type: 3}
       propertyPath: zoneType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1881610259467132094, guid: 7af6ef7e6a8164e6d92b1eee76914323, type: 3}
       propertyPath: yellowMat
@@ -3156,7 +3158,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1637317668}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -3268,7 +3270,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1652076032}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -3461,7 +3463,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1719150847}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -3704,7 +3706,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1806067503}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0
@@ -3900,7 +3902,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1923493035}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 1
@@ -3937,7 +3939,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1976058623}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaaa3e2514b6b4b3ca4ceb74436c426e, type: 3}
+  m_Script: {fileID: 11500000, guid: be7755a1bf3c44f0aaeba3c59006c65c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TileZone
   zoneType: 0

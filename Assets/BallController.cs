@@ -1,9 +1,12 @@
+using System;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
     public float forceStrength = 20f;
     public float maxPlanarSpeed = 4f;
+    [Tooltip("Opposes horizontal motion on grey tiles / in air only. Higher = shorter coast. 0 = almost no drag.")]
+    public float planarDrag = 1f;
     public bool dampWhenNoZone = false;
     public float idlePlanarDamping = 8f;
     public float zoneProbeDistance = 2f;
@@ -24,9 +27,13 @@ public class BallController : MonoBehaviour
     {
         ResolveZoneFromGroundProbe();
 
-        if (currentZone != null || timeSinceLastZoneContact <= zoneRetentionTime)
+        bool onPaintedTile =
+            currentZone != null && currentZone.zoneType != ZoneType.None;
+        bool inRetention = timeSinceLastZoneContact <= zoneRetentionTime;
+
+        if (onPaintedTile)
         {
-            Vector3 direction = currentZone != null ? currentZone.GetForceDirection() : Vector3.zero;
+            Vector3 direction = currentZone.GetForceDirection();
             direction = GetContinuousDirection(direction);
             if (direction.sqrMagnitude > 0.0001f)
             {
@@ -37,9 +44,15 @@ public class BallController : MonoBehaviour
                 ApplyIdleDamping();
             }
         }
-        else if (dampWhenNoZone)
+        else if (dampWhenNoZone && (currentZone != null || inRetention))
         {
             ApplyIdleDamping();
+        }
+
+        // Only slow down off painted tiles — drag here was fighting the push and killed long rolls.
+        if (!onPaintedTile)
+        {
+            ApplyPlanarDrag();
         }
 
         ClampPlanarSpeed();
@@ -50,14 +63,15 @@ public class BallController : MonoBehaviour
         TileZone zone = other.GetComponent<TileZone>() ?? other.GetComponentInParent<TileZone>();
         if (zone != null)
         {
-            currentZone = zone;
+            currentZone = TileZone.GetPrimaryZone(zone.gameObject) ?? zone;
         }
     }
 
     void OnTriggerExit(Collider other)
     {
         TileZone zone = other.GetComponent<TileZone>() ?? other.GetComponentInParent<TileZone>();
-        if (zone == currentZone)
+        TileZone primary = zone != null ? TileZone.GetPrimaryZone(zone.gameObject) : null;
+        if (primary != null && primary == currentZone)
         {
             currentZone = null;
         }
@@ -65,31 +79,38 @@ public class BallController : MonoBehaviour
 
     private void ResolveZoneFromGroundProbe()
     {
-        Vector3 origin = transform.position + Vector3.up * 0.15f;
-        RaycastHit[] hits = Physics.SphereCastAll(
+        // SphereCast starting inside/overlapping colliders often misses tiles. Cast downward from above the ball.
+        float castHeight = Mathf.Max(zoneProbeDistance, 2.5f);
+        Vector3 origin = transform.position + Vector3.up * castHeight;
+        RaycastHit[] hits = Physics.RaycastAll(
             origin,
-            zoneProbeRadius,
             Vector3.down,
-            zoneProbeDistance,
+            castHeight + 1f,
             Physics.DefaultRaycastLayers,
-            QueryTriggerInteraction.Collide
-        );
+            QueryTriggerInteraction.Collide);
 
         TileZone nearestZone = null;
-        float nearestDistance = float.MaxValue;
+
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider.attachedRigidbody == rb)
+            Collider col = hits[i].collider;
+            if (col == null)
             {
                 continue;
             }
 
-            TileZone zone = hits[i].collider.GetComponent<TileZone>() ?? hits[i].collider.GetComponentInParent<TileZone>();
-            if (zone != null && hits[i].distance < nearestDistance)
+            if (col.attachedRigidbody == rb || col.GetComponentInParent<BallController>() != null)
             {
-                nearestDistance = hits[i].distance;
-                nearestZone = zone;
+                continue;
+            }
+
+            TileZone zone = col.GetComponent<TileZone>() ?? col.GetComponentInParent<TileZone>();
+            if (zone != null)
+            {
+                nearestZone = TileZone.GetPrimaryZone(zone.gameObject) ?? zone;
+                break;
             }
         }
 
@@ -106,6 +127,23 @@ public class BallController : MonoBehaviour
                 currentZone = null;
             }
         }
+    }
+
+    private void ApplyPlanarDrag()
+    {
+        if (planarDrag <= 0f)
+        {
+            return;
+        }
+
+        Vector3 velocity = rb.linearVelocity;
+        Vector3 planar = new Vector3(velocity.x, 0f, velocity.z);
+        if (planar.sqrMagnitude < 1e-8f)
+        {
+            return;
+        }
+
+        rb.AddForce(-planar * planarDrag, ForceMode.Acceleration);
     }
 
     private void ClampPlanarSpeed()

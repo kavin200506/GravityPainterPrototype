@@ -1,48 +1,88 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
 public class InputManager : MonoBehaviour
 {
+    private const float RaycastDistance = 500f;
+
     private Camera mainCamera;
 
-    void Start()
+    private void Start()
     {
         mainCamera = Camera.main;
     }
 
-    void Update()
-{
-    if (mainCamera == null) return;
-
-    bool inputDetected = false;
-    Vector2 inputPosition = Vector2.zero;
-
-    // Mouse (PC)
-    if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+    private void Update()
     {
-        inputDetected = true;
-        inputPosition = Mouse.current.position.ReadValue();
-    }
-
-    // Touch (Android)
-    if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-    {
-        inputDetected = true;
-        inputPosition = Touchscreen.current.primaryTouch.position.ReadValue();
-    }
-
-    if (inputDetected)
-    {
-        Ray ray = mainCamera.ScreenPointToRay(inputPosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit))
+        if (mainCamera == null)
         {
-            TileZone tile = hit.collider.GetComponent<TileZone>();
+            return;
+        }
+
+        if (!TryGetPrimaryPointerDown(out Vector2 inputPosition))
+        {
+            return;
+        }
+
+        Ray ray = mainCamera.ScreenPointToRay(inputPosition);
+        RaycastHit[] hits = Physics.RaycastAll(
+            ray,
+            RaycastDistance,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Collide);
+
+        if (hits == null || hits.Length == 0)
+        {
+            return;
+        }
+
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider col = hits[i].collider;
+            if (col == null)
+            {
+                continue;
+            }
+
+            if (col.GetComponentInParent<BallController>() != null)
+            {
+                continue;
+            }
+
+            TileZone hitZone = col.GetComponent<TileZone>() ?? col.GetComponentInParent<TileZone>();
+            TileZone tile = TileZone.GetPrimaryZone(hitZone != null ? hitZone.gameObject : null);
             if (tile != null)
             {
                 tile.CycleZone();
+                break;
             }
         }
     }
-}
+
+    /// <summary>
+    /// Input System package only (mouse + touchscreen). No legacy Input Manager.
+    /// </summary>
+    private static bool TryGetPrimaryPointerDown(out Vector2 screenPosition)
+    {
+        screenPosition = default;
+
+        Mouse mouse = Mouse.current;
+        if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+        {
+            screenPosition = mouse.position.ReadValue();
+            return true;
+        }
+
+        Touchscreen touch = Touchscreen.current;
+        if (touch != null && touch.primaryTouch.press.wasPressedThisFrame)
+        {
+            screenPosition = touch.primaryTouch.position.ReadValue();
+            return true;
+        }
+
+        return false;
+    }
 }
