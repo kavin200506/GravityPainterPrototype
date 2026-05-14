@@ -63,7 +63,7 @@ public class InputManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Works with New Input System, legacy Input Manager, mouse and touch (including Android).
+    /// Input System package only (mouse + touchscreen). No legacy Input Manager.
     /// </summary>
     private static bool TryGetPrimaryPointerDown(out Vector2 screenPosition)
     {
@@ -82,24 +82,6 @@ public class InputManager : MonoBehaviour
             screenPosition = touch.primaryTouch.position.ReadValue();
             return true;
         }
-
-#if ENABLE_LEGACY_INPUT_MANAGER
-        if (Input.GetMouseButtonDown(0))
-        {
-            screenPosition = Input.mousePosition;
-            return true;
-        }
-
-        if (Input.touchCount > 0)
-        {
-            UnityEngine.Touch t = Input.GetTouch(0);
-            if (t.phase == UnityEngine.TouchPhase.Began)
-            {
-                screenPosition = t.position;
-                return true;
-            }
-        }
-#endif
 
         return false;
     }
