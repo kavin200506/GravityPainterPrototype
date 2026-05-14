@@ -1,0 +1,2 @@
+U:\Projects\Game Developement\GravityPainterPrototype\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\CMakeLists.txt
+U:\Projects\Game Developement\GravityPainterPrototype\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\GameActivity\CMakeLists.txt
