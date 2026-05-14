@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
@@ -65,31 +66,38 @@ public class BallController : MonoBehaviour
 
     private void ResolveZoneFromGroundProbe()
     {
-        Vector3 origin = transform.position + Vector3.up * 0.15f;
-        RaycastHit[] hits = Physics.SphereCastAll(
+        // SphereCast starting inside/overlapping colliders often misses tiles. Cast downward from above the ball.
+        float castHeight = Mathf.Max(zoneProbeDistance, 2.5f);
+        Vector3 origin = transform.position + Vector3.up * castHeight;
+        RaycastHit[] hits = Physics.RaycastAll(
             origin,
-            zoneProbeRadius,
             Vector3.down,
-            zoneProbeDistance,
+            castHeight + 1f,
             Physics.DefaultRaycastLayers,
-            QueryTriggerInteraction.Collide
-        );
+            QueryTriggerInteraction.Collide);
 
         TileZone nearestZone = null;
-        float nearestDistance = float.MaxValue;
+
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider.attachedRigidbody == rb)
+            Collider col = hits[i].collider;
+            if (col == null)
             {
                 continue;
             }
 
-            TileZone zone = hits[i].collider.GetComponent<TileZone>() ?? hits[i].collider.GetComponentInParent<TileZone>();
-            if (zone != null && hits[i].distance < nearestDistance)
+            if (col.attachedRigidbody == rb || col.GetComponentInParent<BallController>() != null)
             {
-                nearestDistance = hits[i].distance;
+                continue;
+            }
+
+            TileZone zone = col.GetComponent<TileZone>() ?? col.GetComponentInParent<TileZone>();
+            if (zone != null)
+            {
                 nearestZone = zone;
+                break;
             }
         }
 
