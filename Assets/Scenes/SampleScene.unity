@@ -1267,12 +1267,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28d0609571db24665a08f8391042fd17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallController
-  forceStrength: 2
-  maxPlanarSpeed: 4
+  forceStrength: 14
+  maxPlanarSpeed: 5
+  planarDrag: 0.55
   dampWhenNoZone: 0
   idlePlanarDamping: 8
-  zoneProbeDistance: 2
-  zoneProbeRadius: 0.35
+  zoneProbeRadius: 0.48
   zoneRetentionTime: 0.15
 --- !u!135 &553668212
 SphereCollider:
