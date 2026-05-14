@@ -51,14 +51,15 @@ public class BallController : MonoBehaviour
         TileZone zone = other.GetComponent<TileZone>() ?? other.GetComponentInParent<TileZone>();
         if (zone != null)
         {
-            currentZone = zone;
+            currentZone = TileZone.GetPrimaryZone(zone.gameObject) ?? zone;
         }
     }
 
     void OnTriggerExit(Collider other)
     {
         TileZone zone = other.GetComponent<TileZone>() ?? other.GetComponentInParent<TileZone>();
-        if (zone == currentZone)
+        TileZone primary = zone != null ? TileZone.GetPrimaryZone(zone.gameObject) : null;
+        if (primary != null && primary == currentZone)
         {
             currentZone = null;
         }
@@ -96,7 +97,7 @@ public class BallController : MonoBehaviour
             TileZone zone = col.GetComponent<TileZone>() ?? col.GetComponentInParent<TileZone>();
             if (zone != null)
             {
-                nearestZone = zone;
+                nearestZone = TileZone.GetPrimaryZone(zone.gameObject) ?? zone;
                 break;
             }
         }

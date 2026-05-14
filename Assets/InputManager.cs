@@ -20,22 +20,7 @@ public class InputManager : MonoBehaviour
             return;
         }
 
-        bool inputDetected = false;
-        Vector2 inputPosition = Vector2.zero;
-
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            inputDetected = true;
-            inputPosition = Mouse.current.position.ReadValue();
-        }
-
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-        {
-            inputDetected = true;
-            inputPosition = Touchscreen.current.primaryTouch.position.ReadValue();
-        }
-
-        if (!inputDetected)
+        if (!TryGetPrimaryPointerDown(out Vector2 inputPosition))
         {
             return;
         }
@@ -67,12 +52,55 @@ public class InputManager : MonoBehaviour
                 continue;
             }
 
-            TileZone tile = col.GetComponent<TileZone>() ?? col.GetComponentInParent<TileZone>();
+            TileZone hitZone = col.GetComponent<TileZone>() ?? col.GetComponentInParent<TileZone>();
+            TileZone tile = TileZone.GetPrimaryZone(hitZone != null ? hitZone.gameObject : null);
             if (tile != null)
             {
                 tile.CycleZone();
                 break;
             }
         }
+    }
+
+    /// <summary>
+    /// Works with New Input System, legacy Input Manager, mouse and touch (including Android).
+    /// </summary>
+    private static bool TryGetPrimaryPointerDown(out Vector2 screenPosition)
+    {
+        screenPosition = default;
+
+        Mouse mouse = Mouse.current;
+        if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+        {
+            screenPosition = mouse.position.ReadValue();
+            return true;
+        }
+
+        Touchscreen touch = Touchscreen.current;
+        if (touch != null && touch.primaryTouch.press.wasPressedThisFrame)
+        {
+            screenPosition = touch.primaryTouch.position.ReadValue();
+            return true;
+        }
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+        if (Input.GetMouseButtonDown(0))
+        {
+            screenPosition = Input.mousePosition;
+            return true;
+        }
+
+        if (Input.touchCount > 0)
+        {
+            UnityEngine.Touch t = Input.GetTouch(0);
+            if (t.phase == TouchPhase.Began)
+            {
+                screenPosition = t.position;
+                return true;
+            }
+        }
+#endif
+
+        return false;
     }
 }

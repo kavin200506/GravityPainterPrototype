@@ -42,20 +42,85 @@ public class TileZone : MonoBehaviour
         return redMat != null && blueMat != null && yellowMat != null && noneMat != null;
     }
 
+    /// <summary>Prefab-backed instance (scene duplicates often have null material refs).</summary>
+    public bool HasAuthoritativeMaterials()
+    {
+        return HasAllMaterials();
+    }
+
+    public static TileZone GetPrimaryZone(GameObject go)
+    {
+        if (go == null)
+        {
+            return null;
+        }
+
+        TileZone[] zones = go.GetComponents<TileZone>();
+        for (int i = 0; i < zones.Length; i++)
+        {
+            if (zones[i].HasAuthoritativeMaterials())
+            {
+                return zones[i];
+            }
+        }
+
+        return zones.Length > 0 ? zones[0] : null;
+    }
+
     private void Start()
     {
+        SyncZoneTypeFromPrimary();
         tileRenderer = GetComponent<Renderer>();
         UpdateVisual();
     }
 
+    private void SyncZoneTypeFromPrimary()
+    {
+        TileZone primary = GetPrimaryZone(gameObject);
+        if (primary == null)
+        {
+            return;
+        }
+
+        ZoneType t = primary.zoneType;
+        foreach (TileZone z in GetComponents<TileZone>())
+        {
+            z.zoneType = t;
+        }
+    }
+
     public void CycleZone()
     {
-        if (zoneType == ZoneType.None) zoneType = ZoneType.Red;
-        else if (zoneType == ZoneType.Red) zoneType = ZoneType.Blue;
-        else if (zoneType == ZoneType.Blue) zoneType = ZoneType.Yellow;
-        else if (zoneType == ZoneType.Yellow) zoneType = ZoneType.None;
+        TileZone[] zones = GetComponents<TileZone>();
+        TileZone primary = GetPrimaryZone(gameObject);
+        if (primary == null && zones.Length > 0)
+        {
+            primary = zones[0];
+        }
 
-        UpdateVisual();
+        ZoneType t = primary != null ? primary.zoneType : zoneType;
+        if (t == ZoneType.None)
+        {
+            t = ZoneType.Red;
+        }
+        else if (t == ZoneType.Red)
+        {
+            t = ZoneType.Blue;
+        }
+        else if (t == ZoneType.Blue)
+        {
+            t = ZoneType.Yellow;
+        }
+        else
+        {
+            t = ZoneType.None;
+        }
+
+        for (int i = 0; i < zones.Length; i++)
+        {
+            zones[i].zoneType = t;
+            zones[i].UpdateVisual();
+        }
     }
 
     public void UpdateVisual()

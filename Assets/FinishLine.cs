@@ -8,13 +8,20 @@ using UnityEngine.SceneManagement;
 public class FinishLine : MonoBehaviour
 {
     [SerializeField] private GameObject levelCompletePanel;
-    [SerializeField] private bool pauseGame = true;
+    [SerializeField] private bool pauseGame;
+    [SerializeField] [Tooltip("Ignore early overlaps (e.g. spawn inside trigger) before this many seconds.")]
+    private float minSecondsBeforeWin = 0.35f;
 
     private bool _completed;
 
     private void OnTriggerEnter(Collider other)
     {
         if (_completed)
+        {
+            return;
+        }
+
+        if (Time.timeSinceLevelLoad < minSecondsBeforeWin)
         {
             return;
         }

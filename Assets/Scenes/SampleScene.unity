@@ -1452,7 +1452,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinishLine
   levelCompletePanel: {fileID: 1540361029}
-  pauseGame: 1
+  pauseGame: 0
 --- !u!114 &559648605
 MonoBehaviour:
   m_ObjectHideFlags: 0
