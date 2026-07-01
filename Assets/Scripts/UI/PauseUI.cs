@@ -86,7 +86,7 @@ public class PauseUI : MonoBehaviour
         panelRect.anchorMin = new Vector2(0.5f, 0.5f);
         panelRect.anchorMax = new Vector2(0.5f, 0.5f);
         panelRect.pivot = new Vector2(0.5f, 0.5f);
-        panelRect.sizeDelta = new Vector2(800f, 1400f);
+        panelRect.sizeDelta = new Vector2(900f, 1500f);
 
         Image panelImage = panelObj.AddComponent<Image>();
         Sprite bgSprite = Resources.Load<Sprite>("UI/PauseBackground");
@@ -115,27 +115,34 @@ public class PauseUI : MonoBehaviour
         GameObject resumeBtnObj = new GameObject("ResumeButton");
         resumeBtnObj.transform.SetParent(panelObj.transform, false);
         RectTransform resumeRect = resumeBtnObj.AddComponent<RectTransform>();
-        resumeRect.sizeDelta = new Vector2(500f, 180f);
+        resumeRect.sizeDelta = new Vector2(250f, 250f); // Square for the icon
         resumeRect.anchoredPosition = new Vector2(0f, 200f); // Shifted up further
 
         Image resumeImg = resumeBtnObj.AddComponent<Image>();
-        resumeImg.color = new Color(0.2f, 0.6f, 1f, 1f);
+        Sprite resumeSprite = Resources.Load<Sprite>("UI/ResumeIcon");
+        if (resumeSprite == null)
+        {
+            Texture2D tex = Resources.Load<Texture2D>("UI/ResumeIcon");
+            if (tex != null)
+            {
+                resumeSprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            }
+        }
+
+        if (resumeSprite != null)
+        {
+            resumeImg.sprite = resumeSprite;
+            resumeImg.color = Color.white;
+            resumeImg.preserveAspect = true;
+        }
+        else
+        {
+            resumeImg.color = new Color(0.2f, 0.6f, 1f, 1f);
+        }
+
         Button resumeBtn = resumeBtnObj.AddComponent<Button>();
         resumeBtn.onClick.AddListener(TogglePause);
 
-        GameObject resumeTextObj = new GameObject("Text (TMP)");
-        resumeTextObj.transform.SetParent(resumeBtnObj.transform, false);
-        RectTransform rTextRect = resumeTextObj.AddComponent<RectTransform>();
-        rTextRect.anchorMin = Vector2.zero;
-        rTextRect.anchorMax = Vector2.one;
-        rTextRect.offsetMin = Vector2.zero;
-        rTextRect.offsetMax = Vector2.zero;
-        
-        TextMeshProUGUI resumeText = resumeTextObj.AddComponent<TextMeshProUGUI>();
-        resumeText.text = "Resume";
-        resumeText.alignment = TextAlignmentOptions.Center;
-        resumeText.fontSize = 70f;
-        resumeText.color = Color.white;
 
         // Restart Button inside PausePanel
         GameObject restartBtnObj = new GameObject("RestartButton");
