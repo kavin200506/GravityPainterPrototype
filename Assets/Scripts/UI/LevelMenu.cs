@@ -74,7 +74,59 @@ public class LevelMenu : MonoBehaviour
 
         RemoveLegacyButtons();
         BuildScrollView();
+        BuildBackButton();
         _uiBuilt = true;
+    }
+
+    private void BuildBackButton()
+    {
+        Transform existing = transform.Find("BackButton");
+        if (existing != null) return;
+
+        GameObject backObj = new GameObject("BackButton", typeof(RectTransform), typeof(Image), typeof(Button));
+        backObj.transform.SetParent(transform, false);
+        backObj.transform.SetAsLastSibling();
+
+        RectTransform backRect = backObj.GetComponent<RectTransform>();
+        backRect.anchorMin = new Vector2(1f, 1f);
+        backRect.anchorMax = new Vector2(1f, 1f);
+        backRect.pivot = new Vector2(1f, 1f);
+        backRect.anchoredPosition = new Vector2(-50f, -50f);
+        backRect.sizeDelta = new Vector2(150f, 150f);
+
+        Image backImg = backObj.GetComponent<Image>();
+        backImg.color = new Color(0.8f, 0.2f, 0.2f, 1f);
+
+        GameObject textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textObj.transform.SetParent(backObj.transform, false);
+        RectTransform textRect = textObj.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI text = textObj.GetComponent<TextMeshProUGUI>();
+        text.text = "X";
+        text.alignment = TextAlignmentOptions.Center;
+        text.fontSize = 80f;
+        text.fontStyle = FontStyles.Bold;
+        text.color = Color.white;
+
+        Button backBtn = backObj.GetComponent<Button>();
+        backBtn.onClick.AddListener(CloseMenu);
+    }
+
+    private void CloseMenu()
+    {
+        MainMenu menu = FindFirstObjectByType<MainMenu>();
+        if (menu != null)
+        {
+            menu.CloseLevelSelect();
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     private void RemoveLegacyButtons()

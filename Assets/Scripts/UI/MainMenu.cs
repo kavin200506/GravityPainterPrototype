@@ -285,6 +285,15 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    public void CloseLevelSelect()
+    {
+        if (levelsPanel != null)
+            levelsPanel.SetActive(false);
+
+        if (mainMenuRoot != null)
+            mainMenuRoot.SetActive(true);
+    }
+
     public void OpenHowToPlay()
     {
         if (mainMenuRoot != null)
