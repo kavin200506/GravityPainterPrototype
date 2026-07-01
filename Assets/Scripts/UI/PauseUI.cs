@@ -116,7 +116,7 @@ public class PauseUI : MonoBehaviour
         resumeBtnObj.transform.SetParent(panelObj.transform, false);
         RectTransform resumeRect = resumeBtnObj.AddComponent<RectTransform>();
         resumeRect.sizeDelta = new Vector2(500f, 180f);
-        resumeRect.anchoredPosition = new Vector2(0f, 120f); // Shifted up
+        resumeRect.anchoredPosition = new Vector2(0f, 200f); // Shifted up further
 
         Image resumeImg = resumeBtnObj.AddComponent<Image>();
         resumeImg.color = new Color(0.2f, 0.6f, 1f, 1f);
@@ -142,7 +142,7 @@ public class PauseUI : MonoBehaviour
         restartBtnObj.transform.SetParent(panelObj.transform, false);
         RectTransform restartRect = restartBtnObj.AddComponent<RectTransform>();
         restartRect.sizeDelta = new Vector2(500f, 180f);
-        restartRect.anchoredPosition = new Vector2(0f, -120f); // Shifted down
+        restartRect.anchoredPosition = new Vector2(0f, 0f); // Centered
 
         Image restartImg = restartBtnObj.AddComponent<Image>();
         restartImg.color = new Color(1f, 0.4f, 0.2f, 1f);
@@ -162,6 +162,32 @@ public class PauseUI : MonoBehaviour
         restartText.alignment = TextAlignmentOptions.Center;
         restartText.fontSize = 70f;
         restartText.color = Color.white;
+
+        // Home Button inside PausePanel
+        GameObject homeBtnObj = new GameObject("HomeButton");
+        homeBtnObj.transform.SetParent(panelObj.transform, false);
+        RectTransform homeRect = homeBtnObj.AddComponent<RectTransform>();
+        homeRect.sizeDelta = new Vector2(500f, 180f);
+        homeRect.anchoredPosition = new Vector2(0f, -200f); // Shifted down
+
+        Image homeImg = homeBtnObj.AddComponent<Image>();
+        homeImg.color = new Color(0.2f, 0.8f, 0.3f, 1f);
+        Button homeBtn = homeBtnObj.AddComponent<Button>();
+        homeBtn.onClick.AddListener(GoHome);
+
+        GameObject homeTextObj = new GameObject("Text (TMP)");
+        homeTextObj.transform.SetParent(homeBtnObj.transform, false);
+        RectTransform hTextRect = homeTextObj.AddComponent<RectTransform>();
+        hTextRect.anchorMin = Vector2.zero;
+        hTextRect.anchorMax = Vector2.one;
+        hTextRect.offsetMin = Vector2.zero;
+        hTextRect.offsetMax = Vector2.zero;
+        
+        TextMeshProUGUI homeText = homeTextObj.AddComponent<TextMeshProUGUI>();
+        homeText.text = "Home";
+        homeText.alignment = TextAlignmentOptions.Center;
+        homeText.fontSize = 70f;
+        homeText.color = Color.white;
 
 
         // 2. Pause Button (Top Right)
@@ -234,6 +260,13 @@ public class PauseUI : MonoBehaviour
         {
             SceneManager.LoadScene(active.name);
         }
+    }
+
+    private void GoHome()
+    {
+        Time.timeScale = 1f;
+        MainMenu.RequestOpenLevelSelect();
+        SceneManager.LoadScene("MainMenu");
     }
     
     private void OnDestroy()
