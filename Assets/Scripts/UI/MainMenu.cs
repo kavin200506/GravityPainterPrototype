@@ -20,11 +20,11 @@ public class MainMenu : MonoBehaviour
 
     [Header("Button Layout")]
     [SerializeField] private bool useManualButtonLayout = true;
-    [SerializeField] private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(0f, 290f), new Vector2(640f, 140f));
-    [SerializeField] private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-339f, -50f), new Vector2(420f, 240f));
-    [SerializeField] private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-116f, -50f), new Vector2(420f, 240f));
-    [SerializeField] private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(122f, -50f), new Vector2(420f, 240f));
-    [SerializeField] private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(354f, -50f), new Vector2(420f, 240f));
+    [SerializeField] private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(0f, -87f), new Vector2(640f, 140f), new Vector3(6f, 6f, 1f));
+    [SerializeField] private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-324f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
+    [SerializeField] private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-101f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
+    [SerializeField] private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(122f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
+    [SerializeField] private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(354f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
 
     private void OnValidate()
     {
@@ -171,6 +171,7 @@ public class MainMenu : MonoBehaviour
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.anchoredPosition = layout.anchoredPosition;
         rect.sizeDelta = layout.sizeDelta;
+        rect.localScale = layout.localScale;
 
         if (buttonTransform.TryGetComponent(out Image image))
             image.preserveAspect = true;

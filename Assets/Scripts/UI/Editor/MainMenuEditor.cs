@@ -38,15 +38,15 @@ public class MainMenuEditor : Editor
     private static void ResetDefaults(MainMenu mainMenu)
     {
         SerializedObject serialized = new SerializedObject(mainMenu);
-        serialized.FindProperty("menuRootPosition").vector2Value = new Vector2(0f, -40f);
-        serialized.FindProperty("menuRootSize").vector2Value = new Vector2(560f, 720f);
+        serialized.FindProperty("menuRootPosition").vector2Value = new Vector2(0f, 0f);
+        serialized.FindProperty("menuRootSize").vector2Value = new Vector2(1100f, 820f);
         serialized.FindProperty("useManualButtonLayout").boolValue = true;
 
-        SetButtonLayout(serialized, "playButtonLayout", "Play", new Vector2(0f, 240f), new Vector2(520f, 120f));
-        SetButtonLayout(serialized, "settingsButtonLayout", "Settings", new Vector2(0f, 120f), new Vector2(520f, 120f));
-        SetButtonLayout(serialized, "storeButtonLayout", "Store", new Vector2(0f, 0f), new Vector2(520f, 120f));
-        SetButtonLayout(serialized, "levelsButtonLayout", "Levels", new Vector2(0f, -120f), new Vector2(520f, 120f));
-        SetButtonLayout(serialized, "howToPlayButtonLayout", "HowToPlay", new Vector2(0f, -240f), new Vector2(520f, 120f));
+        SetButtonLayout(serialized, "playButtonLayout", "Play", new Vector2(0f, -87f), new Vector2(640f, 140f), new Vector3(6f, 6f, 1f));
+        SetButtonLayout(serialized, "levelsButtonLayout", "Levels", new Vector2(-324f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
+        SetButtonLayout(serialized, "howToPlayButtonLayout", "HowToPlay", new Vector2(-101f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
+        SetButtonLayout(serialized, "storeButtonLayout", "Store", new Vector2(122f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
+        SetButtonLayout(serialized, "settingsButtonLayout", "Settings", new Vector2(354f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
         serialized.ApplyModifiedProperties();
     }
 
@@ -55,7 +55,8 @@ public class MainMenuEditor : Editor
         string propertyName,
         string buttonName,
         Vector2 position,
-        Vector2 size)
+        Vector2 size,
+        Vector3 scale)
     {
         SerializedProperty property = serialized.FindProperty(propertyName);
         if (property == null)
@@ -64,6 +65,7 @@ public class MainMenuEditor : Editor
         property.FindPropertyRelative("buttonName").stringValue = buttonName;
         property.FindPropertyRelative("anchoredPosition").vector2Value = position;
         property.FindPropertyRelative("sizeDelta").vector2Value = size;
+        property.FindPropertyRelative("localScale").vector3Value = scale;
     }
 }
 #endif

@@ -134,7 +134,7 @@ public class StoreUI : MonoBehaviour
     private void UpdateCoinDisplay()
     {
         if (coinDisplay != null)
-            coinDisplay.text = "Coins: " + CoinManager.GetTotalCoins();
+            coinDisplay.text = CoinManager.GetTotalCoins().ToString();
     }
 
     private void RebuildCards()
