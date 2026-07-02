@@ -19,7 +19,6 @@ public class GameplayMusicController : MonoBehaviour
 
     private static readonly HashSet<string> NonGameplayScenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        "MainMenu",
         "LoadingScene",
         "DeveloperProceduralLevelSelect",
     };
