@@ -4,6 +4,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public static class SetupMainMenuButtons
 {
@@ -27,6 +28,64 @@ public static class SetupMainMenuButtons
             "MainMenu now has Play, Settings, Store, Levels, and How To Play.\n\n"
             + "Quit was removed. Select Canvas > MainMenu to adjust layout.",
             "OK");
+    }
+
+    [MenuItem("Gravity Painter/Style All Back Buttons")]
+    public static void StyleAllBackButtons()
+    {
+        Sprite newSprite = LoadSprite("Assets/Resources/UI/back_button.png");
+        if (newSprite == null)
+        {
+            Debug.LogError("Could not find sprite at Assets/Resources/UI/back_button.png! Please import it exactly at this path first.");
+            EditorUtility.DisplayDialog("Error", "Could not find sprite at Assets/Resources/UI/back_button.png!\n\nPlease import your back button image into that folder and name it 'back_button.png'.", "OK");
+            return;
+        }
+
+        int updatedCount = 0;
+        Button[] allButtons = Object.FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Button btn in allButtons)
+        {
+            if (btn.name == "BackButton" || btn.name == "Back")
+            {
+                RectTransform rect = btn.GetComponent<RectTransform>();
+                if (rect != null)
+                {
+                    rect.sizeDelta = new Vector2(240f, 96f); // Shorter size
+                }
+
+                Image img = btn.GetComponent<Image>();
+                if (img != null)
+                {
+                    img.sprite = newSprite;
+                    img.color = Color.white;
+                    img.type = Image.Type.Simple;
+                }
+
+                // Remove the "X" text or "Back" text child
+                TextMeshProUGUI tmpText = btn.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (tmpText != null)
+                    tmpText.text = "";
+
+                Text legacyText = btn.GetComponentInChildren<Text>(true);
+                if (legacyText != null)
+                    legacyText.text = "";
+
+                EditorUtility.SetDirty(btn.gameObject);
+                updatedCount++;
+            }
+        }
+
+        LevelMenu[] levelMenus = Object.FindObjectsByType<LevelMenu>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (LevelMenu lm in levelMenus)
+        {
+            SerializedObject so = new SerializedObject(lm);
+            so.FindProperty("backButtonSize").vector2Value = new Vector2(240f, 96f);
+            so.ApplyModifiedProperties();
+            EditorUtility.SetDirty(lm);
+        }
+
+        EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+        EditorUtility.DisplayDialog("Success", $"Updated {updatedCount} Back buttons to use the new shorter size and sprite!", "OK");
     }
 
     public static void RunFromBatch()

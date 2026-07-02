@@ -112,22 +112,32 @@ public class LevelMenu : MonoBehaviour
         backRect.sizeDelta = backButtonSize;
 
         Image backImg = backObj.GetComponent<Image>();
-        backImg.color = new Color(0.8f, 0.2f, 0.2f, 1f);
+        Sprite customSprite = Resources.Load<Sprite>("UI/back_button");
+        if (customSprite != null)
+        {
+            backImg.sprite = customSprite;
+            backImg.color = Color.white;
+            backImg.type = Image.Type.Simple;
+        }
+        else
+        {
+            backImg.color = new Color(0.8f, 0.2f, 0.2f, 1f);
+            
+            GameObject textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+            textObj.transform.SetParent(backObj.transform, false);
+            RectTransform textRect = textObj.GetComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.offsetMin = Vector2.zero;
+            textRect.offsetMax = Vector2.zero;
 
-        GameObject textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        textObj.transform.SetParent(backObj.transform, false);
-        RectTransform textRect = textObj.GetComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = Vector2.zero;
-        textRect.offsetMax = Vector2.zero;
-
-        TextMeshProUGUI text = textObj.GetComponent<TextMeshProUGUI>();
-        text.text = "X";
-        text.alignment = TextAlignmentOptions.Center;
-        text.fontSize = 80f;
-        text.fontStyle = FontStyles.Bold;
-        text.color = Color.white;
+            TextMeshProUGUI text = textObj.GetComponent<TextMeshProUGUI>();
+            text.text = "X";
+            text.alignment = TextAlignmentOptions.Center;
+            text.fontSize = 80f;
+            text.fontStyle = FontStyles.Bold;
+            text.color = Color.white;
+        }
 
         Button backBtn = backObj.GetComponent<Button>();
         backBtn.onClick.AddListener(CloseMenu);
