@@ -11,6 +11,8 @@ public class GameOverUI : MonoBehaviour
     {
         if (_canvas != null) return;
 
+        Time.timeScale = 0f;
+
         GameObject canvasObj = new GameObject("GameOverCanvas");
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
