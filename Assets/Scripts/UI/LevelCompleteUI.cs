@@ -277,6 +277,9 @@ public class LevelCompleteUI : MonoBehaviour
 
     public void RestartLevel()
     {
+        LifeManager.ResetLives();
+        CoinManager.ResetSessionCoins();
+
         if (IsProceduralMode || LevelProgress.IsProceduralScene(SceneManager.GetActiveScene()))
         {
             if (proceduralBuilder == null)
@@ -309,6 +312,9 @@ public class LevelCompleteUI : MonoBehaviour
 
     public void GoToNextLevel()
     {
+        LifeManager.ResetLives();
+        CoinManager.ResetSessionCoins();
+
         if (IsProceduralMode || LevelProgress.IsProceduralScene(SceneManager.GetActiveScene()))
         {
             if (proceduralBuilder == null)

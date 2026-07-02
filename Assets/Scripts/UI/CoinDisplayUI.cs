@@ -1,20 +1,22 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// Place this on a UI Text element (TextMeshPro) to display the total coins.
-/// </summary>
+[RequireComponent(typeof(Button))]
 public class CoinDisplayUI : MonoBehaviour
 {
-    [Tooltip("The TextMeshPro element to update. If left empty, it will try to find one on this object.")]
+    public Button Button { get; private set; }
     [SerializeField] private TextMeshProUGUI coinText;
+    [SerializeField] private Image coinIcon;
 
     private void Awake()
     {
-        // Auto-assign the text component if you attach this script directly to a Text element
+        Button = GetComponent<Button>();
         if (coinText == null)
         {
             coinText = GetComponent<TextMeshProUGUI>();
+            if (coinText == null)
+                coinText = GetComponentInChildren<TextMeshProUGUI>();
         }
     }
 
@@ -26,9 +28,20 @@ public class CoinDisplayUI : MonoBehaviour
     public void UpdateCoinDisplay()
     {
         if (coinText != null)
+            coinText.text = CoinManager.GetTotalCoins().ToString();
+
+        if (coinIcon == null)
         {
-            // Update the text to show the saved total coins
-            coinText.text = "Total Coins: " + CoinManager.GetTotalCoins().ToString();
+            Transform iconT = transform.Find("CoinIcon");
+            if (iconT != null)
+                coinIcon = iconT.GetComponent<Image>();
+        }
+
+        if (coinIcon != null && coinIcon.sprite == null)
+        {
+            Sprite s = Resources.Load<Sprite>("UI/coin_icon");
+            if (s != null)
+                coinIcon.sprite = s;
         }
     }
 }

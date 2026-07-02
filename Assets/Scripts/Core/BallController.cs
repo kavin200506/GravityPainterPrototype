@@ -104,6 +104,9 @@ public class BallController : MonoBehaviour
         _powerUpManager = GetComponent<PowerUpManager>();
         if (_powerUpManager == null)
             _powerUpManager = gameObject.AddComponent<PowerUpManager>();
+
+        _spawnPosition = transform.position;
+        _hasSpawnPosition = true;
     }
 
     /// <summary>Moves the ball to a spawn point and clears physics velocity.</summary>
@@ -283,7 +286,7 @@ public class BallController : MonoBehaviour
             float delay = GetFallRestartDelay();
             if (_fallElapsed >= delay)
             {
-                RestartCurrentLevel();
+                HandleDeath();
             }
         }
         else
@@ -300,6 +303,7 @@ public class BallController : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
         transform.position = _spawnPosition;
         Physics.SyncTransforms();
+        _fallElapsed = 0f;
     }
 
     public void DestroyFromObstacle()
@@ -307,7 +311,41 @@ public class BallController : MonoBehaviour
         if (_restarting)
             return;
 
-        RestartCurrentLevel();
+        HandleDeath();
+    }
+
+    private void HandleDeath()
+    {
+        if (_restarting)
+            return;
+
+        _restarting = true;
+        Time.timeScale = 1f;
+
+        if (_powerUpManager != null)
+            _powerUpManager.ClearAllPowerUps();
+
+        if (LifeManager.LoseLife())
+        {
+            _restarting = false;
+
+            if (_checkpointPosition != null)
+            {
+                TeleportToCheckpoint();
+            }
+            else if (_hasSpawnPosition)
+            {
+                TeleportToSpawn();
+            }
+            else
+            {
+                RestartCurrentLevel();
+            }
+        }
+        else
+        {
+            GameOverUI.Show();
+        }
     }
 
     /// <summary>Whether the ball is currently resolved to the given tile zone.</summary>
@@ -560,6 +598,7 @@ public class BallController : MonoBehaviour
         transform.position = _checkpointPosition.Value + Vector3.up * 1f;
         Physics.SyncTransforms();
         _fallElapsed = 0f;
+        _restarting = false;
     }
 
     private void FixedUpdate()

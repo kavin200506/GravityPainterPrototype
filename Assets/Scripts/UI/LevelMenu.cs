@@ -23,6 +23,11 @@ public class LevelMenu : MonoBehaviour
     [SerializeField] private Color focusColor = new Color(0.2f, 0.45f, 0.85f, 1f);
     [SerializeField] private Color textColor = Color.white;
 
+    [Header("Back Button Layout")]
+    [SerializeField] private Vector2 backButtonPosition = new Vector2(400f, 700f);
+    [SerializeField] private Vector2 backButtonSize = new Vector2(150f, 150f);
+    [SerializeField] private Vector2 backButtonAnchor = new Vector2(0.5f, 0.5f);
+
     private ScrollRect _scrollRect;
     private RectTransform _content;
     private readonly List<Button> _spawnedButtons = new List<Button>();
@@ -81,18 +86,30 @@ public class LevelMenu : MonoBehaviour
     private void BuildBackButton()
     {
         Transform existing = transform.Find("BackButton");
-        if (existing != null) return;
+        if (existing != null)
+        {
+            RectTransform existingRect = existing.GetComponent<RectTransform>();
+            if (existingRect != null)
+            {
+                existingRect.anchorMin = backButtonAnchor;
+                existingRect.anchorMax = backButtonAnchor;
+                existingRect.pivot = new Vector2(0.5f, 0.5f);
+                existingRect.anchoredPosition = backButtonPosition;
+                existingRect.sizeDelta = backButtonSize;
+            }
+            return;
+        }
 
         GameObject backObj = new GameObject("BackButton", typeof(RectTransform), typeof(Image), typeof(Button));
         backObj.transform.SetParent(transform, false);
         backObj.transform.SetAsLastSibling();
 
         RectTransform backRect = backObj.GetComponent<RectTransform>();
-        backRect.anchorMin = new Vector2(1f, 1f);
-        backRect.anchorMax = new Vector2(1f, 1f);
-        backRect.pivot = new Vector2(1f, 1f);
-        backRect.anchoredPosition = new Vector2(-50f, -50f);
-        backRect.sizeDelta = new Vector2(150f, 150f);
+        backRect.anchorMin = backButtonAnchor;
+        backRect.anchorMax = backButtonAnchor;
+        backRect.pivot = new Vector2(0.5f, 0.5f);
+        backRect.anchoredPosition = backButtonPosition;
+        backRect.sizeDelta = backButtonSize;
 
         Image backImg = backObj.GetComponent<Image>();
         backImg.color = new Color(0.8f, 0.2f, 0.2f, 1f);

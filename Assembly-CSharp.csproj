@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Coin.cs" />
+    <Compile Include="Assets\Scripts\Systems\LifeManager.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenu.cs" />
     <Compile Include="Assets\Scripts\Procedural\LevelGenConfig.cs" />
     <Compile Include="Assets\Scripts\UI\LevelCompleteCanvasFactory.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="Assets\Scripts\Procedural\DifficultyManager.cs" />
     <Compile Include="Assets\ThirdParty\Sci Fi Modular Pack\Scripts\CameraController.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
+    <Compile Include="Assets\Scripts\UI\GameHUD.cs" />
     <Compile Include="Assets\Scripts\UI\LoadingOverlay.cs" />
     <Compile Include="Assets\Scripts\Systems\BallSkinManager.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\ShaderPropAnimator.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="Assets\Scripts\Core\TileZoneIndicator.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\Scripts\UI\PauseUI.cs" />
+    <Compile Include="Assets\Scripts\UI\GameOverUI.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextInfoDebugTool.cs" />
