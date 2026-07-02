@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallSkinData
   skinId: yellow
   skinName: Nova Yellow
-  price: 50
+  price: 800
   unlockedByDefault: 0
   prefabResourcePath: Prefabs/BallSkins/Ai_Nova_Yellow
   speedMultiplier: 1.6
+  icon: {fileID: 21300000, guid: bbd784f9d275ce6458644e02d58f92ae, type: 3}

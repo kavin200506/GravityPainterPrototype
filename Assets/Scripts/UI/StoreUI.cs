@@ -43,6 +43,8 @@ public class StoreUI : MonoBehaviour
         public TextMeshProUGUI priceLabel;
         public Image lockIcon;
         public Image checkIcon;
+        public Image previewIcon;
+        public GameObject coinIcon;
     }
 
     private void Awake()
@@ -170,6 +172,10 @@ public class StoreUI : MonoBehaviour
                     card.lockIcon = img;
                 else if (img.name.Contains("Check"))
                     card.checkIcon = img;
+                else if (img.name.Contains("PreviewSlot"))
+                    card.previewIcon = img;
+                else if (img.name.Contains("CoinIcon"))
+                    card.coinIcon = img.gameObject;
             }
 
             card.button = cardObj.GetComponentInChildren<Button>(true);
@@ -192,15 +198,43 @@ public class StoreUI : MonoBehaviour
         bool selected = BallSkinManager.GetSelectedSkinId() == card.skin.skinId;
         bool unlocked = purchased || card.skin.unlockedByDefault;
 
+        if (card.previewIcon != null && card.skin.icon != null)
+        {
+            card.previewIcon.sprite = card.skin.icon;
+            card.previewIcon.color = Color.white;
+            card.previewIcon.preserveAspect = true;
+        }
+
         if (card.nameLabel != null)
             card.nameLabel.text = card.skin.skinName;
 
         if (card.priceLabel != null)
         {
             if (purchased)
-                card.priceLabel.text = selected ? "Selected" : "Owned";
+            {
+                card.priceLabel.text = selected ? "SELECTED" : "OWNED";
+                card.priceLabel.rectTransform.offsetMin = new Vector2(0f, 0f); // Reset offset to center text
+            }
             else
-                card.priceLabel.text = card.skin.price + " coins";
+            {
+                card.priceLabel.text = card.skin.price.ToString();
+            }
+        }
+        
+        if (card.coinIcon != null)
+            card.coinIcon.SetActive(!purchased);
+
+        Image btnImg = card.button != null ? card.button.GetComponent<Image>() : null;
+        if (btnImg != null)
+        {
+            if (purchased)
+            {
+                btnImg.color = new Color(0.15f, 0.15f, 0.25f, 1f); // Dark panel color for owned
+            }
+            else
+            {
+                btnImg.color = new Color(0.1f, 0.7f, 0.1f, 1f); // Bright green for buy
+            }
         }
 
         if (card.lockIcon != null)
