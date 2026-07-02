@@ -26,6 +26,9 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(122f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
     [SerializeField] private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(354f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
 
+    [Header("Coin UI Layout")]
+    [SerializeField] private Vector2 coinUIPosition = new Vector2(50f, -50f);
+    [SerializeField] private Vector2 coinUISize = new Vector2(250f, 115f);
     private void OnValidate()
     {
         if (!useManualButtonLayout)
@@ -142,6 +145,21 @@ public class MainMenu : MonoBehaviour
         string[] stretchButtons = { "Levels", "HowToPlay", "Store", "Settings" };
         foreach (string name in stretchButtons)
             SetButtonStretch(root, name);
+
+        ApplyCoinUILayout();
+    }
+
+    private void ApplyCoinUILayout()
+    {
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null && coinDisplay.TryGetComponent(out RectTransform coinRt))
+        {
+            coinRt.anchorMin = new Vector2(0f, 1f);
+            coinRt.anchorMax = new Vector2(0f, 1f);
+            coinRt.pivot = new Vector2(0f, 1f);
+            coinRt.anchoredPosition = coinUIPosition;
+            coinRt.sizeDelta = coinUISize;
+        }
     }
 
     private Transform ResolveMainMenuRoot()

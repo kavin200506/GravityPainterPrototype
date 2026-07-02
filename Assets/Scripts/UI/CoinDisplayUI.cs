@@ -2,15 +2,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+[RequireComponent(typeof(Button))]
 public class CoinDisplayUI : MonoBehaviour
 {
+    public Button Button { get; private set; }
     [SerializeField] private TextMeshProUGUI coinText;
     [SerializeField] private Image coinIcon;
 
     private void Awake()
     {
+        Button = GetComponent<Button>();
         if (coinText == null)
+        {
             coinText = GetComponent<TextMeshProUGUI>();
+            if (coinText == null)
+                coinText = GetComponentInChildren<TextMeshProUGUI>();
+        }
     }
 
     private void OnEnable()
