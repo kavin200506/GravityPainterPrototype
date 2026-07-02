@@ -9,4 +9,5 @@ public class BallSkinData : ScriptableObject
     public bool unlockedByDefault;
     public string prefabResourcePath;
     public float speedMultiplier = 1f;
+    public Sprite icon;
 }

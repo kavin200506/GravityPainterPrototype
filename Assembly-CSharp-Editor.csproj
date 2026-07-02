@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\Procedural\Editor\ProceduralLevelBuilderEditor.cs" />
     <Compile Include="Assets\Scripts\Procedural\Editor\ProceduralPathGeneratorTest.cs" />
     <Compile Include="Assets\Editor\TileGlbUtility.cs" />
+    <Compile Include="Assets\Scripts\UI\Editor\SetupStoreUI.cs" />
     <Compile Include="Assets\Editor\HammerModelBinder.cs" />
     <Compile Include="Assets\Editor\PlaceLevel2Spikes.cs" />
     <Compile Include="Assets\Scripts\Systems\Editor\SetupGameplayMusic.cs" />
