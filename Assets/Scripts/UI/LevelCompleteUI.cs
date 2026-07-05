@@ -181,22 +181,19 @@ public class LevelCompleteUI : MonoBehaviour
         root.transform.SetAsLastSibling();
 
         RectTransform rootRect = root.GetComponent<RectTransform>();
-        rootRect.anchorMin = new Vector2(0.5f, 0.5f);
-        rootRect.anchorMax = new Vector2(0.5f, 0.5f);
-        rootRect.pivot = new Vector2(0.5f, 0.5f);
-        rootRect.anchoredPosition = new Vector2(0f, buttonsAnchoredY);
-        rootRect.sizeDelta = new Vector2(1080f, buttonHeight + 40f);
+        rootRect.anchorMin = new Vector2(0.5f, 0f);
+        rootRect.anchorMax = new Vector2(0.5f, 0f);
+        rootRect.pivot = new Vector2(0.5f, 0f);
+        rootRect.anchoredPosition = new Vector2(0f, 100f);
+        rootRect.sizeDelta = new Vector2(1080f, 250f);
 
-        Vector2 restartSize = GetButtonSize(restartButtonSprite);
-        Vector2 nextSize = GetButtonSize(nextLevelButtonSprite);
-        Vector2 homeSize = GetButtonSize(homeButtonSprite);
-
-        float totalWidth = restartSize.x + nextSize.x + homeSize.x + buttonSpacing * 2f;
+        Vector2 buttonSize = new Vector2(300f, 200f);
+        float totalWidth = buttonSize.x * 3 + buttonSpacing * 2f;
         float x = -totalWidth * 0.5f;
 
-        _restartButton = PlaceButton(root.transform, "Restart", RestartLevel, restartButtonSprite, restartSize, ref x);
-        _nextLevelButton = PlaceButton(root.transform, "Next Level", GoToNextLevel, nextLevelButtonSprite, nextSize, ref x);
-        _homeButton = PlaceButton(root.transform, "Home", GoHome, homeButtonSprite, homeSize, ref x);
+        _restartButton = PlaceButton(root.transform, "Restart", RestartLevel, null, buttonSize, ref x);
+        _nextLevelButton = PlaceButton(root.transform, "Next Level", GoToNextLevel, null, buttonSize, ref x);
+        _homeButton = PlaceButton(root.transform, "Home", GoHome, null, buttonSize, ref x);
 
         UpdateNextLevelButton();
     }
@@ -223,20 +220,7 @@ public class LevelCompleteUI : MonoBehaviour
 
         Image image = buttonObject.GetComponent<Image>();
         image.raycastTarget = true;
-        image.color = Color.white;
-        if (sprite != null)
-        {
-            image.sprite = sprite;
-            image.type = Image.Type.Simple;
-            image.preserveAspect = true;
-        }
-        else
-        {
-            Debug.LogWarning("LevelCompleteUI: missing sprite for " + label);
-            image.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
-            image.type = Image.Type.Sliced;
-            image.color = new Color(0.2f, 0.55f, 0.95f, 1f);
-        }
+        image.color = Color.clear;
 
         Button button = buttonObject.GetComponent<Button>();
         button.targetGraphic = image;
@@ -255,24 +239,12 @@ public class LevelCompleteUI : MonoBehaviour
         {
             _nextLevelButton.gameObject.SetActive(true);
             _nextLevelButton.interactable = true;
-            Image proceduralImage = _nextLevelButton.GetComponent<Image>();
-            if (proceduralImage != null)
-            {
-                proceduralImage.color = Color.white;
-            }
-
             return;
         }
 
         bool hasNext = LevelProgress.HasBuiltLevel(currentLevel + 1);
         _nextLevelButton.gameObject.SetActive(true);
         _nextLevelButton.interactable = hasNext;
-
-        Image image = _nextLevelButton.GetComponent<Image>();
-        if (image != null)
-        {
-            image.color = hasNext ? Color.white : new Color(1f, 1f, 1f, 0.35f);
-        }
     }
 
     public void RestartLevel()

@@ -185,7 +185,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   hiddenScaleY: 0.02
   dangerThreshold: 0.85
-  visualRoot: {fileID: 4889886708726454031}
+  visualRoot: {fileID: 0}
   strikeCollider: {fileID: 1767430977930127148}
   playOnStart: 1
   editorPreviewExtension: 1
@@ -208,8 +208,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.899734, y: 0.79314905, z: 0.90213597}
-  m_Center: {x: 0.0009729266, y: 0.27283654, z: -0.0009060204}
+  m_Size: {x: 0.20368303, y: 0.08503875, z: 0.09672396}
+  m_Center: {x: -0.0008686632, y: 0.39672047, z: 0.00080888346}
 --- !u!114 &4943949404461368640
 MonoBehaviour:
   m_ObjectHideFlags: 0

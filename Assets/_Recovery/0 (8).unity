@@ -534,7 +534,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SplashScreenTimer
   fadeCanvasGroup: {fileID: 1830960782}
   waitDuration: 1
-  fadeDuration: 2
+  fadeDuration: 0.75
 --- !u!4 &690433873
 Transform:
   m_ObjectHideFlags: 0

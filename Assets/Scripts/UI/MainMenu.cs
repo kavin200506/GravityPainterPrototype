@@ -21,10 +21,10 @@ public class MainMenu : MonoBehaviour
     [Header("Button Layout")]
     [SerializeField] private bool useManualButtonLayout = true;
     [SerializeField] private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(0f, -87f), new Vector2(640f, 140f), new Vector3(6f, 6f, 1f));
-    [SerializeField] private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-324f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
-    [SerializeField] private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-101f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
-    [SerializeField] private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(122f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
-    [SerializeField] private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(354f, -543f), new Vector2(420f, 240f), new Vector3(1f, 1.8684f, 1f));
+    private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-303f, -477f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
+    private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-104f, -475f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
+    private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(104f, -481f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
+    private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(315f, -484f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
 
     [Header("Coin UI Layout")]
     [SerializeField] private Vector2 coinUIPosition = new Vector2(50f, -50f);
