@@ -55,6 +55,11 @@ public class LevelCompleteUI : MonoBehaviour
 
     private void OnEnable()
     {
+        if (GameHUD.Instance != null)
+        {
+            GameHUD.Instance.gameObject.SetActive(false);
+        }
+
         if (currentLevel < 1)
         {
             currentLevel = LevelProgress.GetActiveLevelNumber();

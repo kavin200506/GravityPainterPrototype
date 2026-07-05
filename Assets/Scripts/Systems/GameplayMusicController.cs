@@ -99,12 +99,26 @@ public class GameplayMusicController : MonoBehaviour
         source.volume = volume;
     }
 
+    public static void NotifySettingsChanged()
+    {
+        if (_instance == null)
+            return;
+
+        _instance.RefreshPlayback();
+    }
+
     private void RefreshPlayback()
     {
         if (_source == null || _source.clip == null)
             return;
 
-        _source.volume = volume;
+        float globalVol = 1.0f;
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+        // Call reflection or just link directly since it's in the same assembly
+        globalVol = SettingsUI.GetMusicVolume();
+#endif
+
+        _source.volume = volume * globalVol;
 
         bool shouldPlay = _inGameplayScene && !_levelCompleteOverlayVisible;
         if (shouldPlay)

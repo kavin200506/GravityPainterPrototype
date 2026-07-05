@@ -360,6 +360,17 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 coinObj.name = "Coin_" + i;
                 CampaignCoinPlacement.SnapCoinToTile(coinObj.transform, tile.transform);
             }
+
+            if (LevelProgress.GetSelectedMenuLevel() == 97 && i == checkpointTileIndex + 1)
+            {
+                // Lower the tile slightly so it slides underneath the checkpoint and finish line tiles
+                tile.transform.position += new Vector3(0f, -0.25f, 0f);
+
+                MovingTile mt = tile.AddComponent<MovingTile>();
+                mt.moveAxis = new Vector3(1f, 0f, 0f);
+                mt.distance = 3.0f; // Ensure it reaches fully under both adjacent tiles
+                mt.speed = 1.25f;
+            }
         }
 
         SpawnCornerPads(cells);
