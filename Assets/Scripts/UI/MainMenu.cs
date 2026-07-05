@@ -78,8 +78,21 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform panel = canvas.transform.Find("SettingsPanel");
-                if (panel != null)
-                    settingsPanel = panel.gameObject;
+                if (panel == null)
+                {
+                    GameObject newPanel = new GameObject("SettingsPanel");
+                    newPanel.transform.SetParent(canvas.transform, false);
+                    panel = newPanel.transform;
+                }
+                settingsPanel = panel.gameObject;
+            }
+        }
+
+        if (settingsPanel != null)
+        {
+            if (settingsPanel.GetComponent<SettingsUI>() == null)
+            {
+                settingsPanel.AddComponent<SettingsUI>();
             }
         }
 

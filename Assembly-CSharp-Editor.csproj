@@ -71,6 +71,7 @@
     <Compile Include="Assets\Editor\CoinAppearanceSync.cs" />
     <Compile Include="Assets\Editor\ApplySpikesModel.cs" />
     <Compile Include="Assets\Editor\SpikeTrapEditor.cs" />
+    <Compile Include="Assets\Scripts\UI\Editor\SetupSettingsUI.cs" />
     <Compile Include="Assets\Scripts\Procedural\Editor\ProceduralLevelBuilderEditor.cs" />
     <Compile Include="Assets\Scripts\Procedural\Editor\ProceduralPathGeneratorTest.cs" />
     <Compile Include="Assets\Editor\TileGlbUtility.cs" />
