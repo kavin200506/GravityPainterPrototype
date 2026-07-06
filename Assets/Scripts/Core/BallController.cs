@@ -42,6 +42,7 @@ public class BallController : MonoBehaviour
     private TileZone currentZone;
     private float timeSinceLastZoneContact;
     private bool _restarting;
+    private float _lastDeathTime = -99f;
     private Vector3? _checkpointPosition;
     private float _fallElapsed;
     private bool _crossSlideActive;
@@ -316,9 +317,10 @@ public class BallController : MonoBehaviour
 
     private void HandleDeath()
     {
-        if (_restarting)
+        if (_restarting || Time.time - _lastDeathTime < 0.1f)
             return;
 
+        _lastDeathTime = Time.time;
         _restarting = true;
         Time.timeScale = 1f;
 
