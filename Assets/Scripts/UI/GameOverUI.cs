@@ -55,25 +55,23 @@ public class GameOverUI : MonoBehaviour
         btnRect.anchorMin = new Vector2(0.5f, 0.5f);
         btnRect.anchorMax = new Vector2(0.5f, 0.5f);
         btnRect.pivot = new Vector2(0.5f, 0.5f);
-        btnRect.anchoredPosition = new Vector2(0f, -50f);
-        btnRect.sizeDelta = new Vector2(400f, 80f);
+        btnRect.anchoredPosition = new Vector2(0f, -150f); // Move it down a bit
+        btnRect.sizeDelta = new Vector2(250f, 250f); // Make it a large square for the circular icon
         Image btnImg = btnObj.AddComponent<Image>();
-        btnImg.color = new Color(1f, 0.3f, 0.3f, 1f);
+        
+        Sprite restartSprite = Resources.Load<Sprite>("UI/restart_icon");
+        if (restartSprite != null)
+        {
+            btnImg.sprite = restartSprite;
+            btnImg.color = Color.white;
+        }
+        else
+        {
+            btnImg.color = new Color(1f, 0.3f, 0.3f, 1f); // Fallback color
+        }
+        
         Button btn = btnObj.AddComponent<Button>();
         btn.onClick.AddListener(RestartFromGameOver);
-
-        GameObject btnTextObj = new GameObject("Text");
-        btnTextObj.transform.SetParent(btnObj.transform, false);
-        RectTransform btnTextRect = btnTextObj.AddComponent<RectTransform>();
-        btnTextRect.anchorMin = Vector2.zero;
-        btnTextRect.anchorMax = Vector2.one;
-        btnTextRect.offsetMin = Vector2.zero;
-        btnTextRect.offsetMax = Vector2.zero;
-        TextMeshProUGUI btnText = btnTextObj.AddComponent<TextMeshProUGUI>();
-        btnText.text = "Restart";
-        btnText.fontSize = 50f;
-        btnText.color = Color.white;
-        btnText.alignment = TextAlignmentOptions.Center;
 
         _canvas = canvasObj;
     }
