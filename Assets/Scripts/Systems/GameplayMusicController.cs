@@ -13,22 +13,14 @@ using UnityEngine.SceneManagement;
 public class GameplayMusicController : MonoBehaviour
 {
     public const string ObjectName = "GameplayMusic";
-    private const string MusicResourcePath = "Audio/BeyondTheHighPass";
+    private const string MusicResourcePath = "Audio/Beyond_the_Golden_Ridge"; // Updated music
 
     private static GameplayMusicController _instance;
-
-    private static readonly HashSet<string> NonGameplayScenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "LoadingScene",
-        "DeveloperProceduralLevelSelect",
-    };
 
     [SerializeField] [Range(0f, 1f)] private float volume = 0.45f;
     [SerializeField] private AudioClip musicClip;
 
     private AudioSource _source;
-    private bool _inGameplayScene;
-    private bool _levelCompleteOverlayVisible;
 
     public static GameplayMusicController Instance => _instance;
 
@@ -41,7 +33,14 @@ public class GameplayMusicController : MonoBehaviour
 
     private void Awake()
     {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         _instance = this;
+        DontDestroyOnLoad(gameObject); // Keep music playing across scenes
 
         _source = GetComponent<AudioSource>();
         ConfigureAudioSource(_source);
@@ -55,7 +54,6 @@ public class GameplayMusicController : MonoBehaviour
 
     private void Start()
     {
-        _inGameplayScene = IsGameplayScene(SceneManager.GetActiveScene());
         RefreshPlayback();
     }
 
@@ -68,26 +66,12 @@ public class GameplayMusicController : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        _inGameplayScene = IsGameplayScene(scene);
-        _levelCompleteOverlayVisible = false;
         RefreshPlayback();
     }
 
     public static void NotifyLevelCompleteOverlayVisible(bool visible)
     {
-        if (_instance == null)
-            return;
-
-        _instance._levelCompleteOverlayVisible = visible;
-        _instance.RefreshPlayback();
-    }
-
-    public static bool IsGameplayScene(Scene scene)
-    {
-        if (!scene.IsValid() || string.IsNullOrEmpty(scene.name))
-            return false;
-
-        return !NonGameplayScenes.Contains(scene.name);
+        // No longer pausing music on level complete
     }
 
     private void ConfigureAudioSource(AudioSource source)
@@ -120,16 +104,8 @@ public class GameplayMusicController : MonoBehaviour
 
         _source.volume = volume * globalVol;
 
-        bool shouldPlay = _inGameplayScene && !_levelCompleteOverlayVisible;
-        if (shouldPlay)
-        {
-            if (!_source.isPlaying)
-                _source.Play();
-        }
-        else if (_source.isPlaying)
-        {
-            _source.Stop();
-        }
+        if (!_source.isPlaying)
+            _source.Play();
     }
 
 #if UNITY_EDITOR
