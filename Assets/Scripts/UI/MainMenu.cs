@@ -20,11 +20,13 @@ public class MainMenu : MonoBehaviour
 
     [Header("Button Layout")]
     [SerializeField] private bool useManualButtonLayout = true;
-    [SerializeField] private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(0f, -87f), new Vector2(640f, 140f), new Vector3(6f, 6f, 1f));
-    private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-303f, -477f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
-    private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-104f, -475f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
-    private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(104f, -481f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
-    private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(315f, -484f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
+    private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(0f, -72f), new Vector2(800f, 400f), new Vector3(1f, 1f, 1f));
+    private Vector2 playClickZoneSize = new Vector2(600f, 140f);
+    private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-407f, -520f), new Vector2(300f, 550f), new Vector3(1f, 1f, 1f));
+    private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-160f, -520f), new Vector2(300f, 550f), new Vector3(1f, 1f, 1f));
+    private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(160f, -520f), new Vector2(300f, 550f), new Vector3(1f, 1f, 1f));
+    private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(394f, -520f), new Vector2(300f, 550f), new Vector3(1f, 1f, 1f));
+    private Vector2 bottomClickZoneSize = new Vector2(220f, 440f);
 
     [Header("Coin UI Layout")]
     [SerializeField] private Vector2 coinUIPosition = new Vector2(50f, -50f);
@@ -117,6 +119,7 @@ public class MainMenu : MonoBehaviour
             settingsPanel.SetActive(false);
 
         ApplyButtonLayout();
+        SetupButtonClickZones(ResolveMainMenuRoot());
         WireMenuButtons();
 
         if (ConsumeOpenLevelSelectFlag())
@@ -155,7 +158,7 @@ public class MainMenu : MonoBehaviour
         ApplyButtonLayoutEntry(root, storeButtonLayout);
         ApplyButtonLayoutEntry(root, settingsButtonLayout);
 
-        string[] stretchButtons = { "Levels", "HowToPlay", "Store", "Settings" };
+        string[] stretchButtons = { "Play", "Levels", "HowToPlay", "Store", "Settings" };
         foreach (string name in stretchButtons)
             SetButtonStretch(root, name);
 
@@ -204,8 +207,7 @@ public class MainMenu : MonoBehaviour
         rect.sizeDelta = layout.sizeDelta;
         rect.localScale = layout.localScale;
 
-        if (buttonTransform.TryGetComponent(out Image image))
-            image.preserveAspect = true;
+        // preserveAspect handled by stretchButtons loop below
     }
 
     private static void EnsureChildOfRoot(Transform root, string childName)
@@ -219,6 +221,57 @@ public class MainMenu : MonoBehaviour
         Transform childOnCanvas = canvas.Find(childName);
         if (childOnCanvas != null)
             childOnCanvas.SetParent(root, false);
+    }
+
+    private void SetupButtonClickZones(Transform root)
+    {
+        SetupClickZoneForButton(root, "Play", playClickZoneSize);
+        SetupClickZoneForButton(root, "Levels", bottomClickZoneSize);
+        SetupClickZoneForButton(root, "HowToPlay", bottomClickZoneSize);
+        SetupClickZoneForButton(root, "Store", bottomClickZoneSize);
+        SetupClickZoneForButton(root, "Settings", bottomClickZoneSize);
+    }
+
+    private void SetupClickZoneForButton(Transform root, string buttonName, Vector2 clickZoneSize)
+    {
+        Transform btnTransform = root.Find(buttonName);
+        if (btnTransform == null || !btnTransform.TryGetComponent(out RectTransform btnRect))
+            return;
+
+        Transform czTransform = btnRect.Find("ClickZone");
+        if (czTransform == null)
+        {
+            GameObject cz = new GameObject("ClickZone", typeof(RectTransform));
+            cz.transform.SetParent(btnRect, false);
+            czTransform = cz.transform;
+        }
+
+        RectTransform czRect = czTransform as RectTransform;
+        czRect.anchorMin = new Vector2(0.5f, 0.5f);
+        czRect.anchorMax = new Vector2(0.5f, 0.5f);
+        czRect.pivot = new Vector2(0.5f, 0.5f);
+        czRect.anchoredPosition = Vector2.zero;
+        czRect.sizeDelta = clickZoneSize;
+        czRect.localScale = Vector3.one;
+
+        Button czBtn = czTransform.GetComponent<Button>();
+        Button parentBtn = btnRect.GetComponent<Button>();
+        if (czBtn == null)
+        {
+            czBtn = czTransform.gameObject.AddComponent<Button>();
+            if (parentBtn != null)
+                czBtn.interactable = parentBtn.interactable;
+        }
+
+        if (parentBtn != null)
+            DestroyImmediate(parentBtn);
+
+        Image czImage = czTransform.GetComponent<Image>();
+        if (czImage == null)
+            czImage = czTransform.gameObject.AddComponent<Image>();
+        czImage.sprite = null;
+        czImage.color = new Color(1f, 1f, 1f, 0f);
+        czImage.raycastTarget = true;
     }
 
     private static void SetButtonStretch(Transform root, string buttonName)
@@ -280,7 +333,17 @@ public class MainMenu : MonoBehaviour
     private void WireButton(Transform root, string childName, UnityEngine.Events.UnityAction action)
     {
         Transform child = root.Find(childName);
-        if (child == null || !child.TryGetComponent(out Button button))
+        if (child == null)
+            return;
+
+        Transform cz = child.Find("ClickZone");
+        Button button;
+        if (cz != null)
+            button = cz.GetComponent<Button>();
+        else
+            child.TryGetComponent(out button);
+
+        if (button == null)
             return;
 
         button.onClick.RemoveAllListeners();
