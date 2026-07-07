@@ -37,12 +37,31 @@ public class Coin : MonoBehaviour
         _spinTarget.Rotate(Vector3.up, rotationSpeed * Time.deltaTime, Space.World);
     }
 
+    [SerializeField] private AudioClip collectSound;
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.GetComponentInParent<BallController>() != null)
         {
+            if (collectSound != null)
+            {
+                PlayCollectSound();
+            }
+
             CoinManager.AddSessionCoin();
             Destroy(gameObject);
         }
+    }
+
+    private void PlayCollectSound()
+    {
+        GameObject audioObj = new GameObject("CoinCollectSound");
+        AudioSource audioSource = audioObj.AddComponent<AudioSource>();
+        audioSource.clip = collectSound;
+        audioSource.spatialBlend = 0f; // 2D Sound
+        audioSource.volume = SettingsUI.GetSoundVolume();
+        audioSource.Play();
+        
+        Destroy(audioObj, collectSound.length);
     }
 }
