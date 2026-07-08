@@ -20,12 +20,12 @@ public class MainMenu : MonoBehaviour
 
     [Header("Button Layout")]
     [SerializeField] private bool useManualButtonLayout = true;
-    private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(0f, -72f), new Vector2(800f, 400f), new Vector3(1f, 1f, 1f));
+    private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(-6f, -85f), new Vector2(800f, 400f), new Vector3(0.7754443f, 1.9291f, 1f));
     private Vector2 playClickZoneSize = new Vector2(600f, 140f);
-    private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-407f, -520f), new Vector2(300f, 550f), new Vector3(1f, 1f, 1f));
-    private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-160f, -520f), new Vector2(300f, 550f), new Vector3(1f, 1f, 1f));
-    private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(160f, -520f), new Vector2(300f, 550f), new Vector3(1f, 1f, 1f));
-    private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(394f, -520f), new Vector2(300f, 550f), new Vector3(1f, 1f, 1f));
+    private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-364f, -534f), new Vector2(300f, 550f), new Vector3(1.509404f, 1.2171f, 1f));
+    private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-131f, -534f), new Vector2(300f, 550f), new Vector3(1.509404f, 1.2171f, 1f));
+    private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(114f, -534f), new Vector2(300f, 550f), new Vector3(1.509404f, 1.2171f, 1f));
+    private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(363f, -534f), new Vector2(300f, 550f), new Vector3(1.509404f, 1.2171f, 1f));
     private Vector2 bottomClickZoneSize = new Vector2(220f, 440f);
 
     [Header("Coin UI Layout")]
@@ -225,14 +225,15 @@ public class MainMenu : MonoBehaviour
 
     private void SetupButtonClickZones(Transform root)
     {
-        SetupClickZoneForButton(root, "Play", playClickZoneSize);
-        SetupClickZoneForButton(root, "Levels", bottomClickZoneSize);
-        SetupClickZoneForButton(root, "HowToPlay", bottomClickZoneSize);
-        SetupClickZoneForButton(root, "Store", bottomClickZoneSize);
-        SetupClickZoneForButton(root, "Settings", bottomClickZoneSize);
+        SetupClickZoneForButton(root, "Play", playClickZoneSize, new Vector3(1f, 0.71119f, 1f));
+        Vector3 bottomClickZoneScale = new Vector3(0.61381f, 0.79509f, 1f);
+        SetupClickZoneForButton(root, "Levels", bottomClickZoneSize, bottomClickZoneScale);
+        SetupClickZoneForButton(root, "HowToPlay", bottomClickZoneSize, bottomClickZoneScale);
+        SetupClickZoneForButton(root, "Store", bottomClickZoneSize, bottomClickZoneScale);
+        SetupClickZoneForButton(root, "Settings", bottomClickZoneSize, bottomClickZoneScale);
     }
 
-    private void SetupClickZoneForButton(Transform root, string buttonName, Vector2 clickZoneSize)
+    private void SetupClickZoneForButton(Transform root, string buttonName, Vector2 clickZoneSize, Vector3 clickZoneScale)
     {
         Transform btnTransform = root.Find(buttonName);
         if (btnTransform == null || !btnTransform.TryGetComponent(out RectTransform btnRect))
@@ -252,7 +253,7 @@ public class MainMenu : MonoBehaviour
         czRect.pivot = new Vector2(0.5f, 0.5f);
         czRect.anchoredPosition = Vector2.zero;
         czRect.sizeDelta = clickZoneSize;
-        czRect.localScale = Vector3.one;
+        czRect.localScale = clickZoneScale;
 
         Button czBtn = czTransform.GetComponent<Button>();
         Button parentBtn = btnRect.GetComponent<Button>();
