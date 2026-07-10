@@ -5,6 +5,7 @@ using UnityEngine;
 /// (avoids iPhone notches, Android punch-hole cameras, rounded corners, home bar).
 /// Works automatically — just add this component to your root UI panel.
 /// </summary>
+[ExecuteAlways]
 [RequireComponent(typeof(RectTransform))]
 public class SafeArea : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class SafeArea : MonoBehaviour
         _panel = GetComponent<RectTransform>();
         Apply();
     }
+
 
     private void Update()
     {
@@ -31,6 +33,12 @@ public class SafeArea : MonoBehaviour
 
     private void Apply()
     {
+        if (_panel == null)
+        {
+            _panel = GetComponent<RectTransform>();
+            if (_panel == null) return;
+        }
+
         Rect safeArea = Screen.safeArea;
 
         if (safeArea == _lastSafeArea && 
