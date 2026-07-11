@@ -32,10 +32,12 @@ public static class FixTilesPrefab
             if (asset is Mesh mesh)
             {
                 modelMeshes[mesh.name] = mesh;
+                Debug.Log($"[FixTilesPrefab] Model Mesh Name: '{mesh.name}'");
             }
             else if (asset is Material mat)
             {
                 modelMaterials[mat.name] = mat;
+                Debug.Log($"[FixTilesPrefab] Model Material Name: '{mat.name}'");
             }
         }
 
@@ -47,6 +49,8 @@ public static class FixTilesPrefab
         foreach (MeshFilter filter in filters)
         {
             string childName = filter.gameObject.name;
+            Debug.Log($"[FixTilesPrefab] Prefab Child Name: '{childName}'");
+
             if (modelMeshes.TryGetValue(childName, out Mesh newMesh))
             {
                 filter.sharedMesh = newMesh;
@@ -122,7 +126,18 @@ public static class FixTilesPrefab
         }
         else
         {
-            Debug.LogWarning("[FixTilesPrefab] No changes were made. Mesh names might not match child GameObject names.");
+            string meshList = string.Join(", ", modelMeshes.Keys);
+            string childList = "";
+            foreach (var f in filters) childList += f.gameObject.name + ", ";
+
+            EditorUtility.DisplayDialog(
+                "No Changes Made",
+                $"The tool ran, but could not match the meshes to the prefab.\n\n" +
+                $"Prefab child names: {childList}\n" +
+                $"GLB mesh names: {meshList}\n\n" +
+                "Please check the Unity Console for detailed logs.",
+                "OK");
+            Debug.LogWarning("[FixTilesPrefab] No changes were made. Mesh names do not match child GameObject names.");
         }
     }
 }
