@@ -22,11 +22,20 @@ public static class FixTilesPrefab
             return;
         }
 
-        // Load the GLB model as a GameObject prefab
-        GameObject modelRoot = AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+        // Load the GLB model main asset
+        Object mainAsset = AssetDatabase.LoadMainAssetAtPath(modelPath);
+        if (mainAsset == null)
+        {
+            Debug.LogError($"[FixTilesPrefab] Could not load main asset at path: {modelPath}");
+            return;
+        }
+
+        Debug.Log($"[FixTilesPrefab] Main asset type: '{mainAsset.GetType()}', Name: '{mainAsset.name}'");
+
+        GameObject modelRoot = mainAsset as GameObject;
         if (modelRoot == null)
         {
-            Debug.LogError($"[FixTilesPrefab] Could not load GLB model at: {modelPath}");
+            Debug.LogError($"[FixTilesPrefab] Main asset is not a GameObject. Type is: {mainAsset.GetType()}");
             return;
         }
 
