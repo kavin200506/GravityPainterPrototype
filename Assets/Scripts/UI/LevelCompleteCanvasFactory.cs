@@ -9,8 +9,10 @@ using UnityEngine.UI;
 public static class LevelCompleteCanvasFactory
 {
     public const string CanvasObjectName = "LevelCompleteCanvas";
-    private const string BackgroundResource = "UI/LevelCompleteUI/level_completed";
-    private const string BackgroundAssetPath = "Assets/Art/Sprites/UI/Level_Completed.jpeg";
+    private const string BackgroundResource = "UI/LevelCompleteUI/complete";
+    private const string BackgroundResourceFallback = "UI/LevelCompleteUI/level_complete";
+    private const string BackgroundAssetPath = "Assets/Art/Sprites/UI/Level_Complete/complete.png";
+    private const string BackgroundAssetPathFallback = "Assets/Art/Sprites/UI/Level_Complete/level_complete.png";
 
     public static GameObject EnsureCanvas(ProceduralLevelBuilder builder)
     {
@@ -61,6 +63,7 @@ public static class LevelCompleteCanvasFactory
 
         Canvas canvas = canvasObject.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100;
 
         CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -88,15 +91,25 @@ public static class LevelCompleteCanvasFactory
         rect.anchorMax = Vector2.one;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
-        rect.localScale = new Vector3(1f, 1.4f, 1f);
 
         Image image = panel.GetComponent<Image>();
         image.raycastTarget = true;
-        image.preserveAspect = true;
-        Sprite background = LoadBackgroundSprite();
-        image.sprite = background;
+        image.preserveAspect = false;
         image.type = Image.Type.Simple;
-        image.color = background != null ? Color.white : new Color(0.08f, 0.1f, 0.16f, 0.95f);
+
+        image.color = new Color(0.06f, 0.08f, 0.13f, 0.95f);
+
+        Sprite background = LoadBackgroundSprite();
+        if (background != null)
+        {
+            image.sprite = background;
+            image.color = Color.white;
+            Debug.Log("[LevelCompleteCanvasFactory] Background panel set with sprite: " + background.name);
+        }
+        else
+        {
+            Debug.LogWarning("[LevelCompleteCanvasFactory] No background sprite — using dark fallback color");
+        }
     }
 
     private static void CreateTitleText(RectTransform parent)
@@ -117,19 +130,41 @@ public static class LevelCompleteCanvasFactory
         text.fontSize = 72f;
         text.color = new Color(1f, 0.84f, 0f, 1f);
         text.raycastTarget = true;
+
+        TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        if (font != null)
+        {
+            text.font = font;
+        }
     }
 
     public static Sprite LoadBackgroundSprite()
     {
+        Debug.Log("[LevelCompleteCanvasFactory] Loading background from: " + BackgroundResource);
         Sprite sprite = Resources.Load<Sprite>(BackgroundResource);
+        if (sprite == null)
+        {
+            sprite = Resources.Load<Sprite>(BackgroundResourceFallback);
+        }
+
         if (sprite != null)
         {
+            Debug.Log("[LevelCompleteCanvasFactory] Background sprite loaded successfully: " + sprite.name
+                + " size=" + sprite.rect.width + "x" + sprite.rect.height);
             return sprite;
         }
 
+        Debug.LogWarning("[LevelCompleteCanvasFactory] Resources.Load<Sprite> returned null. Trying Texture2D...");
         Texture2D texture = Resources.Load<Texture2D>(BackgroundResource);
+        if (texture == null)
+        {
+            texture = Resources.Load<Texture2D>(BackgroundResourceFallback);
+        }
+
         if (texture != null)
         {
+            Debug.Log("[LevelCompleteCanvasFactory] Texture2D loaded: " + texture.name
+                + " size=" + texture.width + "x" + texture.height);
             return Sprite.Create(
                 texture,
                 new Rect(0f, 0f, texture.width, texture.height),
@@ -137,14 +172,38 @@ public static class LevelCompleteCanvasFactory
         }
 
 #if UNITY_EDITOR
+        Debug.Log("[LevelCompleteCanvasFactory] Trying editor asset path: " + BackgroundAssetPath);
         sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(BackgroundAssetPath);
+        if (sprite == null)
+        {
+            sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(BackgroundAssetPathFallback);
+        }
+
+        if (sprite == null)
+        {
+            Texture2D editorTex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(BackgroundAssetPath);
+            if (editorTex == null)
+            {
+                editorTex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(BackgroundAssetPathFallback);
+            }
+            if (editorTex != null)
+            {
+                sprite = Sprite.Create(
+                    editorTex,
+                    new Rect(0f, 0f, editorTex.width, editorTex.height),
+                    new Vector2(0.5f, 0.5f));
+            }
+        }
+
         if (sprite != null)
         {
+            Debug.Log("[LevelCompleteCanvasFactory] Editor sprite loaded: " + sprite.name);
             return sprite;
         }
 #endif
 
-        Debug.LogWarning("LevelCompleteCanvasFactory: background sprite missing at Resources/" + BackgroundResource);
+        Debug.LogWarning("[LevelCompleteCanvasFactory] FAILED to load background sprite! Checked: "
+            + BackgroundResource + " and " + BackgroundAssetPath);
         return null;
     }
 }

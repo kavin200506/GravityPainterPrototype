@@ -9,8 +9,10 @@ public class GameHUD : MonoBehaviour
 
     private Image[] _heartIcons;
     private TextMeshProUGUI _coinCountText;
+    private TextMeshProUGUI _timerText;
     private int _lastLives = -1;
     private int _lastCoins = -1;
+    private string _lastTimerString = "";
 
     private void Awake()
     {
@@ -22,9 +24,17 @@ public class GameHUD : MonoBehaviour
         Instance = this;
     }
 
+    private static bool _initialized;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Init()
     {
+        if (_initialized)
+        {
+            return;
+        }
+
+        _initialized = true;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -34,7 +44,77 @@ public class GameHUD : MonoBehaviour
         {
             LifeManager.ResetLives();
             CreateHUD();
+            InitializeLevelTimer(scene);
         }
+    }
+
+    private static void InitializeLevelTimer(Scene scene)
+    {
+        LevelTimer.Reset();
+        CoinManager.ResetSessionCoins();
+
+        Debug.Log("[GameHUD] InitializeLevelTimer for scene: " + scene.name);
+
+        if (LevelProgress.IsProceduralScene(scene))
+        {
+            ProceduralLevelBuilder builder = FindFirstObjectByType<ProceduralLevelBuilder>();
+            if (builder != null)
+            {
+                Debug.Log("[GameHUD] Procedural level found. LastBuiltSeed=" + builder.LastBuiltSeed
+                    + " TileCount=" + builder.LastBuiltTileCount);
+
+                // Unsubscribe first to prevent duplicate subscriptions
+                builder.OnLevelBuilt -= OnProceduralLevelBuilt;
+                builder.OnLevelBuilt += OnProceduralLevelBuilt;
+
+                // ProceduralLevelBuilder fires OnLevelBuilt in Awake() with DefaultExecutionOrder(-200),
+                // which runs BEFORE OnSceneLoaded. If the level is already built, start the timer now.
+                if (builder.LastBuiltTileCount > 0)
+                {
+                    Debug.Log("[GameHUD] Builder already built! Starting timer immediately with "
+                        + builder.LastBuiltTileCount + " tiles");
+                    OnProceduralLevelBuilt(builder.LastBuiltSeed, builder.LastBuiltTileCount);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GameHUD] No ProceduralLevelBuilder found! Timer will not start.");
+            }
+        }
+        else
+        {
+            Debug.Log("[GameHUD] Campaign level - starting timer immediately");
+            StartTimerForCampaignLevel();
+        }
+    }
+
+    private static void OnProceduralLevelBuilt(int seed, int tileCount)
+    {
+        int coinCount = CountCoinsInLevel();
+        CoinManager.SetTotalCoinsInLevel(coinCount);
+        LevelTimer.Start(tileCount);
+
+        Debug.Log("[GameHUD] Level built! Seed=" + seed + " Tiles=" + tileCount
+            + " Coins=" + coinCount + " ParTime=" + LevelTimer.FormatTime(LevelTimer.ParTime));
+    }
+
+    private static void StartTimerForCampaignLevel()
+    {
+        TileZone[] tiles = FindObjectsByType<TileZone>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        int tileCount = tiles.Length;
+
+        int coinCount = CountCoinsInLevel();
+        CoinManager.SetTotalCoinsInLevel(coinCount);
+        LevelTimer.Start(tileCount);
+
+        Debug.Log("[GameHUD] Campaign level started! Tiles=" + tileCount
+            + " Coins=" + coinCount + " ParTime=" + LevelTimer.FormatTime(LevelTimer.ParTime));
+    }
+
+    private static int CountCoinsInLevel()
+    {
+        Coin[] coins = FindObjectsByType<Coin>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        return coins.Length;
     }
 
     private static void CreateHUD()
@@ -125,6 +205,14 @@ public class GameHUD : MonoBehaviour
         _coinCountText.color = Color.white;
         _coinCountText.alignment = TextAlignmentOptions.MidlineRight;
 
+        TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        if (font != null)
+        {
+            _coinCountText.font = font;
+        }
+
+        CreateTimerDisplay();
+
         UpdateFromState();
     }
 
@@ -151,8 +239,77 @@ public class GameHUD : MonoBehaviour
             _coinCountText.text = count.ToString();
     }
 
+    private void CreateTimerDisplay()
+    {
+        GameObject timerObj = new GameObject("TimerDisplay");
+        timerObj.transform.SetParent(transform, false);
+        RectTransform timerRect = timerObj.AddComponent<RectTransform>();
+        timerRect.anchorMin = new Vector2(0.5f, 1f);
+        timerRect.anchorMax = new Vector2(0.5f, 1f);
+        timerRect.pivot = new Vector2(0.5f, 1f);
+        timerRect.anchoredPosition = new Vector2(0f, -30f);
+        timerRect.sizeDelta = new Vector2(300f, 80f);
+
+        _timerText = timerObj.AddComponent<TextMeshProUGUI>();
+        _timerText.fontSize = 56f;
+        _timerText.color = Color.white;
+        _timerText.alignment = TextAlignmentOptions.Center;
+        _timerText.fontStyle = FontStyles.Bold;
+        _timerText.text = "";
+
+        TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        if (font != null)
+        {
+            _timerText.font = font;
+        }
+    }
+
+    private void UpdateTimerDisplay()
+    {
+        if (_timerText == null)
+        {
+            return;
+        }
+
+        if (!LevelTimer.IsRunning)
+        {
+            if (LevelTimer.ParTime > 0f)
+            {
+                _timerText.text = LevelTimer.GetRemainingTimeString();
+            }
+            else
+            {
+                _timerText.text = "NO TIMER";
+                _timerText.color = Color.red;
+            }
+            return;
+        }
+
+        string timerString = LevelTimer.GetRemainingTimeString();
+        if (timerString != _lastTimerString)
+        {
+            _lastTimerString = timerString;
+            _timerText.text = timerString;
+
+            if (LevelTimer.RemainingTime <= 10f)
+            {
+                _timerText.color = Color.red;
+            }
+            else if (LevelTimer.RemainingTime <= 20f)
+            {
+                _timerText.color = Color.yellow;
+            }
+            else
+            {
+                _timerText.color = Color.white;
+            }
+        }
+    }
+
     private void Update()
     {
+        LevelTimer.Tick();
+
         int lives = LifeManager.CurrentLives;
         if (lives != _lastLives)
             UpdateLives(lives);
@@ -160,5 +317,7 @@ public class GameHUD : MonoBehaviour
         int coins = CoinManager.SessionCoins;
         if (coins != _lastCoins)
             UpdateCoins(coins);
+
+        UpdateTimerDisplay();
     }
 }

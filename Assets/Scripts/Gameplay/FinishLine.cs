@@ -11,6 +11,7 @@ public class FinishLine : MonoBehaviour
     [SerializeField] private bool pauseGame = true;
 
     private bool _completed;
+    private StarEvaluator.StarResult _starResult;
 
     private void Start()
     {
@@ -64,8 +65,29 @@ public class FinishLine : MonoBehaviour
         }
 
         _completed = true;
-        
-        // Save the coins collected in this level to our total count!
+
+        LevelTimer.Stop();
+
+        int collectedCoins = CoinManager.SessionCoins;
+        int totalCoins = CoinManager.TotalCoinsInLevel;
+        float elapsedTime = LevelTimer.ElapsedTime;
+        float parTime = LevelTimer.ParTime;
+
+        _starResult = StarEvaluator.Evaluate(
+            collectedCoins,
+            totalCoins,
+            elapsedTime,
+            parTime);
+
+        Debug.Log("[FinishLine] Stars: " + _starResult.totalStars + "/3"
+            + " (complete=" + _starResult.star1
+            + " coins=" + _starResult.star2 + " [" + collectedCoins + "/" + totalCoins + "]"
+            + " time=" + _starResult.star3 + " [" + LevelTimer.FormatTime(elapsedTime) + "/" + LevelTimer.FormatTime(parTime) + "])");
+
+        int levelNumber = LevelProgress.GetActiveLevelNumber();
+        LevelProgress.SaveStars(levelNumber, _starResult.totalStars);
+        LevelProgress.SaveBestTime(levelNumber, elapsedTime);
+
         CoinManager.CommitSessionCoins();
 
         if (LevelProgress.IsProceduralScene(SceneManager.GetActiveScene()))
@@ -77,6 +99,23 @@ public class FinishLine : MonoBehaviour
 
         if (levelCompletePanel != null)
         {
+            LevelCompleteUI ui = levelCompletePanel.GetComponent<LevelCompleteUI>();
+            if (ui == null)
+            {
+                ui = levelCompletePanel.GetComponentInChildren<LevelCompleteUI>(true);
+            }
+
+            if (ui == null)
+            {
+                ui = levelCompletePanel.AddComponent<LevelCompleteUI>();
+            }
+
+            if (ui != null)
+            {
+                ui.SetStarResult(_starResult);
+                ui.SetStatsSnapshot(collectedCoins, totalCoins, elapsedTime, parTime);
+            }
+
             levelCompletePanel.SetActive(true);
         }
 
@@ -105,6 +144,10 @@ public class FinishLine : MonoBehaviour
     public void RestartLevel()
     {
         Time.timeScale = 1f;
+        LevelTimer.Reset();
+        CoinManager.ResetSessionCoins();
+        CoinManager.ResetTotalCoinsInLevel();
+
         Scene active = SceneManager.GetActiveScene();
         if (LevelProgress.IsProceduralScene(active))
         {
@@ -129,6 +172,10 @@ public class FinishLine : MonoBehaviour
     public void ResumeWithoutReload()
     {
         Time.timeScale = 1f;
+        LevelTimer.Reset();
+        CoinManager.ResetSessionCoins();
+        CoinManager.ResetTotalCoinsInLevel();
+
         if (levelCompletePanel != null)
         {
             levelCompletePanel.SetActive(false);

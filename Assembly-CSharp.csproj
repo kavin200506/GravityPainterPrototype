@@ -54,6 +54,7 @@
     <Compile Include="Assets\Scripts\Systems\LifeManager.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenu.cs" />
     <Compile Include="Assets\Scripts\Procedural\LevelGenConfig.cs" />
+    <Compile Include="Assets\Scripts\Systems\StarEvaluator.cs" />
     <Compile Include="Assets\Scripts\UI\LevelCompleteCanvasFactory.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
     <Compile Include="Assets\Scripts\UI\LevelMenu.cs" />
@@ -83,7 +84,6 @@
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\Scripts\Procedural\LevelCell.cs" />
     <Compile Include="Assets\Scripts\Procedural\DifficultyManager.cs" />
-    <Compile Include="Assets\ThirdParty\Sci Fi Modular Pack\Scripts\CameraController.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
     <Compile Include="Assets\Scripts\UI\GameHUD.cs" />
     <Compile Include="Assets\Scripts\UI\LoadingOverlay.cs" />
@@ -106,6 +106,8 @@
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
     <Compile Include="Assets\Scripts\UI\LoadingScreen.cs" />
     <Compile Include="Assets\Scripts\Core\TileZone.cs" />
+    <Compile Include="Assets\Scripts\Systems\LevelTimer.cs" />
+    <Compile Include="Assets\Scripts\UI\SafeArea.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenuButtonLayout.cs" />
     <Compile Include="Assets\Scripts\Core\TileGlbVisual.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
@@ -1390,10 +1392,6 @@
       <HintPath>Library\ScriptAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.Advertisements">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
       <HintPath>Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
       <Private>False</Private>
@@ -1536,10 +1534,6 @@
     </Reference>
     <Reference Include="Unity.Purchasing.Stores.XboxCloudServices">
       <HintPath>Library\ScriptAssemblies\Unity.Purchasing.Stores.XboxCloudServices.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.Advertisements.Editor">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VisualScripting.State">

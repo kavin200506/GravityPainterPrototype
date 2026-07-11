@@ -321,7 +321,14 @@ public class LevelMenu : MonoBehaviour
             label.font = TMP_Settings.defaultFontAsset;
         }
 
-        label.text = "Level " + levelNumber;
+        int stars = LevelProgress.GetStars(levelNumber);
+        string starDisplay = "";
+        for (int i = 0; i < 3; i++)
+        {
+            starDisplay += i < stars ? "<color=#FFD700>*</color> " : "<color=#888888>*</color> ";
+        }
+
+        label.text = "Level " + levelNumber + "   " + starDisplay;
         label.alignment = TextAlignmentOptions.Center;
         label.fontSize = 42f;
         label.fontStyle = FontStyles.Bold;

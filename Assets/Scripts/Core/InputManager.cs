@@ -69,7 +69,11 @@ public class InputManager : MonoBehaviour
 
         CancelPendingSidePaint();
         ResetSideDoubleTap();
+
+        ZoneType previousZone = tile.zoneType;
         tile.SetZoneFromWorldPoint(hitPoint);
+        Debug.Log("[InputManager] Tile tapped: " + tile.gameObject.name
+            + " zone changed: " + previousZone + " -> " + tile.zoneType);
     }
 
     private void HandleSideTap(TileZone tile, Vector3 hitPoint, bool toLeftEdge)

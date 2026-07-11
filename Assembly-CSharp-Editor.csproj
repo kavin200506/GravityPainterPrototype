@@ -49,6 +49,7 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.3.11f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Editor\FixCanvasScalers.cs" />
     <Compile Include="Assets\Editor\ApplySpeedUpModel.cs" />
     <Compile Include="Assets\Editor\LaserGateModelUtility.cs" />
     <Compile Include="Assets\Scripts\Procedural\Editor\ProceduralPathVisualizerEditor.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Assets\Editor\ApplyThemeSkybox.cs" />
     <Compile Include="Assets\Editor\RemoveMisplacedCameraFollow.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\SetupMainMenuButtons.cs" />
+    <Compile Include="Assets\Scripts\Editor\FixTilesPrefab.cs" />
     <Compile Include="Assets\Editor\ApplyCoinModel.cs" />
     <Compile Include="Assets\Editor\PlaceCampaignCoins.cs" />
     <Compile Include="Assets\Editor\SciFiPackMaterialFix.cs" />
@@ -69,6 +71,7 @@
     <Compile Include="Assets\Scripts\Procedural\Editor\SetupProceduralLevelScene.cs" />
     <Compile Include="Assets\Editor\SpikeTrapSync.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\MainMenuVideoBackgroundEditor.cs" />
+    <Compile Include="Assets\Scripts\Editor\ApplySafeArea.cs" />
     <Compile Include="Assets\Editor\CoinAppearanceSync.cs" />
     <Compile Include="Assets\Editor\ApplySpikesModel.cs" />
     <Compile Include="Assets\Editor\SpikeTrapEditor.cs" />
@@ -1414,10 +1417,6 @@
       <HintPath>Library\ScriptAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.Advertisements">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
       <HintPath>Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
       <Private>False</Private>
@@ -1560,10 +1559,6 @@
     </Reference>
     <Reference Include="Unity.Purchasing.Stores.XboxCloudServices">
       <HintPath>Library\ScriptAssemblies\Unity.Purchasing.Stores.XboxCloudServices.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.Advertisements.Editor">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VisualScripting.State">

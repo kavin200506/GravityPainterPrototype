@@ -156,4 +156,48 @@ public static class LevelProgress
     {
         return Application.CanStreamedLevelBeLoaded(GetSceneNameForLevel(levelNumber));
     }
+
+    // ── Star Rating Persistence ──────────────────────────────────────────
+
+    /// <summary>
+    /// Get the best star rating saved for a level (0-3). Returns 0 if never completed.
+    /// </summary>
+    public static int GetStars(int levelNumber)
+    {
+        return PlayerPrefs.GetInt("LevelStars_" + levelNumber, 0);
+    }
+
+    /// <summary>
+    /// Save the star rating for a level, keeping the best result.
+    /// </summary>
+    public static void SaveStars(int levelNumber, int stars)
+    {
+        int current = GetStars(levelNumber);
+        if (stars > current)
+        {
+            PlayerPrefs.SetInt("LevelStars_" + levelNumber, stars);
+            PlayerPrefs.Save();
+        }
+    }
+
+    /// <summary>
+    /// Get the best completion time for a level. Returns -1 if never completed.
+    /// </summary>
+    public static float GetBestTime(int levelNumber)
+    {
+        return PlayerPrefs.GetFloat("LevelBestTime_" + levelNumber, -1f);
+    }
+
+    /// <summary>
+    /// Save the completion time for a level, keeping the best (lowest) result.
+    /// </summary>
+    public static void SaveBestTime(int levelNumber, float time)
+    {
+        float current = GetBestTime(levelNumber);
+        if (current < 0f || time < current)
+        {
+            PlayerPrefs.SetFloat("LevelBestTime_" + levelNumber, time);
+            PlayerPrefs.Save();
+        }
+    }
 }

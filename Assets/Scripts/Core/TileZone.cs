@@ -288,6 +288,13 @@ public class TileZone : MonoBehaviour
         {
             tileRenderer.material = next;
         }
+        else
+        {
+            Debug.LogWarning("[TileZone] UpdateVisual FAILED: zone=" + zoneType
+                + " mat=" + (next != null ? next.name : "NULL")
+                + " renderer=" + (tileRenderer != null ? tileRenderer.name : "NULL")
+                + " tile=" + gameObject.name);
+        }
     }
 
     public Vector3 GetForceDirection()

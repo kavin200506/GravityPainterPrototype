@@ -71,4 +71,28 @@ public static class CoinManager
         PlayerPrefs.Save();
         return true;
     }
+
+    // ── Total Coins In Level ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Total coins available in the current level. Set at level start.
+    /// </summary>
+    public static int TotalCoinsInLevel { get; private set; }
+
+    /// <summary>
+    /// Set the total number of coins in the current level.
+    /// Call this when the level starts (after all coins are placed).
+    /// </summary>
+    public static void SetTotalCoinsInLevel(int total)
+    {
+        TotalCoinsInLevel = total;
+    }
+
+    /// <summary>
+    /// Reset total coins in level. Call on level start/restart.
+    /// </summary>
+    public static void ResetTotalCoinsInLevel()
+    {
+        TotalCoinsInLevel = 0;
+    }
 }
