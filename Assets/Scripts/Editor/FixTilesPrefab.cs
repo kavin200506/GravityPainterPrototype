@@ -22,25 +22,39 @@ public static class FixTilesPrefab
             return;
         }
 
-        // Load all sub-assets from the GLB model
-        Object[] subAssets = AssetDatabase.LoadAllAssetsAtPath(modelPath);
+        // Load the GLB model as a GameObject prefab
+        GameObject modelRoot = AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+        if (modelRoot == null)
+        {
+            Debug.LogError($"[FixTilesPrefab] Could not load GLB model at: {modelPath}");
+            return;
+        }
+
         Dictionary<string, Mesh> modelMeshes = new Dictionary<string, Mesh>();
         Dictionary<string, Material> modelMaterials = new Dictionary<string, Material>();
 
-        foreach (Object asset in subAssets)
+        // Traverse the GLB hierarchy to extract meshes
+        MeshFilter[] modelFilters = modelRoot.GetComponentsInChildren<MeshFilter>(true);
+        foreach (MeshFilter filter in modelFilters)
         {
-            if (asset == null) continue;
-            Debug.Log($"[FixTilesPrefab] Asset in GLB: Name = '{asset.name}', Type = '{asset.GetType()}'");
-
-            if (asset is Mesh mesh)
+            if (filter.sharedMesh != null)
             {
-                modelMeshes[mesh.name] = mesh;
-                Debug.Log($"[FixTilesPrefab] Model Mesh Name: '{mesh.name}'");
+                modelMeshes[filter.gameObject.name] = filter.sharedMesh;
+                // Also index by mesh name just in case
+                modelMeshes[filter.sharedMesh.name] = filter.sharedMesh;
+                Debug.Log($"[FixTilesPrefab] Extracted Model Mesh: Object '{filter.gameObject.name}', Mesh '{filter.sharedMesh.name}'");
             }
-            else if (asset is Material mat)
+        }
+
+        // Traverse the GLB hierarchy to extract materials
+        MeshRenderer[] modelRenderers = modelRoot.GetComponentsInChildren<MeshRenderer>(true);
+        foreach (MeshRenderer renderer in modelRenderers)
+        {
+            if (renderer.sharedMaterial != null)
             {
-                modelMaterials[mat.name] = mat;
-                Debug.Log($"[FixTilesPrefab] Model Material Name: '{mat.name}'");
+                modelMaterials[renderer.gameObject.name] = renderer.sharedMaterial;
+                modelMaterials[renderer.sharedMaterial.name] = renderer.sharedMaterial;
+                Debug.Log($"[FixTilesPrefab] Extracted Model Material: Object '{renderer.gameObject.name}', Material '{renderer.sharedMaterial.name}'");
             }
         }
 
