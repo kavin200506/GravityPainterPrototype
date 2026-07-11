@@ -288,6 +288,7 @@ public class PauseUI : MonoBehaviour
     private void RestartLevel()
     {
         TogglePause(); // Unpause and hide overlay
+        LifeManager.ResetLives();
 
         Scene active = SceneManager.GetActiveScene();
         if (LevelProgress.IsProceduralScene(active))

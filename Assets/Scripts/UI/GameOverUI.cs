@@ -55,7 +55,7 @@ public class GameOverUI : MonoBehaviour
         btnRect.anchorMin = new Vector2(0.5f, 0.5f);
         btnRect.anchorMax = new Vector2(0.5f, 0.5f);
         btnRect.pivot = new Vector2(0.5f, 0.5f);
-        btnRect.anchoredPosition = new Vector2(0f, -150f); // Move it down a bit
+        btnRect.anchoredPosition = new Vector2(-150f, -150f); // Shifted left to make room for Home
         btnRect.sizeDelta = new Vector2(250f, 250f); // Make it a large square for the circular icon
         Image btnImg = btnObj.AddComponent<Image>();
         
@@ -72,6 +72,32 @@ public class GameOverUI : MonoBehaviour
         
         Button btn = btnObj.AddComponent<Button>();
         btn.onClick.AddListener(RestartFromGameOver);
+
+        // --- Add Home Button ---
+        GameObject homeObj = new GameObject("HomeButton");
+        homeObj.transform.SetParent(canvasObj.transform, false);
+        RectTransform homeRect = homeObj.AddComponent<RectTransform>();
+        homeRect.anchorMin = new Vector2(0.5f, 0.5f);
+        homeRect.anchorMax = new Vector2(0.5f, 0.5f);
+        homeRect.pivot = new Vector2(0.5f, 0.5f);
+        homeRect.anchoredPosition = new Vector2(150f, -150f); // Shifted right
+        homeRect.sizeDelta = new Vector2(250f, 250f); 
+        Image homeImg = homeObj.AddComponent<Image>();
+        
+        Sprite homeSprite = Resources.Load<Sprite>("UI/HomeIcon");
+        if (homeSprite != null)
+        {
+            homeImg.sprite = homeSprite;
+            homeImg.color = Color.white;
+        }
+        else
+        {
+            homeImg.color = new Color(0.3f, 0.3f, 1f, 1f); // Fallback color
+        }
+        
+        Button homeBtn = homeObj.AddComponent<Button>();
+        homeBtn.onClick.AddListener(GoHomeFromGameOver);
+        // -----------------------
 
         _canvas = canvasObj;
     }
@@ -103,5 +129,21 @@ public class GameOverUI : MonoBehaviour
             SceneManager.LoadScene(active.buildIndex);
         else
             SceneManager.LoadScene(active.name);
+    }
+
+    private static void GoHomeFromGameOver()
+    {
+        if (_canvas != null)
+        {
+            Destroy(_canvas);
+            _canvas = null;
+        }
+
+        Time.timeScale = 1f;
+        LifeManager.ResetLives();
+        CoinManager.ResetSessionCoins();
+
+        MainMenu.RequestOpenLevelSelect();
+        SceneManager.LoadScene("MainMenu");
     }
 }
