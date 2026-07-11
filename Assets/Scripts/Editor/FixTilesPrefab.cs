@@ -29,6 +29,9 @@ public static class FixTilesPrefab
 
         foreach (Object asset in subAssets)
         {
+            if (asset == null) continue;
+            Debug.Log($"[FixTilesPrefab] Asset in GLB: Name = '{asset.name}', Type = '{asset.GetType()}'");
+
             if (asset is Mesh mesh)
             {
                 modelMeshes[mesh.name] = mesh;
