@@ -243,6 +243,36 @@ public class ProceduralLevelBuilder : MonoBehaviour
         int checkpointTileIndex = cells.Count / 2;
         int finishTileIndex = cells.Count - 1;
 
+        if (LevelProgress.GetSelectedMenuLevel() == 97)
+        {
+            int insertIndex = checkpointTileIndex + 3;
+            if (insertIndex < cells.Count)
+            {
+                LevelCell prev = cells[insertIndex - 1];
+                LevelCell next = cells[insertIndex];
+                Vector2Int dir = next.GridPos - prev.GridPos;
+                
+                LevelCell newCell = new LevelCell
+                {
+                    GridPos = next.GridPos,
+                    YRotation = next.YRotation,
+                    PathIndex = insertIndex,
+                    IsMainPath = true
+                };
+                
+                for (int i = insertIndex; i < cells.Count; i++)
+                {
+                    LevelCell c = cells[i];
+                    c.GridPos += dir;
+                    c.PathIndex++;
+                    cells[i] = c;
+                }
+                
+                cells.Insert(insertIndex, newCell);
+                finishTileIndex++;
+            }
+        }
+
         HashSet<int> powerUpIndices = new HashSet<int>();
         int lastPowerUpIndex = -1;
         // End at cells.Count - 2 to ensure at least 1 tile for a coin after a powerup
@@ -283,6 +313,19 @@ public class ProceduralLevelBuilder : MonoBehaviour
             powerUpIndices,
             actualSeed,
             difficulty);
+
+        if (LevelProgress.GetSelectedMenuLevel() == 97)
+        {
+            for (int j = checkpointTileIndex + 2; j < cells.Count; j++)
+            {
+                if (obstaclesByIndex.TryGetValue(j, out ObstacleKind kind) && kind == ObstacleKind.Laser)
+                {
+                    obstaclesByIndex.Remove(j);
+                    break;
+                }
+            }
+        }
+
         HashSet<int> obstacleIndices = new HashSet<int>(obstaclesByIndex.Keys);
 
         HashSet<int> coinIndices = new HashSet<int>();
