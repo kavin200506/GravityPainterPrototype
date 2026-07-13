@@ -6,13 +6,12 @@ public static class GlbModelPaths
 {
     public const string Folder = "Assets/Art/Models/GLB/";
 
-    public const string Tiles = Folder + "tiles.glb";
-    public const string Hammer = Folder + "hammer.glb";
-    public const string LaserGate = Folder + "LaserGate.glb";
-    public const string RedLaserBeam = Folder + "RedLaserBeam.glb";
-    public const string SciFiBall = Folder + "Sci-Fi Ball 3D Model.glb";
-    public const string FinishLine = Folder + "Finish_Line.glb";
-    public const string Coins = Folder + "coins.glb";
-    public const string Magnet = Folder + "Magnet.glb";
-    public const string Spikes = Folder + "spikes.glb";
+    public const string Tiles = Folder + "tiles/Untitled.gltf";
+    public const string Hammer = Folder + "hammer/Untitled.gltf";
+    public const string LaserGate = Folder + "LaserGate/Untitled.gltf";
+    public const string SciFiBall = Folder + "Sci-Fi Ball 3D Model/Untitled.gltf";
+    public const string FinishLine = Folder + "Finish_Line/Untitled.gltf";
+    public const string Coins = Folder + "coins/Untitled.gltf";
+    public const string Magnet = Folder + "Magnet/Untitled.gltf";
+    public const string Spikes = Folder + "spikes/Untitled.gltf";
 }

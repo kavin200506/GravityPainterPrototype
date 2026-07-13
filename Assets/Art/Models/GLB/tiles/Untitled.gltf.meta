@@ -1,0 +1,58 @@
+fileFormatVersion: 2
+guid: 27d162b0972134f0dbeacdd3e68badca
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 715df9372183c47e389bb6e19fbc3b52, type: 3}
+  editorImportSettings:
+    generateSecondaryUVSet: 0
+  importSettings:
+    nodeNameMethod: 1
+    animationMethod: 2
+    generateMipMaps: 1
+    texturesReadable: 0
+    defaultMinFilterMode: 9729
+    defaultMagFilterMode: 9729
+    anisotropicFilterLevel: 1
+  instantiationSettings:
+    mask: -1
+    layer: 0
+    skinUpdateWhenOffscreen: 1
+    lightIntensityFactor: 1
+    sceneObjectCreation: 2
+  assetDependencies:
+  - type: 0
+    originalUri: Assets/Art/Models/GLB/tiles/Untitled.bin
+    assetPath: Assets/Art/Models/GLB/tiles/Untitled.bin
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_2.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_2.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_0.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_0.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_1.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_1.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_2-1.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_2-1.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_0-1.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_0-1.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_1-1.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_1-1.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_2-2.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_2-2.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_0-2.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_0-2.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/tiles/Image_1-2.jpg
+    assetPath: Assets/Art/Models/GLB/tiles/Image_1-2.jpg
+  reportItems: []

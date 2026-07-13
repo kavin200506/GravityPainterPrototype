@@ -42,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4384837700210619454}
-  m_Mesh: {fileID: -3462124898171544739, guid: c4e8f1a293b5476d9e2a0b8c5d6f7e91, type: 3}
+  m_Mesh: {fileID: 592519931880843546, guid: e791ebfb2221341bb864758300a110e5, type: 3}
 --- !u!23 &3105906382930495220
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -68,7 +68,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -7249020867244837738, guid: c4e8f1a293b5476d9e2a0b8c5d6f7e91, type: 3}
+  - {fileID: 1503985152986307495, guid: e791ebfb2221341bb864758300a110e5, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -221,7 +221,6 @@ GameObject:
   - component: {fileID: 3184086726212224180}
   - component: {fileID: 762161698087975503}
   - component: {fileID: 1611166196947675717}
-  - component: {fileID: -2644856024147080815}
   m_Layer: 0
   m_Name: LaserGate_Frame
   m_TagString: Untagged
@@ -251,7 +250,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8859474587828698701}
-  m_Mesh: {fileID: -1901923605265949594, guid: c4e8f1a293b5476d9e2a0b8c5d6f7e91, type: 3}
+  m_Mesh: {fileID: 2692866134300940128, guid: e791ebfb2221341bb864758300a110e5, type: 3}
 --- !u!23 &1611166196947675717
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -277,7 +276,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4234473462164445276, guid: c4e8f1a293b5476d9e2a0b8c5d6f7e91, type: 3}
+  - {fileID: -1466275032908480242, guid: e791ebfb2221341bb864758300a110e5, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -301,25 +300,3 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &-2644856024147080815
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8859474587828698701}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -1901923605265949594, guid: c4e8f1a293b5476d9e2a0b8c5d6f7e91, type: 3}

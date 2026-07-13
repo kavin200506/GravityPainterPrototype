@@ -38,12 +38,26 @@ public static class DiagnoseTilesPrefab
     private static void LogHierarchyDiagnosis(GameObject root)
     {
         MeshFilter[] filters = root.GetComponentsInChildren<MeshFilter>(true);
+        if (filters.Length == 0)
+        {
+            Debug.LogWarning($"[Diagnose] No MeshFilters found under '{root.name}'");
+        }
+
         foreach (MeshFilter filter in filters)
         {
             string objName = filter.gameObject.name;
             string meshName = filter.sharedMesh != null ? filter.sharedMesh.name : "MISSING (null)";
             
+            Transform t = filter.transform;
+            string transInfo = $"Pos={t.localPosition}, Rot={t.localRotation.eulerAngles}, Scale={t.localScale}";
+            
+            string boundsInfo = "NONE";
             MeshRenderer renderer = filter.GetComponent<MeshRenderer>();
+            if (renderer != null)
+            {
+                boundsInfo = $"LocalBoundsSize={renderer.localBounds.size}, WorldBoundsSize={renderer.bounds.size}";
+            }
+
             string matName = "NONE";
             string shaderName = "NONE";
             string colorInfo = "NONE";
@@ -70,7 +84,7 @@ public static class DiagnoseTilesPrefab
                 matName = "MISSING MATERIAL (null)";
             }
 
-            Debug.Log($"[Diagnose] Object: '{objName}' | Mesh: '{meshName}' | Material: '{matName}' | Shader: '{shaderName}' | Color: {colorInfo}");
+            Debug.Log($"[Diagnose] Object: '{objName}' | Mesh: '{meshName}' | {transInfo} | Bounds: {boundsInfo} | Material: '{matName}' | Shader: '{shaderName}'");
         }
     }
 }
