@@ -24,31 +24,75 @@ public static class OptimizeAllGameAssets
         // 0. Correct relative texture paths inside GLTF files before importing
         FixGltfTexturePaths(glbFolder);
 
-        // 1. Walk through all subdirectories in GLB and compress all JPG and PNG textures to 256
-        string[] allFiles = Directory.GetFiles(glbFolder, "*.*", SearchOption.AllDirectories);
+        // 1. Walk through all folders and compress textures for Android
+        List<string> targetFolders = new List<string> {
+            "Assets/Art/Models/GLB",
+            "Assets/Art/Sprites",
+            "Assets/Art/Icons",
+            "Assets/ThirdParty/Fantasy Skybox FREE"
+        };
+
         int compressedCount = 0;
-
-        foreach (string file in allFiles)
+        foreach (string folder in targetFolders)
         {
-            string ext = Path.GetExtension(file).ToLower();
-            if (ext == ".jpg" || ext == ".png")
-            {
-                string unityPath = file.Replace("\\", "/");
-                TextureImporter importer = AssetImporter.GetAtPath(unityPath) as TextureImporter;
-                if (importer != null)
-                {
-                    TextureImporterPlatformSettings androidSettings = importer.GetPlatformTextureSettings("Android");
-                    androidSettings.overridden = true;
-                    androidSettings.maxTextureSize = 256;
-                    androidSettings.format = TextureImporterFormat.ASTC_8x8;
+            if (!Directory.Exists(folder)) continue;
 
-                    importer.SetPlatformTextureSettings(androidSettings);
-                    importer.SaveAndReimport();
-                    compressedCount++;
+            string[] files = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
+            foreach (string file in files)
+            {
+                string ext = Path.GetExtension(file).ToLower();
+                if (ext == ".jpg" || ext == ".png" || ext == ".tga")
+                {
+                    string unityPath = file.Replace("\\", "/");
+                    TextureImporter importer = AssetImporter.GetAtPath(unityPath) as TextureImporter;
+                    if (importer != null)
+                    {
+                        int targetSize = 256;
+                        TextureImporterFormat format = TextureImporterFormat.ASTC_8x8;
+
+                        if (unityPath.Contains("Fantasy Skybox FREE"))
+                        {
+                            targetSize = 1024;
+                            format = TextureImporterFormat.ASTC_6x6;
+                        }
+                        else if (unityPath.Contains("Sprites") || unityPath.Contains("Icons"))
+                        {
+                            targetSize = 512;
+                            format = TextureImporterFormat.ASTC_8x8;
+                        }
+
+                        TextureImporterPlatformSettings androidSettings = importer.GetPlatformTextureSettings("Android");
+                        androidSettings.overridden = true;
+                        androidSettings.maxTextureSize = targetSize;
+                        androidSettings.format = format;
+
+                        importer.SetPlatformTextureSettings(androidSettings);
+                        importer.SaveAndReimport();
+                        compressedCount++;
+                    }
                 }
             }
         }
-        Debug.Log($"[OptimizeAll] Compressed {compressedCount} standalone textures inside GLB folders to Max Size 256.");
+        Debug.Log($"[OptimizeAll] Compressed {compressedCount} total textures (GLB models, UI sprites, and skybox) to optimized Android settings.");
+
+        // 1.5 Transcode Video for Android (fixes black screen/playback issues on mobile)
+        string videoPath = "Assets/Art/Video/Mainmenu.mp4";
+        if (File.Exists(videoPath))
+        {
+            VideoClipImporter videoImporter = AssetImporter.GetAtPath(videoPath) as VideoClipImporter;
+            if (videoImporter != null)
+            {
+                VideoImporterTargetSettings videoSettings = videoImporter.GetTargetSettings("Android");
+                videoSettings.enableTranscoding = true;
+                videoSettings.codec = VideoCodec.H264;
+                videoSettings.resizeMode = VideoResizeMode.OriginalSize;
+                videoSettings.spatialQuality = VideoSpatialQuality.MediumSpatialQuality;
+
+                videoImporter.SetTargetSettings("Android", videoSettings);
+                videoImporter.SaveAndReimport();
+                Debug.Log("[OptimizeAll] Transcoded Mainmenu.mp4 to Android-compatible H.264 format.");
+            }
+        }
 
         AssetDatabase.Refresh();
 
