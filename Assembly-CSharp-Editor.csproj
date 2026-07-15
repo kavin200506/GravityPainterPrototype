@@ -60,6 +60,7 @@
     <Compile Include="Assets\Editor\CoinAppearanceEditor.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\SetupMainMenuVideoBackground.cs" />
     <Compile Include="Assets\Editor\ApplyThemeSkybox.cs" />
+    <Compile Include="Assets\Scripts\Editor\CompressGlbTextures.cs" />
     <Compile Include="Assets\Editor\RemoveMisplacedCameraFollow.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\SetupMainMenuButtons.cs" />
     <Compile Include="Assets\Scripts\Editor\FixTilesPrefab.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Assets\Editor\ApplySciFiBall3DModel.cs" />
     <Compile Include="Assets\Scripts\Procedural\Editor\SetupProceduralLevelScene.cs" />
     <Compile Include="Assets\Editor\SpikeTrapSync.cs" />
+    <Compile Include="Assets\Scripts\Editor\DiagnoseTilesPrefab.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\MainMenuVideoBackgroundEditor.cs" />
     <Compile Include="Assets\Scripts\Editor\ApplySafeArea.cs" />
     <Compile Include="Assets\Editor\CoinAppearanceSync.cs" />
@@ -76,6 +78,7 @@
     <Compile Include="Assets\Editor\SpikeTrapEditor.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\SetupSettingsUI.cs" />
     <Compile Include="Assets\Scripts\Procedural\Editor\ProceduralLevelBuilderEditor.cs" />
+    <Compile Include="Assets\Scripts\Editor\TestInstantiateTilesPrefab.cs" />
     <Compile Include="Assets\Scripts\Procedural\Editor\ProceduralPathGeneratorTest.cs" />
     <Compile Include="Assets\Editor\TileGlbUtility.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\SetupStoreUI.cs" />
@@ -88,6 +91,8 @@
     <Compile Include="Assets\Editor\SetupHammerObstacle.cs" />
     <Compile Include="Assets\Editor\ApplyFinishLineModel.cs" />
     <Compile Include="Assets\Editor\SetupLaserGateObstacle.cs" />
+    <Compile Include="Assets\Scripts\Editor\OptimizeAllGameAssets.cs" />
+    <Compile Include="Assets\Scripts\Editor\OptimizeTilesGltf.cs" />
     <Compile Include="Assets\Editor\GravityPainterProjectSettingsRepair.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1284,6 +1289,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Draco.Editor">
+      <HintPath>Library\ScriptAssemblies\Draco.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.Microsoft.GDK.Tools">
       <HintPath>Library\ScriptAssemblies\Unity.Microsoft.GDK.Tools.dll</HintPath>
       <Private>False</Private>
@@ -1582,6 +1591,10 @@
     </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Editor.Shared">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Editor.Shared.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Draco">
+      <HintPath>Library\ScriptAssemblies\Draco.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="glTFast">

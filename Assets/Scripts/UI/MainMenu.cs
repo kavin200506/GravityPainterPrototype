@@ -52,14 +52,68 @@ public class MainMenu : MonoBehaviour
             }
         }
 
-        if (levelsPanel == null)
+        if (levelsPanel == null || levelsPanel.name == "Levels Panel")
         {
             Canvas canvas = FindFirstObjectByType<Canvas>();
             if (canvas != null)
             {
-                Transform panel = canvas.transform.Find("Levels Panel");
+                Transform panel = canvas.transform.Find("LevelSelectMenu");
+                if (panel == null)
+                {
+                    panel = canvas.transform.Find("Levels Panel"); // Fallback
+                }
                 if (panel != null)
+                {
                     levelsPanel = panel.gameObject;
+
+                    if (levelsPanel.name == "LevelSelectMenu")
+                    {
+                        LevelMenu menuScript = levelsPanel.GetComponent<LevelMenu>();
+                        if (menuScript == null)
+                        {
+                            menuScript = levelsPanel.AddComponent<LevelMenu>();
+                            Debug.Log("Automatically attached LevelMenu to LevelSelectMenu!");
+                        }
+
+#if UNITY_EDITOR
+                        UnityEditor.SerializedObject so = new UnityEditor.SerializedObject(menuScript);
+                        so.Update();
+                        
+                        Sprite holderSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Level_Page/LevelNumberHolder.png");
+                        if (holderSprite != null)
+                        {
+                            so.FindProperty("buttonSprite").objectReferenceValue = holderSprite;
+                        }
+
+                        Sprite lockSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Level_Page/Padlock.png");
+                        if (lockSprite != null)
+                        {
+                            so.FindProperty("lockIconSprite").objectReferenceValue = lockSprite;
+                        }
+                        
+                        so.FindProperty("completedColor").colorValue = Color.white;
+                        so.FindProperty("focusColor").colorValue = new Color(0.8f, 0.9f, 1f, 1f);
+                        so.FindProperty("lockedColor").colorValue = new Color(0.4f, 0.4f, 0.4f, 1f);
+                        so.FindProperty("minimumLevels").intValue = 20;
+                        so.FindProperty("cellSize").vector2Value = new Vector2(120f, 120f);
+                        so.FindProperty("gridSpacing").vector2Value = new Vector2(16f, 16f);
+                        so.FindProperty("scrollPadding").floatValue = 16f;
+                        
+                        so.ApplyModifiedProperties();
+#endif
+                        
+                        Transform oldPanel = canvas.transform.Find("Levels Panel");
+                        if (oldPanel != null && oldPanel.gameObject != levelsPanel)
+                        {
+                            if (Application.isPlaying)
+                                Destroy(oldPanel.gameObject);
+                            else
+                                DestroyImmediate(oldPanel.gameObject);
+                                
+                            Debug.Log("Cleaned up old Levels Panel.");
+                        }
+                    }
+                }
             }
         }
 
