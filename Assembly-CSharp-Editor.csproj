@@ -67,6 +67,7 @@
     <Compile Include="Assets\Editor\ApplyCoinModel.cs" />
     <Compile Include="Assets\Editor\PlaceCampaignCoins.cs" />
     <Compile Include="Assets\Editor\SciFiPackMaterialFix.cs" />
+    <Compile Include="Assets\Scripts\Editor\CheckGltfImportErrors.cs" />
     <Compile Include="Assets\Editor\ApplySciFiBall3DModel.cs" />
     <Compile Include="Assets\Scripts\Procedural\Editor\SetupProceduralLevelScene.cs" />
     <Compile Include="Assets\Editor\SpikeTrapSync.cs" />

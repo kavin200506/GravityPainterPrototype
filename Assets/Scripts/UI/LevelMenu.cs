@@ -105,11 +105,21 @@ public class LevelMenu : MonoBehaviour
         Transform existing = transform.Find("BackButton");
         if (existing != null)
         {
+            // Bring to front so nothing blocks its clicks
+            existing.SetAsLastSibling();
+
             Button existingBtn = existing.GetComponent<Button>();
             if (existingBtn != null)
             {
                 existingBtn.onClick.RemoveListener(CloseMenu);
                 existingBtn.onClick.AddListener(CloseMenu);
+
+                // Magically expand the clickable area by 40 pixels in all directions!
+                Image img = existing.GetComponent<Image>();
+                if (img != null)
+                {
+                    img.raycastPadding = new Vector4(-40f, -40f, -40f, -40f);
+                }
             }
         }
     }

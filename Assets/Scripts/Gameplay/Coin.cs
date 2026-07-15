@@ -21,6 +21,7 @@ public class Coin : MonoBehaviour
             : CoinAppearanceProfile.LoadOrDefault();
     }
 
+
     private void Update()
     {
         if (_profile == null)

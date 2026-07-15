@@ -383,6 +383,19 @@ public class MainMenu : MonoBehaviour
         WireButton(root, "HowToPlay", OpenHowToPlay);
         WireButton(root, "Store", OpenStore);
         WireButton(root, "Settings", OpenSettings);
+
+        if (howToPanel != null)
+        {
+            Button[] buttons = howToPanel.GetComponentsInChildren<Button>(true);
+            foreach (Button b in buttons)
+            {
+                if (b.name.Contains("Back") || b.name.Contains("Close"))
+                {
+                    b.onClick.RemoveListener(CloseHowToPlay);
+                    b.onClick.AddListener(CloseHowToPlay);
+                }
+            }
+        }
     }
 
     private void WireButton(Transform root, string childName, UnityEngine.Events.UnityAction action)
@@ -426,6 +439,10 @@ public class MainMenu : MonoBehaviour
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(false);
 
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(false);
+
         if (levelsPanel != null)
         {
             levelsPanel.SetActive(true);
@@ -442,12 +459,20 @@ public class MainMenu : MonoBehaviour
 
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(true);
+
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(true);
     }
 
     public void OpenHowToPlay()
     {
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(false);
+
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(false);
 
         if (howToPanel != null)
             howToPanel.SetActive(true);
@@ -460,6 +485,10 @@ public class MainMenu : MonoBehaviour
 
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(true);
+
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(true);
     }
 
     public void OpenSettings()
