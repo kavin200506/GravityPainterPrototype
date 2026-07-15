@@ -83,6 +83,10 @@ public static class OptimizeAllGameAssets
             if (videoImporter != null)
             {
                 VideoImporterTargetSettings videoSettings = videoImporter.GetTargetSettings("Android");
+                if (videoSettings == null)
+                {
+                    videoSettings = new VideoImporterTargetSettings();
+                }
                 videoSettings.enableTranscoding = true;
                 videoSettings.codec = VideoCodec.H264;
                 videoSettings.resizeMode = VideoResizeMode.OriginalSize;

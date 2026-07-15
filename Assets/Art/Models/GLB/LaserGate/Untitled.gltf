@@ -3,6 +3,12 @@
 		"generator":"Khronos glTF Blender I/O v5.1.20",
 		"version":"2.0"
 	},
+	"extensionsUsed":[
+		"KHR_draco_mesh_compression"
+	],
+	"extensionsRequired":[
+		"KHR_draco_mesh_compression"
+	],
 	"scene":0,
 	"scenes":[
 		{
@@ -78,8 +84,19 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
+					"extensions":{
+						"KHR_draco_mesh_compression":{
+							"bufferView":0,
+							"attributes":{
+								"POSITION":0,
+								"NORMAL":1,
+								"TEXCOORD_0":2
+							}
+						}
+					},
 					"indices":3,
-					"material":0
+					"material":0,
+					"mode":4
 				}
 			]
 		},
@@ -92,8 +109,19 @@
 						"NORMAL":5,
 						"TEXCOORD_0":6
 					},
+					"extensions":{
+						"KHR_draco_mesh_compression":{
+							"bufferView":1,
+							"attributes":{
+								"POSITION":0,
+								"NORMAL":1,
+								"TEXCOORD_0":2
+							}
+						}
+					},
 					"indices":7,
-					"material":1
+					"material":1,
+					"mode":4
 				}
 			]
 		}
@@ -151,25 +179,24 @@
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"Image_2",
+			"name":"Image_2-1",
 			"uri":"Image_2-1.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"Image_0",
+			"name":"Image_0-1",
 			"uri":"Image_0-1.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"Image_1",
+			"name":"Image_1-1",
 			"uri":"Image_1-1.jpg"
 		}
 	],
 	"accessors":[
 		{
-			"bufferView":0,
 			"componentType":5126,
-			"count":216891,
+			"count":222742,
 			"max":[
 				0.9487900137901306,
 				0.7099570631980896,
@@ -183,27 +210,23 @@
 			"type":"VEC3"
 		},
 		{
-			"bufferView":1,
 			"componentType":5126,
-			"count":216891,
+			"count":222742,
 			"type":"VEC3"
 		},
 		{
-			"bufferView":2,
 			"componentType":5126,
-			"count":216891,
+			"count":222742,
 			"type":"VEC2"
 		},
 		{
-			"bufferView":3,
 			"componentType":5125,
 			"count":838689,
 			"type":"SCALAR"
 		},
 		{
-			"bufferView":4,
 			"componentType":5126,
-			"count":36658,
+			"count":36663,
 			"max":[
 				1,
 				0.0819019079208374,
@@ -217,19 +240,16 @@
 			"type":"VEC3"
 		},
 		{
-			"bufferView":5,
 			"componentType":5126,
-			"count":36658,
+			"count":36663,
 			"type":"VEC3"
 		},
 		{
-			"bufferView":6,
 			"componentType":5126,
-			"count":36658,
+			"count":36663,
 			"type":"VEC2"
 		},
 		{
-			"bufferView":7,
 			"componentType":5123,
 			"count":180414,
 			"type":"SCALAR"
@@ -238,51 +258,13 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":2602692,
-			"byteOffset":0,
-			"target":34962
+			"byteLength":1292801,
+			"byteOffset":0
 		},
 		{
 			"buffer":0,
-			"byteLength":2602692,
-			"byteOffset":2602692,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":1735128,
-			"byteOffset":5205384,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":3354756,
-			"byteOffset":6940512,
-			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":439896,
-			"byteOffset":10295268,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":439896,
-			"byteOffset":10735164,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":293264,
-			"byteOffset":11175060,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":360828,
-			"byteOffset":11468324,
-			"target":34963
+			"byteLength":183313,
+			"byteOffset":1292804
 		}
 	],
 	"samplers":[
@@ -293,7 +275,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":11829152,
+			"byteLength":1476120,
 			"uri":"Untitled.bin"
 		}
 	]

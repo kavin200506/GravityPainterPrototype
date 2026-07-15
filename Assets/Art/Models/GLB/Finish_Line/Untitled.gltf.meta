@@ -29,38 +29,38 @@ ScriptedImporter:
     originalUri: Assets/Art/Models/GLB/Finish_Line/Untitled.bin
     assetPath: Assets/Art/Models/GLB/Finish_Line/Untitled.bin
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_3.jpg
+    originalUri: Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_3.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_2.jpg
+    originalUri: Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_2.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_0.jpg
+    originalUri: Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_0.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_1.jpg
+    originalUri: Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_1.jpg
     assetPath: 
   reportItems:
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_3.jpg
-    - Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_3.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_3.jpg
+    - Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_3.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_2.jpg
-    - Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_2.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_2.jpg
+    - Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_2.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_0.jpg
-    - Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_0.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_0.jpg
+    - Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_0.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_1.jpg
-    - Assets/Art/Models/GLB/Finish_Line/Finish_Line/Image_1.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_1.jpg
+    - Assets/Art/Models/GLB/Finish_Line/Finish_Line(draco)/Image_1.jpg
   - type: 0
     code: 45
     messages:

@@ -29,54 +29,54 @@ ScriptedImporter:
     originalUri: Assets/Art/Models/GLB/hammer/Untitled.bin
     assetPath: Assets/Art/Models/GLB/hammer/Untitled.bin
   - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer/Image_2.jpg
+    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer/Image_0.jpg
+    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer/Image_1.jpg
+    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer/Image_2-1.jpg
+    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2-1.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer/Image_0-1.jpg
+    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0-1.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer/Image_1-1.jpg
+    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1-1.jpg
     assetPath: 
   reportItems:
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer/Image_2.jpg
-    - Assets/Art/Models/GLB/hammer/hammer/Image_2.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2.jpg
+    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer/Image_0.jpg
-    - Assets/Art/Models/GLB/hammer/hammer/Image_0.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0.jpg
+    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer/Image_1.jpg
-    - Assets/Art/Models/GLB/hammer/hammer/Image_1.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1.jpg
+    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer/Image_2-1.jpg
-    - Assets/Art/Models/GLB/hammer/hammer/Image_2-1.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2-1.jpg
+    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2-1.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer/Image_0-1.jpg
-    - Assets/Art/Models/GLB/hammer/hammer/Image_0-1.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0-1.jpg
+    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0-1.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer/Image_1-1.jpg
-    - Assets/Art/Models/GLB/hammer/hammer/Image_1-1.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1-1.jpg
+    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1-1.jpg
   - type: 0
     code: 45
     messages:

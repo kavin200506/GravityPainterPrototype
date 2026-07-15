@@ -29,30 +29,111 @@ ScriptedImporter:
     originalUri: Assets/Art/Models/GLB/tiles/Untitled.bin
     assetPath: Assets/Art/Models/GLB/tiles/Untitled.bin
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_2.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_2.jpg
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_2.jpg
+    assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_0.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_0.jpg
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_0.jpg
+    assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_1.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_1.jpg
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_1.jpg
+    assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_2-1.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_2-1.jpg
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_2-1.jpg
+    assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_0-1.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_0-1.jpg
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_0-1.jpg
+    assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_1-1.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_1-1.jpg
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_1-1.jpg
+    assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_2-2.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_2-2.jpg
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_2-2.jpg
+    assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_0-2.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_0-2.jpg
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_0-2.jpg
+    assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/tiles/Image_1-2.jpg
-    assetPath: Assets/Art/Models/GLB/tiles/Image_1-2.jpg
-  reportItems: []
+    originalUri: Assets/Art/Models/GLB/tiles/tiles/Image_1-2.jpg
+    assetPath: 
+  reportItems:
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_2.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_2.jpg
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_0.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_0.jpg
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_1.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_1.jpg
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_2-1.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_2-1.jpg
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_0-1.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_0-1.jpg
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_1-1.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_1-1.jpg
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_2-2.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_2-2.jpg
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_0-2.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_0-2.jpg
+  - type: 0
+    code: 43
+    messages:
+    - Couldn't load texture at Assets/Art/Models/GLB/tiles/tiles/Image_1-2.jpg
+    - Assets/Art/Models/GLB/tiles/tiles/Image_1-2.jpg
+  - type: 0
+    code: 45
+    messages:
+    - 1
+  - type: 0
+    code: 45
+    messages:
+    - 2
+  - type: 0
+    code: 45
+    messages:
+    - 0
+  - type: 0
+    code: 45
+    messages:
+    - 4
+  - type: 0
+    code: 45
+    messages:
+    - 5
+  - type: 0
+    code: 45
+    messages:
+    - 3
+  - type: 0
+    code: 45
+    messages:
+    - 7
+  - type: 0
+    code: 45
+    messages:
+    - 8
+  - type: 0
+    code: 45
+    messages:
+    - 6

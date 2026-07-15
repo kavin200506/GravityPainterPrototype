@@ -29,38 +29,38 @@ ScriptedImporter:
     originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Untitled.bin
     assetPath: Assets/Art/Models/GLB/Ai_Nova_Blue/Untitled.bin
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_3.jpg
+    originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_3.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_2.jpg
+    originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_2.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_0.jpg
+    originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_0.jpg
     assetPath: 
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_1.jpg
+    originalUri: Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_1.jpg
     assetPath: 
   reportItems:
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_3.jpg
-    - Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_3.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_3.jpg
+    - Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_3.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_2.jpg
-    - Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_2.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_2.jpg
+    - Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_2.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_0.jpg
-    - Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_0.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_0.jpg
+    - Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_0.jpg
   - type: 0
     code: 43
     messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_1.jpg
-    - Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue/Image_1.jpg
+    - Couldn't load texture at Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_1.jpg
+    - Assets/Art/Models/GLB/Ai_Nova_Blue/Ai_Nova_Blue(draco)/Image_1.jpg
   - type: 0
     code: 45
     messages:
