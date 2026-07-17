@@ -1,5 +1,37 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2206528220017044920
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4912765528829591950}
+  m_Layer: 0
+  m_Name: CoinVisualRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4912765528829591950
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2206528220017044920}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.64792496, z: 0, w: -0.7617042}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2730791271661006194}
+  m_Father: {fileID: 5404468955115679314}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2751322660802306360
 GameObject:
   m_ObjectHideFlags: 0
@@ -33,7 +65,7 @@ Transform:
   m_LocalScale: {x: 2.5520947, y: 2.5047646, z: 0.5270562}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2778675738439680868}
+  - {fileID: 4912765528829591950}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &4760478174302929443
@@ -101,7 +133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CoinAppearance
   profile: {fileID: 11400000, guid: f6a7b8c9d0e14012c3d4e5f6a7b8c9d0, type: 2}
   publishChangesToProfile: 0
---- !u!1 &7071292625787653956
+--- !u!1 &6131990105102009333
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -109,9 +141,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6811853264238248549}
-  - component: {fileID: 966771743382537345}
-  - component: {fileID: 6747112542918749287}
+  - component: {fileID: 2730791271661006194}
+  - component: {fileID: 7725628564832472007}
+  - component: {fileID: 7592879755451424588}
   m_Layer: 0
   m_Name: CoinVisual
   m_TagString: Untagged
@@ -119,36 +151,36 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6811853264238248549
+--- !u!4 &2730791271661006194
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7071292625787653956}
+  m_GameObject: {fileID: 6131990105102009333}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.0012304783, y: 0.0009370446, z: 0.0009524972}
   m_LocalScale: {x: 0.52705616, y: 0.52705616, z: 0.52705616}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2778675738439680868}
+  m_Father: {fileID: 4912765528829591950}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &966771743382537345
+--- !u!33 &7725628564832472007
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7071292625787653956}
+  m_GameObject: {fileID: 6131990105102009333}
   m_Mesh: {fileID: -1901923605265949594, guid: 583a1bb8cb1be4814b4d03a26500d9a4, type: 3}
---- !u!23 &6747112542918749287
+--- !u!23 &7592879755451424588
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7071292625787653956}
+  m_GameObject: {fileID: 6131990105102009333}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -191,35 +223,3 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &8441732727156366278
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2778675738439680868}
-  m_Layer: 0
-  m_Name: CoinVisualRoot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2778675738439680868
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8441732727156366278}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.64792496, z: 0, w: -0.7617042}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 6811853264238248549}
-  m_Father: {fileID: 5404468955115679314}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
