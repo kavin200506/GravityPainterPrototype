@@ -44,18 +44,35 @@ namespace GravityPainter.UI
             overlayRect.offsetMin = Vector2.zero;
             overlayRect.offsetMax = Vector2.zero;
 
-            // Create progress line at bottom
-            GameObject lineObj = new GameObject("ProgressLine", typeof(RectTransform));
-            lineObj.transform.SetParent(overlayObj.transform, false);
+            // Create progress bar track at bottom
+            GameObject trackObj = new GameObject("ProgressBarTrack", typeof(RectTransform));
+            trackObj.transform.SetParent(overlayObj.transform, false);
 
-            _progressLine = lineObj.AddComponent<Image>();
-            _progressLine.color = Color.white;
+            Image trackImg = trackObj.AddComponent<Image>();
+            trackImg.color = new Color(0.1f, 0.1f, 0.1f, 0.6f);
 
-            RectTransform lineRect = lineObj.GetComponent<RectTransform>();
-            lineRect.anchorMin = new Vector2(0f, 0.03f);
-            lineRect.anchorMax = new Vector2(0f, 0.03f);
-            lineRect.pivot = new Vector2(0f, 0.5f);
-            lineRect.sizeDelta = new Vector2(0f, 4f);
+            RectTransform trackRect = trackObj.GetComponent<RectTransform>();
+            trackRect.anchorMin = new Vector2(0.5f, 0.06f);
+            trackRect.anchorMax = new Vector2(0.5f, 0.06f);
+            trackRect.pivot = new Vector2(0.5f, 0.5f);
+            
+            // We'll set the actual width based on CanvasScaler later, for now set a default
+            float defaultWidth = 800f;
+            trackRect.sizeDelta = new Vector2(defaultWidth, 24f);
+
+            // Create progress fill
+            GameObject fillObj = new GameObject("ProgressBarFill", typeof(RectTransform));
+            fillObj.transform.SetParent(trackObj.transform, false);
+
+            _progressLine = fillObj.AddComponent<Image>();
+            _progressLine.color = new Color(0.9f, 0.9f, 0.9f, 1f);
+
+            RectTransform fillRect = fillObj.GetComponent<RectTransform>();
+            fillRect.anchorMin = new Vector2(0f, 0f);
+            fillRect.anchorMax = new Vector2(0f, 1f);
+            fillRect.pivot = new Vector2(0f, 0.5f);
+            fillRect.sizeDelta = new Vector2(0f, 0f); // Height stretches to parent, width updated dynamically
+            fillRect.anchoredPosition = Vector2.zero;
 
             // Create percentage text above the line
             GameObject textObj = new GameObject("ProgressText", typeof(RectTransform));
@@ -69,8 +86,8 @@ namespace GravityPainter.UI
             _progressText.fontStyle = FontStyles.Bold;
 
             RectTransform textRect = textObj.GetComponent<RectTransform>();
-            textRect.anchorMin = new Vector2(0f, 0.03f);
-            textRect.anchorMax = new Vector2(1f, 0.09f);
+            textRect.anchorMin = new Vector2(0f, 0.08f);
+            textRect.anchorMax = new Vector2(1f, 0.14f);
             textRect.offsetMin = new Vector2(20f, 0f);
             textRect.offsetMax = new Vector2(-20f, 0f);
         }
@@ -86,11 +103,18 @@ namespace GravityPainter.UI
             PlayerPrefs.DeleteKey("OpenLevelSelect");
             PlayerPrefs.Save();
 
-            // Get screen width for line scaling
+            // Get screen width for track scaling
             float screenWidth = 1080f;
             CanvasScaler scaler = FindFirstObjectByType<CanvasScaler>();
             if (scaler != null && scaler.referenceResolution.x > 0)
                 screenWidth = scaler.referenceResolution.x;
+
+            float barWidth = screenWidth * 0.8f; // 80% of screen width
+            if (_progressLine != null && _progressLine.transform.parent != null)
+            {
+                RectTransform trackRect = _progressLine.transform.parent.GetComponent<RectTransform>();
+                if (trackRect != null) trackRect.sizeDelta = new Vector2(barWidth, trackRect.sizeDelta.y);
+            }
 
             while (!_asyncOperation.isDone)
             {
@@ -108,12 +132,11 @@ namespace GravityPainter.UI
                 if (_progressText != null)
                     _progressText.text = Mathf.RoundToInt(displayProgress * 100f) + "%";
 
-                // Update progress line width
+                // Update progress fill width
                 if (_progressLine != null)
                 {
-                    RectTransform lineRect = _progressLine.rectTransform;
-                    float maxWidth = screenWidth - 40f;
-                    lineRect.sizeDelta = new Vector2(maxWidth * displayProgress, lineRect.sizeDelta.y);
+                    RectTransform fillRect = _progressLine.rectTransform;
+                    fillRect.sizeDelta = new Vector2(barWidth * displayProgress, 0f);
                 }
 
                 // Ready to activate
