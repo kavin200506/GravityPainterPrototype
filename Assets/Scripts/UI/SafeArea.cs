@@ -49,15 +49,7 @@ public class SafeArea : MonoBehaviour
         _lastSafeArea    = safeArea;
         _lastScreenSize  = new Vector2Int(Screen.width, Screen.height);
 
-        // Convert safe area pixel rect to anchor coordinates (0–1)
-        Vector2 anchorMin = safeArea.position;
-        Vector2 anchorMax = safeArea.position + safeArea.size;
-        anchorMin.x /= Screen.width;
-        anchorMin.y /= Screen.height;
-        anchorMax.x /= Screen.width;
-        anchorMax.y /= Screen.height;
-
-        _panel.anchorMin = anchorMin;
-        _panel.anchorMax = anchorMax;
+        _panel.anchorMin = Vector2.zero;
+        _panel.anchorMax = Vector2.one;
     }
 }

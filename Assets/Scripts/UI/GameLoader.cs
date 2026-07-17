@@ -119,10 +119,7 @@ namespace GravityPainter.UI
                 // Ready to activate
                 if (_asyncOperation.progress >= 0.9f && elapsedTime >= minimumLoadingTime)
                 {
-                    // Fade out overlay
-                    yield return StartCoroutine(FadeOverlay());
-
-                    _asyncOperation.allowSceneActivation = true;
+                    yield return StartCoroutine(PerformSmoothTransition());
                     yield break;
                 }
 
@@ -130,19 +127,69 @@ namespace GravityPainter.UI
             }
         }
 
-        private IEnumerator FadeOverlay()
+        private IEnumerator PerformSmoothTransition()
         {
-            if (_overlayGroup == null) yield break;
+            // Create a persistent canvas for the fade transition
+            GameObject transitionCanvasObj = new GameObject("TransitionCanvas");
+            DontDestroyOnLoad(transitionCanvasObj);
+            Canvas tCanvas = transitionCanvasObj.AddComponent<Canvas>();
+            tCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            tCanvas.sortingOrder = 999;
+            
+            GameObject bgObj = new GameObject("BlackBG");
+            bgObj.transform.SetParent(transitionCanvasObj.transform, false);
+            Image bgImg = bgObj.AddComponent<Image>();
+            bgImg.color = Color.black;
+            
+            RectTransform bgRt = bgObj.GetComponent<RectTransform>();
+            bgRt.anchorMin = Vector2.zero;
+            bgRt.anchorMax = Vector2.one;
+            bgRt.sizeDelta = Vector2.zero;
+            
+            CanvasGroup tGroup = transitionCanvasObj.AddComponent<CanvasGroup>();
+            tGroup.alpha = 0f;
 
+            // Fade to black (and fade out the progress bar simultaneously)
             float counter = 0f;
             while (counter < fadeDuration)
             {
                 counter += Time.deltaTime;
-                _overlayGroup.alpha = Mathf.Lerp(1f, 0f, counter / fadeDuration);
+                float t = counter / fadeDuration;
+                if (_overlayGroup != null) _overlayGroup.alpha = Mathf.Lerp(1f, 0f, t);
+                tGroup.alpha = Mathf.Lerp(0f, 1f, t);
                 yield return null;
             }
 
-            _overlayGroup.alpha = 0f;
+            // Move the rest of the transition to a persistent component
+            // so it doesn't get destroyed when this scene unloads.
+            FadeTransition fader = transitionCanvasObj.AddComponent<FadeTransition>();
+            fader.StartCoroutine(fader.DoFade(_asyncOperation, fadeDuration, tGroup));
+        }
+    }
+
+    public class FadeTransition : MonoBehaviour
+    {
+        public IEnumerator DoFade(AsyncOperation asyncOp, float duration, CanvasGroup group)
+        {
+            asyncOp.allowSceneActivation = true;
+            
+            while (!asyncOp.isDone)
+            {
+                yield return null;
+            }
+            
+            yield return null;
+
+            float counter = 0f;
+            while (counter < duration)
+            {
+                counter += Time.deltaTime;
+                float t = counter / duration;
+                group.alpha = Mathf.Lerp(1f, 0f, t);
+                yield return null;
+            }
+            
+            Destroy(gameObject);
         }
     }
 }

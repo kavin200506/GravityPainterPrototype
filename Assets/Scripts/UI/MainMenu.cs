@@ -186,7 +186,13 @@ public class MainMenu : MonoBehaviour
         WireMenuButtons();
 
         if (ConsumeOpenLevelSelectFlag())
+        {
             ShowLevelSelect();
+        }
+        else
+        {
+            CloseLevelSelect();
+        }
     }
 
     private static Transform FindInChildren(Transform parent, string name)
