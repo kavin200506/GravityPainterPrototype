@@ -21,7 +21,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Mesh_0.009"
+			"name":"Mesh_0"
 		}
 	],
 	"materials":[
@@ -35,7 +35,7 @@
 			"emissiveTexture":{
 				"index":0
 			},
-			"name":"Material_0.009",
+			"name":"Material_0",
 			"normalTexture":{
 				"index":1
 			},
@@ -51,7 +51,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Mesh_0.009",
+			"name":"Mesh_0",
 			"primitives":[
 				{
 					"attributes":{
@@ -119,39 +119,39 @@
 	"accessors":[
 		{
 			"componentType":5126,
-			"count":332858,
+			"count":6852,
 			"max":[
-				0.7802820205688477,
-				0.9486809968948364,
-				0.30759701132774353
+				0.7879128456115723,
+				0.9499016404151917,
+				0.3077300190925598
 			],
 			"min":[
-				-0.7822210192680359,
-				-0.9504879713058472,
-				-0.3082520067691803
+				-0.7828641533851624,
+				-0.9500694870948792,
+				-0.30873167514801025
 			],
 			"type":"VEC3"
 		},
 		{
 			"componentType":5126,
-			"count":332858,
+			"count":6852,
 			"type":"VEC3"
 		},
 		{
 			"componentType":5126,
-			"count":332858,
+			"count":6852,
 			"type":"VEC2"
 		},
 		{
-			"componentType":5125,
-			"count":1790472,
+			"componentType":5123,
+			"count":17904,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":1910615,
+			"byteLength":62277,
 			"byteOffset":0
 		}
 	],
@@ -163,7 +163,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":1910616,
+			"byteLength":62280,
 			"uri":"Untitled.bin"
 		}
 	]

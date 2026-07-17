@@ -109,8 +109,7 @@ public static class OptimizeAllGameAssets
         // Coins
         ApplyCoinModel.ApplyToCoinPrefab();
 
-        // Spikes
-        ApplySpikesModel.ApplyToSpikesPrefab();
+
 
         // Magnet
         ApplyMagnetModel.ApplyToMagnetPrefab();

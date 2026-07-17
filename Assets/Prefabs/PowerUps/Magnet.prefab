@@ -113,5 +113,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4e8a1b2c3d4456789abcdef01234567, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PowerUpVisual
-  modelPrefab: {fileID: 8161245615435978789, guid: 127dcc7f60e8749158bb340cf9a41726, type: 3}
+  modelPrefab: {fileID: 1348512149263590645, guid: 127dcc7f60e8749158bb340cf9a41726, type: 3}
   targetLocalBoundsSize: {x: 1.2, y: 1.2, z: 1.2}

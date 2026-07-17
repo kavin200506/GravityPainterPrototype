@@ -37,15 +37,6 @@ ScriptedImporter:
   - type: 1
     originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1.jpg
     assetPath: 
-  - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2-1.jpg
-    assetPath: 
-  - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0-1.jpg
-    assetPath: 
-  - type: 1
-    originalUri: Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1-1.jpg
-    assetPath: 
   reportItems:
   - type: 0
     code: 43
@@ -63,21 +54,6 @@ ScriptedImporter:
     - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1.jpg
     - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1.jpg
   - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2-1.jpg
-    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_2-1.jpg
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0-1.jpg
-    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_0-1.jpg
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1-1.jpg
-    - Assets/Art/Models/GLB/hammer/hammer(draco)/Image_1-1.jpg
-  - type: 0
     code: 45
     messages:
     - 1
@@ -89,15 +65,3 @@ ScriptedImporter:
     code: 45
     messages:
     - 0
-  - type: 0
-    code: 45
-    messages:
-    - 4
-  - type: 0
-    code: 45
-    messages:
-    - 5
-  - type: 0
-    code: 45
-    messages:
-    - 3

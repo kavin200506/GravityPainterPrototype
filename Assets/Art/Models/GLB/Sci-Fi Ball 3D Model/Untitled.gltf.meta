@@ -29,94 +29,15 @@ ScriptedImporter:
     originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Untitled.bin
     assetPath: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Untitled.bin
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_2.jpg
-    assetPath: 
+    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Image_2.jpg
+    assetPath: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Image_2.jpg
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_0.jpg
-    assetPath: 
+    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Image_3.png
+    assetPath: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Image_3.png
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_1.jpg
-    assetPath: 
+    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Image_0.jpg
+    assetPath: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Image_0.jpg
   - type: 1
-    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_2-1.jpg
-    assetPath: 
-  - type: 1
-    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_3.png
-    assetPath: 
-  - type: 1
-    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_0-1.jpg
-    assetPath: 
-  - type: 1
-    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_1.png
-    assetPath: 
-  reportItems:
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi
-      Ball 3D Model/Image_2.jpg
-    - Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_2.jpg
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi
-      Ball 3D Model/Image_0.jpg
-    - Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_0.jpg
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi
-      Ball 3D Model/Image_1.jpg
-    - Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_1.jpg
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi
-      Ball 3D Model/Image_2-1.jpg
-    - Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_2-1.jpg
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi
-      Ball 3D Model/Image_3.png
-    - Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_3.png
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi
-      Ball 3D Model/Image_0-1.jpg
-    - Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_0-1.jpg
-  - type: 0
-    code: 43
-    messages:
-    - Couldn't load texture at Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi
-      Ball 3D Model/Image_1.png
-    - Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Sci-Fi Ball 3D Model/Image_1.png
-  - type: 0
-    code: 45
-    messages:
-    - 1
-  - type: 0
-    code: 45
-    messages:
-    - 2
-  - type: 0
-    code: 45
-    messages:
-    - 0
-  - type: 0
-    code: 45
-    messages:
-    - 5
-  - type: 0
-    code: 45
-    messages:
-    - 6
-  - type: 0
-    code: 45
-    messages:
-    - 4
-  - type: 0
-    code: 45
-    messages:
-    - 3
+    originalUri: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Image_1.png
+    assetPath: Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Image_1.png
+  reportItems: []

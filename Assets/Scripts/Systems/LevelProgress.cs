@@ -11,7 +11,7 @@ public static class LevelProgress
     public const string SelectedMenuLevelKey = "SelectedMenuLevel";
 
     /// <summary>Campaign slot in the level-select menu that launches procedural mode.</summary>
-    public const int ProceduralCampaignLevel = 3;
+    public const int ProceduralCampaignLevel = 1;
 
     /// <summary>Scene loaded when the player picks Level 3+ (must be in Build Settings).</summary>
     public const string ProceduralSceneName = "Procedural(test)";

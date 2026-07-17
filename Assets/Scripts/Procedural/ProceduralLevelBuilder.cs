@@ -23,7 +23,6 @@ public class ProceduralLevelBuilder : MonoBehaviour
     {
         Hammer,
         Laser,
-        Spikes,
     }
 
     private readonly struct ObstacleTypeDefinition
@@ -66,7 +65,6 @@ public class ProceduralLevelBuilder : MonoBehaviour
     [Header("Obstacles")]
     [SerializeField] private GameObject hammerPrefab;
     [SerializeField] private GameObject laserBeamPrefab;
-    [SerializeField] private GameObject spikesPrefab;
 
     [Header("PowerUps")]
     [SerializeField] private GameObject speedCorePrefab;
@@ -167,7 +165,6 @@ public class ProceduralLevelBuilder : MonoBehaviour
 
         if (hammerPrefab == null) hammerPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Obstacles/Hammer.prefab");
         if (laserBeamPrefab == null) laserBeamPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Obstacles/KorrathBeam.prefab");
-        if (spikesPrefab == null) spikesPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Obstacles/Spikes.prefab");
         if (speedCorePrefab == null) speedCorePrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PowerUps/SpeedCore.prefab");
         if (magnetPrefab == null) magnetPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PowerUps/Magnet.prefab");
 
@@ -794,21 +791,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 difficulty);
         }
 
-        if (difficulty >= 0.85f)
-        {
-            TryPlaceRequiredObstacle(
-                ObstacleKind.Spikes,
-                plan,
-                picked,
-                unlockedTypes,
-                validIndices,
-                minGap,
-                cells,
-                checkpointTileIndex,
-                finishTileIndex,
-                powerUpIndices,
-                difficulty);
-        }
+
     }
 
     private void TryPlaceRequiredObstacle(
@@ -887,10 +870,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
             types.Add(new ObstacleTypeDefinition(ObstacleKind.Laser, laserBeamPrefab, 0.40f));
         }
 
-        if (spikesPrefab != null && difficulty >= 0.80f)
-        {
-            types.Add(new ObstacleTypeDefinition(ObstacleKind.Spikes, spikesPrefab, 0.80f));
-        }
+
 
         return types;
     }
@@ -1078,18 +1058,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
 
                 return 1f;
 
-            case ObstacleKind.Spikes:
-                if (difficulty < 0.80f)
-                {
-                    return 0.01f;
-                }
 
-                if (difficulty < 0.90f)
-                {
-                    return 0.45f;
-                }
-
-                return 0.9f;
 
             default:
                 return 0.1f;
@@ -1169,34 +1138,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
 
                 return 0.75f;
 
-            case ObstacleKind.Spikes:
-                if (difficulty < 0.80f || isTurnTile)
-                {
-                    return 0f;
-                }
 
-                if (nearFinish || checkpointDistance <= 1 || powerUpDistance <= 1)
-                {
-                    return 0f;
-                }
-
-                float midPathBias = 1f - Mathf.Clamp01(Mathf.Abs(pathProgress - 0.5f) / 0.5f);
-                if (midPathBias < 0.25f)
-                {
-                    return 0.15f;
-                }
-
-                if (straightRunLength >= 4)
-                {
-                    return 0.9f + midPathBias * 0.5f;
-                }
-
-                if (straightRunLength >= 3)
-                {
-                    return 0.75f + midPathBias * 0.45f;
-                }
-
-                return 0.2f + midPathBias * 0.25f;
 
             default:
                 return 1f;
@@ -1335,20 +1277,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 return;
             }
 
-            case ObstacleKind.Spikes:
-            {
-                if (spikesPrefab == null)
-                {
-                    return;
-                }
 
-                GameObject spikes = Instantiate(spikesPrefab, levelRoot);
-                spikes.name = "Spike_" + index;
-                Vector3 position = tile.transform.position;
-                position.y = GetTileTopY(tile) + 0.01f;
-                spikes.transform.SetPositionAndRotation(position, tile.transform.rotation);
-                return;
-            }
         }
     }
 
