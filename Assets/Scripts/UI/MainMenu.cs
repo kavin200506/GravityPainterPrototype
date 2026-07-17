@@ -438,9 +438,16 @@ public class MainMenu : MonoBehaviour
         // Wire Store back button
         if (storeUI != null && storeUI.storePanel != null)
         {
-            Transform backBtn = storeUI.storePanel.transform.Find("BackButton");
-            if (backBtn != null)
-                WireSubPageButton(backBtn, CloseStore);
+            Button[] buttons = storeUI.storePanel.GetComponentsInChildren<Button>(true);
+            foreach (Button b in buttons)
+            {
+                string btnName = b.name.ToLower();
+                if (btnName.Contains("back") || btnName.Contains("close") || btnName.Contains("cancle") || btnName.Contains("cancel"))
+                {
+                    b.onClick.RemoveListener(CloseStore);
+                    b.onClick.AddListener(CloseStore);
+                }
+            }
         }
 
         // Wire LevelSelect back button

@@ -75,7 +75,18 @@ public class SettingsUI : MonoBehaviour
 
         Image bgImage = GetComponent<Image>();
         if (bgImage == null) bgImage = gameObject.AddComponent<Image>();
-        bgImage.color = new Color(0, 0, 0, 0.95f);
+        
+        Sprite bgSprite = Resources.Load<Sprite>("UI/SettingsBackground");
+        if (bgSprite != null)
+        {
+            bgImage.sprite = bgSprite;
+            bgImage.color = Color.white;
+        }
+        else
+        {
+            bgImage.sprite = null;
+            bgImage.color = new Color(0, 0, 0, 0.95f);
+        }
 
         // Title
         CreateText("Title", transform, "SETTINGS", 80, new Vector2(0f, 600f));
