@@ -284,8 +284,7 @@ public class LevelCompleteUI : MonoBehaviour
         containerRect.anchorMax = new Vector2(0.5f, 0.5f);
         containerRect.pivot = new Vector2(0.5f, 0.5f);
         containerRect.sizeDelta = new Vector2(600f, 200f);
-        float starY = buttonsAnchoredY + buttonHeight * 0.5f + titleGap + 180f;
-        containerRect.anchoredPosition = new Vector2(0f, starY);
+        containerRect.anchoredPosition = new Vector2(0f, 141f);
 
         _starImages = new Image[3];
         float starSize = 150f;
@@ -323,8 +322,6 @@ public class LevelCompleteUI : MonoBehaviour
         }
     }
 
-    // ── Stats Text ───────────────────────────────────────────────────────
-
     private void BuildStatsText()
     {
         Transform existing = transform.Find(StatsTextName);
@@ -332,29 +329,7 @@ public class LevelCompleteUI : MonoBehaviour
         {
             Destroy(existing.gameObject);
         }
-
-        GameObject statsObj = new GameObject(StatsTextName, typeof(RectTransform), typeof(TextMeshProUGUI));
-        statsObj.transform.SetParent(transform, false);
-
-        RectTransform statsRect = statsObj.GetComponent<RectTransform>();
-        statsRect.anchorMin = new Vector2(0.5f, 0.5f);
-        statsRect.anchorMax = new Vector2(0.5f, 0.5f);
-        statsRect.pivot = new Vector2(0.5f, 0.5f);
-        statsRect.sizeDelta = new Vector2(800f, 80f);
-        float statsY = buttonsAnchoredY + buttonHeight * 0.5f + 80f;
-        statsRect.anchoredPosition = new Vector2(0f, statsY);
-
-        _statsText = statsObj.GetComponent<TextMeshProUGUI>();
-        _statsText.alignment = TextAlignmentOptions.Center;
-        _statsText.fontSize = 40f;
-        _statsText.color = Color.white;
-        _statsText.text = "";
-
-        TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
-        if (font != null)
-        {
-            _statsText.font = font;
-        }
+        _statsText = null;
     }
 
     private void UpdateStatsText()
@@ -389,7 +364,10 @@ public class LevelCompleteUI : MonoBehaviour
             }
         }
 
-        _statsText.gameObject.SetActive(false);
+        if (_statsText != null)
+        {
+            _statsText.gameObject.SetActive(false);
+        }
         UpdateStatsText();
 
         yield return new WaitForSecondsRealtime(0.5f);
@@ -403,7 +381,10 @@ public class LevelCompleteUI : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.4f);
         }
 
-        _statsText.gameObject.SetActive(true);
+        if (_statsText != null)
+        {
+            _statsText.gameObject.SetActive(true);
+        }
     }
 
     private IEnumerator AnimateSingleStar(int index, bool earned)
