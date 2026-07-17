@@ -1,13 +1,9 @@
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Gravity Painter/Ball Skin Data")]
-public class BallSkinData : ScriptableObject
+public class BallSkinData : BallData
 {
-    public string skinId;
-    public string skinName;
-    public int price;
-    public bool unlockedByDefault;
-    public string prefabResourcePath;
-    public float speedMultiplier = 1f;
-    public Sprite icon;
+    [Header("Store Display")]
+    [Tooltip("Flavor text describing this skin's special ability, shown as a badge on the store card.")]
+    public string abilityDescription = "Balanced Handling";
 }

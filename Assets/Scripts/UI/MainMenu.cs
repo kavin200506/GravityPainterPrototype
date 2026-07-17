@@ -13,6 +13,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private Button storeButton;
     public StoreUI storeUI;
+    [Tooltip("The active ball-skin store screen. When assigned, this takes priority over the legacy storeUI.")]
+    public TestStoreUI testStoreUI;
 
     [Header("Menu Root Layout")]
     [SerializeField] private Vector2 menuRootPosition = new Vector2(0f, 0f);
@@ -173,8 +175,33 @@ public class MainMenu : MonoBehaviour
             }
         }
 
+        if (testStoreUI == null)
+        {
+            Canvas canvas = FindFirstObjectByType<Canvas>();
+            if (canvas != null)
+            {
+                Transform storeTest = FindInChildren(canvas.transform, "StoreTest");
+                if (storeTest != null)
+                    testStoreUI = storeTest.GetComponent<TestStoreUI>();
+            }
+        }
+
+        StoreManager newStore = FindFirstObjectByType<StoreManager>(FindObjectsInactive.Include);
+        if (newStore != null && newStore.storePanel != null)
+            newStore.storePanel.SetActive(false);
+
+        Canvas mainCanvas = FindFirstObjectByType<Canvas>();
+        if (mainCanvas != null)
+        {
+            Transform storeP = mainCanvas.transform.Find("StorePanel");
+            if (storeP != null) storeP.gameObject.SetActive(false);
+        }
+
         if (storeUI != null && storeUI.storePanel != null)
             storeUI.storePanel.SetActive(false);
+
+        if (testStoreUI != null && testStoreUI.storeRoot != null)
+            testStoreUI.storeRoot.SetActive(false);
 
         if (howToPanel != null)
             howToPanel.SetActive(false);
@@ -450,6 +477,21 @@ public class MainMenu : MonoBehaviour
             }
         }
 
+        // Wire the active store screen's back button as well, so it always returns to the main menu.
+        if (testStoreUI != null && testStoreUI.storeRoot != null)
+        {
+            Button[] buttons = testStoreUI.storeRoot.GetComponentsInChildren<Button>(true);
+            foreach (Button b in buttons)
+            {
+                string btnName = b.name.ToLower();
+                if (btnName.Contains("back") || btnName.Contains("close") || btnName.Contains("cancle") || btnName.Contains("cancel"))
+                {
+                    b.onClick.RemoveListener(CloseStore);
+                    b.onClick.AddListener(CloseStore);
+                }
+            }
+        }
+
         // Wire LevelSelect back button
         if (levelsPanel != null)
         {
@@ -592,13 +634,31 @@ public class MainMenu : MonoBehaviour
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(false);
 
-        if (storeUI != null)
+        StoreManager newStore = FindFirstObjectByType<StoreManager>(FindObjectsInactive.Include);
+        if (newStore != null && newStore.storePanel != null)
+        {
+            newStore.storePanel.SetActive(true);
+            newStore.RefreshStore();
+            return;
+        }
+
+        if (testStoreUI != null)
+            testStoreUI.Open();
+        else if (storeUI != null)
             storeUI.Open();
     }
 
     public void CloseStore()
     {
-        if (storeUI != null)
+        StoreManager newStore = FindFirstObjectByType<StoreManager>(FindObjectsInactive.Include);
+        if (newStore != null && newStore.storePanel != null)
+        {
+            newStore.storePanel.SetActive(false);
+        }
+
+        if (testStoreUI != null)
+            testStoreUI.Close();
+        else if (storeUI != null)
             storeUI.Close();
 
         if (mainMenuRoot != null)

@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallSkinData
   skinId: white
   skinName: Nova White
-  price: 700
+  price: 1100
   unlockedByDefault: 0
   prefabResourcePath: Prefabs/BallSkins/Ai_Nova_White
   speedMultiplier: 1
   icon: {fileID: 21300000, guid: f817797375b54774aa2a4e9969ab43d3, type: 3}
+  abilityDescription: Balanced Handling - No Bonus

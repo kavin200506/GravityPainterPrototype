@@ -17,3 +17,6 @@ MonoBehaviour:
   price: 0
   unlockedByDefault: 1
   prefabResourcePath: Prefabs/BallSkins/Default
+  speedMultiplier: 1
+  abilityDescription: Balanced Handling - No Bonus
+  icon: {fileID: 21300000, guid: f4117742fcd588243bd26dcc68691b9c, type: 3}
