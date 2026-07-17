@@ -46,12 +46,49 @@ public class LevelMenu : MonoBehaviour
         RectTransform rt = GetComponent<RectTransform>();
         if (rt != null)
         {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
             rt.anchoredPosition = Vector2.zero;
         }
 
+        Transform popUp = transform.Find("PopUp");
+        if (popUp != null)
+        {
+            RectTransform popUpRt = popUp.GetComponent<RectTransform>();
+            if (popUpRt != null)
+            {
+                popUpRt.anchorMin = Vector2.zero;
+                popUpRt.anchorMax = Vector2.one;
+                popUpRt.offsetMin = Vector2.zero;
+                popUpRt.offsetMax = Vector2.zero;
+            }
+        }
+
+        // Disable SafeArea on parent if present to ensure truly full screen
+        SafeArea safeArea = GetComponentInParent<SafeArea>();
+        if (safeArea != null)
+        {
+            safeArea.enabled = false;
+            RectTransform saRect = safeArea.GetComponent<RectTransform>();
+            saRect.anchorMin = Vector2.zero;
+            saRect.anchorMax = Vector2.one;
+            saRect.offsetMin = Vector2.zero;
+            saRect.offsetMax = Vector2.zero;
+        }
+
         RefreshLevelList();
+    }
+
+    private void OnDisable()
+    {
+        // Re-enable SafeArea when closing this menu so other menus get safe area
+        SafeArea safeArea = GetComponentInParent<SafeArea>();
+        if (safeArea != null)
+        {
+            safeArea.enabled = true;
+        }
     }
 
     public void RefreshLevelList()
@@ -114,11 +151,35 @@ public class LevelMenu : MonoBehaviour
                 existingBtn.onClick.RemoveListener(CloseMenu);
                 existingBtn.onClick.AddListener(CloseMenu);
 
-                // Magically expand the clickable area by 40 pixels in all directions!
+                // Create or find the ClickZone child object
+                Transform clickZone = existing.Find("ClickZone");
+                
                 Image img = existing.GetComponent<Image>();
                 if (img != null)
                 {
-                    img.raycastPadding = new Vector4(-40f, -40f, -40f, -40f);
+                    // Remove the old padding trick
+                    img.raycastPadding = Vector4.zero;
+                    
+                    // Only disable the main raycast target if a ClickZone actually exists!
+                    // This ensures the button works by default if you haven't made a ClickZone yet.
+                    if (clickZone != null)
+                    {
+                        img.raycastTarget = false;
+                    }
+                    else
+                    {
+                        img.raycastTarget = true;
+                    }
+                }
+
+                if (clickZone != null)
+                {
+                    // If you created a ClickZone manually in the editor, we make sure it works
+                    Image czImg = clickZone.GetComponent<Image>();
+                    if (czImg != null)
+                    {
+                        czImg.raycastTarget = true;
+                    }
                 }
             }
         }

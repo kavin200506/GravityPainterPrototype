@@ -39,6 +39,7 @@ public class MainMenu : MonoBehaviour
         ApplyButtonLayout();
     }
 
+
     private void Start()
     {
         if (mainMenuRoot == null)
@@ -47,6 +48,7 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform menu = canvas.transform.Find("MainMenu");
+                if (menu == null) menu = FindInChildren(canvas.transform, "MainMenu");
                 if (menu != null)
                     mainMenuRoot = menu.gameObject;
             }
@@ -54,13 +56,16 @@ public class MainMenu : MonoBehaviour
 
         if (levelsPanel == null || levelsPanel.name == "Levels Panel")
         {
+            // Try direct find first, then search under SafeAreaPanel
             Canvas canvas = FindFirstObjectByType<Canvas>();
             if (canvas != null)
             {
                 Transform panel = canvas.transform.Find("LevelSelectMenu");
+                if (panel == null) panel = FindInChildren(canvas.transform, "LevelSelectMenu");
                 if (panel == null)
                 {
-                    panel = canvas.transform.Find("Levels Panel"); // Fallback
+                    panel = canvas.transform.Find("Levels Panel");
+                    if (panel == null) panel = FindInChildren(canvas.transform, "Levels Panel");
                 }
                 if (panel != null)
                 {
@@ -103,6 +108,7 @@ public class MainMenu : MonoBehaviour
 #endif
                         
                         Transform oldPanel = canvas.transform.Find("Levels Panel");
+                        if (oldPanel == null) oldPanel = FindInChildren(canvas.transform, "Levels Panel");
                         if (oldPanel != null && oldPanel.gameObject != levelsPanel)
                         {
                             if (Application.isPlaying)
@@ -123,6 +129,7 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform panel = canvas.transform.Find("HowTo");
+                if (panel == null) panel = FindInChildren(canvas.transform, "HowTo");
                 if (panel != null)
                     howToPanel = panel.gameObject;
             }
@@ -134,6 +141,7 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform panel = canvas.transform.Find("SettingsPanel");
+                if (panel == null) panel = FindInChildren(canvas.transform, "SettingsPanel");
                 if (panel == null)
                 {
                     GameObject newPanel = new GameObject("SettingsPanel");
@@ -158,6 +166,7 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform store = canvas.transform.Find("StorePanel");
+                if (store == null) store = FindInChildren(canvas.transform, "StorePanel");
                 if (store != null)
                     storeUI = store.GetComponent<StoreUI>();
             }
@@ -178,6 +187,18 @@ public class MainMenu : MonoBehaviour
 
         if (ConsumeOpenLevelSelectFlag())
             ShowLevelSelect();
+    }
+
+    private static Transform FindInChildren(Transform parent, string name)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform child = parent.GetChild(i);
+            if (child.name == name) return child;
+            Transform found = FindInChildren(child, name);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     [ContextMenu("Apply Button Layout")]
@@ -384,18 +405,58 @@ public class MainMenu : MonoBehaviour
         WireButton(root, "Store", OpenStore);
         WireButton(root, "Settings", OpenSettings);
 
+        // Wire HowTo back/cancel buttons
         if (howToPanel != null)
         {
             Button[] buttons = howToPanel.GetComponentsInChildren<Button>(true);
             foreach (Button b in buttons)
             {
-                if (b.name.Contains("Back") || b.name.Contains("Close"))
+                if (b.name.Contains("Back") || b.name.Contains("Close") || b.name.Contains("cancle") || b.name.Contains("Cancel"))
                 {
                     b.onClick.RemoveListener(CloseHowToPlay);
                     b.onClick.AddListener(CloseHowToPlay);
                 }
             }
         }
+
+        // Wire Settings back button
+        if (settingsPanel != null)
+        {
+            Transform backBtn = settingsPanel.transform.Find("Back");
+            if (backBtn != null)
+                WireSubPageButton(backBtn, CloseSettings);
+        }
+
+        // Wire Store back button
+        if (storeUI != null && storeUI.storePanel != null)
+        {
+            Transform backBtn = storeUI.storePanel.transform.Find("BackButton");
+            if (backBtn != null)
+                WireSubPageButton(backBtn, CloseStore);
+        }
+
+        // Wire LevelSelect back button
+        if (levelsPanel != null)
+        {
+            Transform backBtn = levelsPanel.transform.Find("BackButton");
+            if (backBtn != null)
+                WireSubPageButton(backBtn, CloseLevelSelect);
+        }
+    }
+
+    private void WireSubPageButton(Transform buttonParent, UnityEngine.Events.UnityAction action)
+    {
+        // Check ClickZone child first, then parent
+        Transform cz = buttonParent.Find("ClickZone");
+        Button btn = null;
+        if (cz != null)
+            btn = cz.GetComponent<Button>();
+        if (btn == null)
+            buttonParent.TryGetComponent(out btn);
+        if (btn == null) return;
+
+        btn.onClick.RemoveListener(action);
+        btn.onClick.AddListener(action);
     }
 
     private void WireButton(Transform root, string childName, UnityEngine.Events.UnityAction action)
@@ -507,6 +568,8 @@ public class MainMenu : MonoBehaviour
 
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(true);
+
+        ShowCoinDisplay();
     }
 
     public void OpenStore()
@@ -525,7 +588,17 @@ public class MainMenu : MonoBehaviour
 
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(true);
+
+        ShowCoinDisplay();
     }
+
+    private void ShowCoinDisplay()
+    {
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(true);
+    }
+
 
     public void PlayGame()
     {
