@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1505671264837612802
+--- !u!1 &1215226580067426052
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,7 +8,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4166500651522180014}
+  - component: {fileID: 6453031308620043619}
   m_Layer: 0
   m_Name: CoinVisualRoot
   m_TagString: Untagged
@@ -16,20 +16,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4166500651522180014
+--- !u!4 &6453031308620043619
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1505671264837612802}
+  m_GameObject: {fileID: 1215226580067426052}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.64792496, z: 0, w: -0.7617042}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1290036878022014101}
+  - {fileID: 4991575465373026358}
   m_Father: {fileID: 5404468955115679314}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2751322660802306360
@@ -65,7 +65,7 @@ Transform:
   m_LocalScale: {x: 2.5520947, y: 2.5047646, z: 0.5270562}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4166500651522180014}
+  - {fileID: 6453031308620043619}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &4760478174302929443
@@ -133,7 +133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CoinAppearance
   profile: {fileID: 11400000, guid: f6a7b8c9d0e14012c3d4e5f6a7b8c9d0, type: 2}
   publishChangesToProfile: 0
---- !u!1 &5148064738903438547
+--- !u!1 &6968142107438584702
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -141,9 +141,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1290036878022014101}
-  - component: {fileID: 7985186647017561815}
-  - component: {fileID: 1220162101871886115}
+  - component: {fileID: 4991575465373026358}
+  - component: {fileID: 995928075925882857}
+  - component: {fileID: 1968324644978381682}
   m_Layer: 0
   m_Name: CoinVisual
   m_TagString: Untagged
@@ -151,36 +151,36 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1290036878022014101
+--- !u!4 &4991575465373026358
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5148064738903438547}
+  m_GameObject: {fileID: 6968142107438584702}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.0012304783, y: 0.0009370446, z: 0.0009524972}
   m_LocalScale: {x: 0.52705616, y: 0.52705616, z: 0.52705616}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4166500651522180014}
+  m_Father: {fileID: 6453031308620043619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &7985186647017561815
+--- !u!33 &995928075925882857
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5148064738903438547}
+  m_GameObject: {fileID: 6968142107438584702}
   m_Mesh: {fileID: -1901923605265949594, guid: 583a1bb8cb1be4814b4d03a26500d9a4, type: 3}
---- !u!23 &1220162101871886115
+--- !u!23 &1968324644978381682
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5148064738903438547}
+  m_GameObject: {fileID: 6968142107438584702}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
