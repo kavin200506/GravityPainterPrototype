@@ -89,7 +89,7 @@ public static class OptimizeAllGameAssets
                 }
                 videoSettings.enableTranscoding = true;
                 videoSettings.codec = VideoCodec.H264;
-                videoSettings.resizeMode = VideoResizeMode.OriginalSize;
+                videoSettings.resizeMode = VideoResizeMode.HalfRes;
                 videoSettings.spatialQuality = VideoSpatialQuality.MediumSpatialQuality;
 
                 videoImporter.SetTargetSettings("Android", videoSettings);
