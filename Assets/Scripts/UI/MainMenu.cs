@@ -130,6 +130,7 @@ public class MainMenu : MonoBehaviour
             {
                 Transform panel = canvas.transform.Find("HowTo");
                 if (panel == null) panel = FindInChildren(canvas.transform, "HowTo");
+                if (panel == null) panel = FindInChildren(canvas.transform, "HowToPlay");
                 if (panel != null)
                     howToPanel = panel.gameObject;
             }
@@ -417,7 +418,8 @@ public class MainMenu : MonoBehaviour
             Button[] buttons = howToPanel.GetComponentsInChildren<Button>(true);
             foreach (Button b in buttons)
             {
-                if (b.name.Contains("Back") || b.name.Contains("Close") || b.name.Contains("cancle") || b.name.Contains("Cancel"))
+                string btnName = b.name.ToLower();
+                if (btnName.Contains("back") || btnName.Contains("close") || btnName.Contains("cancle") || btnName.Contains("cancel"))
                 {
                     b.onClick.RemoveListener(CloseHowToPlay);
                     b.onClick.AddListener(CloseHowToPlay);
