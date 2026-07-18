@@ -31,12 +31,28 @@ public class StoreSceneLoader : MonoBehaviour
         if (storePanel != null)
             storePanel.SetActive(false);
 
-        Canvas canvas = GetComponentInParent<Canvas>();
-        if (canvas != null)
+        // Foolproof way to find and activate the MainMenu GameObject (even if inactive)
+        MainMenu mainMenu = Object.FindFirstObjectByType<MainMenu>(FindObjectsInactive.Include);
+        if (mainMenu != null)
         {
-            Transform mainMenu = canvas.transform.Find("MainMenu");
-            if (mainMenu != null)
-                mainMenu.gameObject.SetActive(true);
+            mainMenu.gameObject.SetActive(true);
+        }
+        else
+        {
+            // Fallback to searching under Canvas/SafeAreaPanel if script not found
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas != null)
+            {
+                Transform menuTrans = canvas.transform.Find("MainMenu");
+                if (menuTrans == null)
+                {
+                    menuTrans = canvas.transform.Find("SafeAreaPanel/MainMenu");
+                }
+                if (menuTrans != null)
+                {
+                    menuTrans.gameObject.SetActive(true);
+                }
+            }
         }
     }
 }
