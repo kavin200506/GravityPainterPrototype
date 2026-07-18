@@ -721,6 +721,20 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
+    private bool IsInsideStore(Transform t)
+    {
+        Transform curr = t;
+        while (curr != null)
+        {
+            if (curr.name == "StorePanel" || curr.name == "StoreTest")
+            {
+                return true;
+            }
+            curr = curr.parent;
+        }
+        return false;
+    }
+
     private void AdjustAllBackButtons()
     {
         Canvas canvas = FindFirstObjectByType<Canvas>();
@@ -731,8 +745,17 @@ public class MainMenu : MonoBehaviour
         {
             if (rt.gameObject.name == "BackButton" || rt.gameObject.name == "BackBtn" || rt.gameObject.name == "Back")
             {
-                rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, 909f);
-                Debug.Log($"[MainMenu] Adjusted BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to Y = 909");
+                if (IsInsideStore(rt))
+                {
+                    // Exact position from the user's screenshot for the store page back button
+                    rt.anchoredPosition3D = new Vector3(59f, -145f, -639f);
+                    Debug.Log($"[MainMenu] Adjusted Store BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to (59, -145, -639)");
+                }
+                else
+                {
+                    rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, 909f);
+                    Debug.Log($"[MainMenu] Adjusted BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to Y = 909");
+                }
             }
         }
     }
