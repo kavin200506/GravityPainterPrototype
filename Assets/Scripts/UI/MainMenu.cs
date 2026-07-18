@@ -382,6 +382,15 @@ public class MainMenu : MonoBehaviour
         czImage.sprite = null;
         czImage.color = new Color(1f, 1f, 1f, 0f);
         czImage.raycastTarget = true;
+
+        // Disable raycastTarget on all Graphic components of the parent and its children (except the ClickZone itself)
+        foreach (Graphic g in btnTransform.GetComponentsInChildren<Graphic>(true))
+        {
+            if (g.gameObject.name != "ClickZone")
+            {
+                g.raycastTarget = false;
+            }
+        }
     }
 
     private static void SetButtonStretch(Transform root, string buttonName)
