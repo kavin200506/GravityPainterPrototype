@@ -60,6 +60,7 @@
     <Compile Include="Assets\TutorialInfo\Scripts\Editor\ReadmeEditor.cs" />
     <Compile Include="Assets\Editor\CoinAppearanceEditor.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\SetupMainMenuVideoBackground.cs" />
+    <Compile Include="Assets\Scripts\UI\Editor\FixStoreBackButton.cs" />
     <Compile Include="Assets\Editor\ApplyThemeSkybox.cs" />
     <Compile Include="Assets\Scripts\Editor\CompressGlbTextures.cs" />
     <Compile Include="Assets\Editor\RemoveMisplacedCameraFollow.cs" />

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[ExecuteAlways]
 public class StoreUI : MonoBehaviour
 {
     [Header("References")]
@@ -58,18 +59,26 @@ public class StoreUI : MonoBehaviour
         WireConfirmButtons();
     }
 
+    private void OnValidate()
+    {
+        AutoConfigureLayoutRuntime();
+    }
+
     private void AutoConfigureLayoutRuntime()
     {
-        if (storePanel == null) return;
+        GameObject panelObj = storePanel != null ? storePanel : gameObject;
 
         // Force store panel to full screen
-        RectTransform storeRect = storePanel.GetComponent<RectTransform>();
-        storeRect.anchorMin = Vector2.zero;
-        storeRect.anchorMax = Vector2.one;
-        storeRect.offsetMin = Vector2.zero;
-        storeRect.offsetMax = Vector2.zero;
+        RectTransform storeRect = panelObj.GetComponent<RectTransform>();
+        if (storeRect != null)
+        {
+            storeRect.anchorMin = Vector2.zero;
+            storeRect.anchorMax = Vector2.one;
+            storeRect.offsetMin = Vector2.zero;
+            storeRect.offsetMax = Vector2.zero;
+        }
 
-        Image bgImg = storePanel.GetComponent<Image>();
+        Image bgImg = panelObj.GetComponent<Image>();
         if (bgImg != null)
         {
             Sprite bgSprite = Resources.Load<Sprite>("UI/Store_Page/BackgroundLevels");
@@ -97,7 +106,7 @@ public class StoreUI : MonoBehaviour
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             // Ensure ScrollRect doesn't overlap top area (Title/Back Button)
-            ScrollRect scroll = storePanel.GetComponentInChildren<ScrollRect>(true);
+            ScrollRect scroll = panelObj.GetComponentInChildren<ScrollRect>(true);
             if (scroll != null)
             {
                 RectTransform scrollRect = scroll.GetComponent<RectTransform>();
@@ -109,6 +118,26 @@ public class StoreUI : MonoBehaviour
                 scroll.movementType = ScrollRect.MovementType.Elastic;
                 scroll.inertia = true;
                 scroll.scrollSensitivity = 50f;
+            }
+        }
+
+        // Enforce Back Button layout from screenshot
+        Transform backBtnT = transform.Find("BackButton");
+        if (backBtnT == null && panelObj != null)
+            backBtnT = panelObj.transform.Find("BackButton");
+
+        if (backBtnT != null)
+        {
+            RectTransform backBtnRect = backBtnT.GetComponent<RectTransform>();
+            if (backBtnRect != null)
+            {
+                backBtnRect.anchorMin = new Vector2(0.5f, 0.5f);
+                backBtnRect.anchorMax = new Vector2(0.5f, 0.5f);
+                backBtnRect.pivot = new Vector2(0f, 1f);
+                backBtnRect.anchoredPosition = new Vector2(-622f, 922f);
+                backBtnRect.sizeDelta = new Vector2(540f, 275f);
+                backBtnRect.localRotation = Quaternion.identity;
+                backBtnRect.localScale = Vector3.one;
             }
         }
     }
