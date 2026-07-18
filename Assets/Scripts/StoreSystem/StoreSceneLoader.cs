@@ -28,17 +28,23 @@ public class StoreSceneLoader : MonoBehaviour
 
     public void CloseStore()
     {
+        Debug.Log("[StoreSceneLoader] CloseStore called!");
         if (storePanel != null)
+        {
+            Debug.Log("[StoreSceneLoader] Deactivating storePanel: " + storePanel.name);
             storePanel.SetActive(false);
+        }
 
         // Foolproof way to find and activate the MainMenu GameObject (even if inactive)
         MainMenu mainMenu = Object.FindFirstObjectByType<MainMenu>(FindObjectsInactive.Include);
         if (mainMenu != null)
         {
+            Debug.Log("[StoreSceneLoader] Activating MainMenu GameObject: " + mainMenu.gameObject.name);
             mainMenu.gameObject.SetActive(true);
         }
         else
         {
+            Debug.LogWarning("[StoreSceneLoader] MainMenu script NOT found in scene!");
             // Fallback to searching under Canvas/SafeAreaPanel if script not found
             Canvas canvas = GetComponentInParent<Canvas>();
             if (canvas != null)
@@ -50,7 +56,12 @@ public class StoreSceneLoader : MonoBehaviour
                 }
                 if (menuTrans != null)
                 {
+                    Debug.Log("[StoreSceneLoader] Activating fallback menuTrans: " + menuTrans.name);
                     menuTrans.gameObject.SetActive(true);
+                }
+                else
+                {
+                    Debug.LogWarning("[StoreSceneLoader] Fallback menuTrans NOT found!");
                 }
             }
         }

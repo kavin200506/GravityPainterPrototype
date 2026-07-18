@@ -659,19 +659,34 @@ public class MainMenu : MonoBehaviour
 
     public void CloseStore()
     {
+        Debug.Log("[MainMenu] CloseStore called!");
         StoreManager newStore = FindFirstObjectByType<StoreManager>(FindObjectsInactive.Include);
         if (newStore != null && newStore.storePanel != null)
         {
+            Debug.Log("[MainMenu] Deactivating newStore.storePanel: " + newStore.storePanel.name);
             newStore.storePanel.SetActive(false);
         }
 
         if (testStoreUI != null)
+        {
+            Debug.Log("[MainMenu] Closing testStoreUI");
             testStoreUI.Close();
+        }
         else if (storeUI != null)
+        {
+            Debug.Log("[MainMenu] Closing storeUI");
             storeUI.Close();
+        }
 
         if (mainMenuRoot != null)
+        {
+            Debug.Log("[MainMenu] Activating mainMenuRoot: " + mainMenuRoot.name);
             mainMenuRoot.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("[MainMenu] mainMenuRoot is NULL!");
+        }
 
         ShowCoinDisplay();
     }
