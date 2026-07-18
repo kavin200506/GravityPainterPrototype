@@ -748,8 +748,8 @@ public class MainMenu : MonoBehaviour
                 if (IsInsideStore(rt))
                 {
                     // Exact position from the user's screenshot for the store page back button
-                    rt.anchoredPosition3D = new Vector3(59f, -145f, -639f);
-                    Debug.Log($"[MainMenu] Adjusted Store BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to (59, -145, -639)");
+                    rt.anchoredPosition3D = new Vector3(-590f, 1045f, -639f);
+                    Debug.Log($"[MainMenu] Adjusted Store BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to (-590, 1045, -639)");
                 }
                 else
                 {
