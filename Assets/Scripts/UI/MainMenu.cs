@@ -39,6 +39,7 @@ public class MainMenu : MonoBehaviour
             return;
 
         ApplyButtonLayout();
+        AdjustAllBackButtons();
     }
 
 
@@ -212,6 +213,7 @@ public class MainMenu : MonoBehaviour
         ApplyButtonLayout();
         SetupButtonClickZones(ResolveMainMenuRoot());
         WireMenuButtons();
+        AdjustAllBackButtons();
 
         if (ConsumeOpenLevelSelectFlag())
         {
@@ -717,5 +719,21 @@ public class MainMenu : MonoBehaviour
             ProceduralSession.MarkFreshRunFromMenu();
 
         SceneManager.LoadScene(sceneName);
+    }
+
+    private void AdjustAllBackButtons()
+    {
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null) return;
+
+        RectTransform[] allRects = canvas.GetComponentsInChildren<RectTransform>(true);
+        foreach (RectTransform rt in allRects)
+        {
+            if (rt.gameObject.name == "BackButton" || rt.gameObject.name == "BackBtn" || rt.gameObject.name == "Back")
+            {
+                rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, 909f);
+                Debug.Log($"[MainMenu] Adjusted BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to Y = 909");
+            }
+        }
     }
 }
