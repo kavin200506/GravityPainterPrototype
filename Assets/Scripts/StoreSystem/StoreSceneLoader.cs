@@ -29,40 +29,20 @@ public class StoreSceneLoader : MonoBehaviour
     public void CloseStore()
     {
         Debug.Log("[StoreSceneLoader] CloseStore called!");
-        if (storePanel != null)
-        {
-            Debug.Log("[StoreSceneLoader] Deactivating storePanel: " + storePanel.name);
-            storePanel.SetActive(false);
-        }
 
-        // Foolproof way to find and activate the MainMenu GameObject (even if inactive)
+        // Find the MainMenu script component in the scene (even if inactive)
         MainMenu mainMenu = Object.FindFirstObjectByType<MainMenu>(FindObjectsInactive.Include);
         if (mainMenu != null)
         {
-            Debug.Log("[StoreSceneLoader] Activating MainMenu GameObject: " + mainMenu.gameObject.name);
-            mainMenu.gameObject.SetActive(true);
+            Debug.Log("[StoreSceneLoader] Found MainMenu script component. Redirecting to mainMenu.CloseStore()");
+            mainMenu.CloseStore();
         }
         else
         {
-            Debug.LogWarning("[StoreSceneLoader] MainMenu script NOT found in scene!");
-            // Fallback to searching under Canvas/SafeAreaPanel if script not found
-            Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas != null)
+            Debug.LogWarning("[StoreSceneLoader] MainMenu script NOT found in scene! Falling back to local close.");
+            if (storePanel != null)
             {
-                Transform menuTrans = canvas.transform.Find("MainMenu");
-                if (menuTrans == null)
-                {
-                    menuTrans = canvas.transform.Find("SafeAreaPanel/MainMenu");
-                }
-                if (menuTrans != null)
-                {
-                    Debug.Log("[StoreSceneLoader] Activating fallback menuTrans: " + menuTrans.name);
-                    menuTrans.gameObject.SetActive(true);
-                }
-                else
-                {
-                    Debug.LogWarning("[StoreSceneLoader] Fallback menuTrans NOT found!");
-                }
+                storePanel.SetActive(false);
             }
         }
     }
