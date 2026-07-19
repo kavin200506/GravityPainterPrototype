@@ -58,8 +58,37 @@ public class StoreManager : MonoBehaviour
         ScrollRect scroll = GetComponentInChildren<ScrollRect>(true);
         if (scroll != null)
         {
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 30f;
+            scroll.inertia = true;
+            scroll.decelerationRate = 0.135f;
+
+            Image scrollBg = scroll.GetComponent<Image>();
+            if (scrollBg == null) scrollBg = scroll.gameObject.AddComponent<Image>();
+            if (scrollBg.sprite == null) scrollBg.color = new Color(0f, 0f, 0f, 0f);
+            scrollBg.raycastTarget = true;
+
             if (scroll.viewport != null)
             {
+                Mask oldMask = scroll.viewport.GetComponent<Mask>();
+                if (oldMask != null)
+                {
+                    if (Application.isPlaying) Destroy(oldMask);
+                    else DestroyImmediate(oldMask);
+                }
+                Image viewImg = scroll.viewport.GetComponent<Image>();
+                if (viewImg != null)
+                {
+                    viewImg.raycastTarget = false;
+                }
+                RectMask2D rectMask = scroll.viewport.GetComponent<RectMask2D>();
+                if (rectMask == null)
+                {
+                    rectMask = scroll.viewport.gameObject.AddComponent<RectMask2D>();
+                }
+
                 RectTransform viewRt = scroll.viewport;
                 viewRt.anchorMin = new Vector2(0f, 0f);
                 viewRt.anchorMax = new Vector2(1f, 1f);

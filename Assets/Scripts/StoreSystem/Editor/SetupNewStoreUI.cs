@@ -259,9 +259,20 @@ public static class SetupNewStoreUI
         scrollRt.offsetMax = Vector2.zero;
 
         ScrollRect scrollRect = scrollObj.GetComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        scrollRect.scrollSensitivity = 30f;
+        scrollRect.inertia = true;
+        scrollRect.decelerationRate = 0.135f;
+
+        Image scrollBg = scrollObj.GetComponent<Image>();
+        if (scrollBg == null) scrollBg = scrollObj.AddComponent<Image>();
+        scrollBg.color = new Color(0f, 0f, 0f, 0f);
+        scrollBg.raycastTarget = true;
 
         // Viewport
-        GameObject viewportObj = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+        GameObject viewportObj = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
         viewportObj.transform.SetParent(scrollObj.transform, false);
 
         RectTransform viewRt = viewportObj.GetComponent<RectTransform>();
@@ -272,11 +283,6 @@ public static class SetupNewStoreUI
         viewRt.offsetMax = new Vector2(0f, -172f);
         viewRt.localRotation = Quaternion.identity;
         viewRt.localScale = Vector3.one;
-
-        Image viewImg = viewportObj.GetComponent<Image>();
-        viewImg.color = new Color(1f, 1f, 1f, 0.01f);
-        Mask mask = viewportObj.GetComponent<Mask>();
-        mask.showMaskGraphic = false;
 
         scrollRect.viewport = viewRt;
 
@@ -376,6 +382,7 @@ public static class SetupNewStoreUI
         nameText.fontStyle = FontStyles.Bold;
         nameText.alignment = TextAlignmentOptions.Center;
         nameText.color = Color.white;
+        nameText.raycastTarget = false;
         cardUI.ballNameText = nameText;
 
         // Lock Icon (Top Right)
@@ -392,6 +399,7 @@ public static class SetupNewStoreUI
         if (lockSprite != null) lockImg.sprite = lockSprite;
         lockImg.color = Color.white;
         lockImg.preserveAspect = true;
+        lockImg.raycastTarget = false;
         cardUI.lockIcon = lockObj;
 
         // Ball Image (Center 3D ball)
@@ -407,6 +415,7 @@ public static class SetupNewStoreUI
         if (ballSprite != null) bImg.sprite = ballSprite;
         bImg.color = Color.white;
         bImg.preserveAspect = true;
+        bImg.raycastTarget = false;
         cardUI.ballImage = bImg;
 
         // Action Button / Price Panel (Bottom)
@@ -458,6 +467,7 @@ public static class SetupNewStoreUI
         if (coinSprite != null) ciImg.sprite = coinSprite;
         ciImg.color = Color.white;
         ciImg.preserveAspect = true;
+        ciImg.raycastTarget = false;
         cardUI.coinIconObj = cIconObj;
         cardUI.coinIconImage = ciImg;
 
@@ -473,6 +483,7 @@ public static class SetupNewStoreUI
         actText.fontStyle = FontStyles.Bold;
         actText.alignment = TextAlignmentOptions.Center;
         actText.color = Color.white;
+        actText.raycastTarget = false;
         cardUI.actionText = actText;
 
         // Load Sprites onto Card UI component

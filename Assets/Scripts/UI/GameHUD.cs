@@ -211,9 +211,63 @@ public class GameHUD : MonoBehaviour
             _coinCountText.font = font;
         }
 
+        CreateLevelDisplay();
         CreateTimerDisplay();
 
         UpdateFromState();
+    }
+
+    private void CreateLevelDisplay()
+    {
+        GameObject levelObj = new GameObject("LevelDisplay");
+        levelObj.transform.SetParent(transform, false);
+        RectTransform levelRt = levelObj.AddComponent<RectTransform>();
+        levelRt.anchorMin = new Vector2(0f, 1f);
+        levelRt.anchorMax = new Vector2(0f, 1f);
+        levelRt.pivot = new Vector2(0f, 1f);
+        levelRt.anchoredPosition = new Vector2(35f, -35f);
+        levelRt.sizeDelta = new Vector2(300f, 95f);
+
+        Image bgImage = levelObj.AddComponent<Image>();
+        Sprite holderSprite = Resources.Load<Sprite>("UI/owned");
+        if (holderSprite == null)
+            holderSprite = Resources.Load<Sprite>("UI/Store_Page/owned");
+#if UNITY_EDITOR
+        if (holderSprite == null)
+            holderSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Store_Page/owned.png");
+#endif
+        if (holderSprite != null)
+        {
+            bgImage.sprite = holderSprite;
+            bgImage.preserveAspect = false; // Allow horizontal & vertical expansion
+            bgImage.color = Color.white;
+        }
+        else
+        {
+            bgImage.color = new Color(0f, 0f, 0f, 0.5f);
+        }
+
+        GameObject textObj = new GameObject("LevelText");
+        textObj.transform.SetParent(levelObj.transform, false);
+        RectTransform textRt = textObj.AddComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI levelText = textObj.AddComponent<TextMeshProUGUI>();
+        int levelNum = LevelProgress.GetActiveLevelNumber();
+        levelText.text = "LEVEL " + levelNum;
+        levelText.fontSize = 32f;
+        levelText.color = Color.white;
+        levelText.alignment = TextAlignmentOptions.Center;
+        levelText.fontStyle = FontStyles.Bold;
+
+        TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        if (font != null)
+        {
+            levelText.font = font;
+        }
     }
 
     private void UpdateFromState()

@@ -89,7 +89,10 @@ public class BallCardUI : MonoBehaviour
         if (currentBall == null) return;
 
         if (ballNameText != null)
+        {
             ballNameText.text = currentBall.ballName.ToUpper();
+            ballNameText.raycastTarget = false;
+        }
 
         if (ballImage != null)
         {
@@ -105,6 +108,7 @@ public class BallCardUI : MonoBehaviour
             ballImage.color = Color.white;
             ballImage.enabled = ballImage.sprite != null;
             ballImage.preserveAspect = true;
+            ballImage.raycastTarget = false;
         }
 
         if (coinIconImage != null && coinSprite != null)
@@ -112,6 +116,7 @@ public class BallCardUI : MonoBehaviour
             coinIconImage.sprite = coinSprite;
             coinIconImage.color = Color.white;
             coinIconImage.preserveAspect = true;
+            coinIconImage.raycastTarget = false;
         }
 
         bool isOwned = InventoryManager.Instance != null && InventoryManager.Instance.IsOwned(currentBall.ballId, currentBall.isDefault);
@@ -119,7 +124,11 @@ public class BallCardUI : MonoBehaviour
 
         // Lock icon display
         if (lockIcon != null)
+        {
             lockIcon.SetActive(!isOwned);
+            foreach (Graphic g in lockIcon.GetComponentsInChildren<Graphic>(true))
+                g.raycastTarget = false;
+        }
 
         // State Pill/Button formatting using exact visual sprites
         if (isEquipped)
@@ -183,6 +192,7 @@ public class BallCardUI : MonoBehaviour
         if (actionText != null)
         {
             actionText.alignment = TextAlignmentOptions.Center;
+            actionText.raycastTarget = false;
             if (coinIconObj != null && coinIconObj.activeSelf)
             {
                 actionText.rectTransform.offsetMin = new Vector2(40f, 0f);

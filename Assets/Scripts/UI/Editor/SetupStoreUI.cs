@@ -133,18 +133,13 @@ public static class SetupStoreUI
         scrollRect.offsetMax = new Vector2(-50f, -250f); // Leave room for top bar
 
         // Viewport
-        GameObject viewport = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+        GameObject viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
         viewport.transform.SetParent(scrollView.transform, false);
         RectTransform viewportRect = viewport.GetComponent<RectTransform>();
         viewportRect.anchorMin = Vector2.zero;
         viewportRect.anchorMax = Vector2.one;
         viewportRect.offsetMin = Vector2.zero;
         viewportRect.offsetMax = Vector2.zero;
-        
-        Image viewportImage = viewport.GetComponent<Image>();
-        viewportImage.color = new Color(1f, 1f, 1f, 0.01f); // Required for Mask to work
-        Mask mask = viewport.GetComponent<Mask>();
-        mask.showMaskGraphic = false;
 
         // Content / GridParent
         GameObject gridObj = new GameObject("GridParent", typeof(RectTransform));
@@ -175,9 +170,10 @@ public static class SetupStoreUI
         scrollComp.viewport = viewportRect;
         scrollComp.horizontal = false;
         scrollComp.vertical = true;
-        scrollComp.movementType = ScrollRect.MovementType.Elastic;
+        scrollComp.movementType = ScrollRect.MovementType.Clamped;
         scrollComp.inertia = true;
-        scrollComp.scrollSensitivity = 50f;
+        scrollComp.decelerationRate = 0.135f;
+        scrollComp.scrollSensitivity = 30f;
 
         // 7. Create Skin Card Prefab
         GameObject prefabObj = CreateSkinCardPrefab(coinSprite);
@@ -210,6 +206,7 @@ public static class SetupStoreUI
         tmp.fontSize = fontSize;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.color = Color.white;
+        tmp.raycastTarget = false;
         return obj;
     }
 
@@ -248,6 +245,7 @@ public static class SetupStoreUI
         prevRect.sizeDelta = new Vector2(240f, 240f);
         Image prevImg = previewObj.GetComponent<Image>();
         prevImg.preserveAspect = true;
+        prevImg.raycastTarget = false;
 
         // "Equipped" Indicator
         GameObject checkObj = new GameObject("CheckIcon", typeof(RectTransform), typeof(Image));
@@ -260,6 +258,7 @@ public static class SetupStoreUI
         checkRect.pivot = new Vector2(1f, 1f);
         checkRect.anchoredPosition = new Vector2(-20f, -20f); 
         checkRect.sizeDelta = new Vector2(60f, 60f);
+        checkImg.raycastTarget = false;
         checkObj.SetActive(false);
 
         // Buy Button at Bottom
@@ -292,6 +291,7 @@ public static class SetupStoreUI
         Image coinImg = coinObj.GetComponent<Image>();
         if (coinSprite != null) coinImg.sprite = coinSprite;
         coinImg.preserveAspect = true;
+        coinImg.raycastTarget = false;
 
         // Lock Overlay over the Preview
         GameObject lockObj = new GameObject("LockIcon", typeof(RectTransform), typeof(Image));
@@ -304,6 +304,7 @@ public static class SetupStoreUI
         lockRect.pivot = new Vector2(0.5f, 0.5f);
         lockRect.anchoredPosition = new Vector2(0f, 20f); 
         lockRect.sizeDelta = new Vector2(240f, 240f); // Match preview icon size
+        lockImg.raycastTarget = false;
         lockObj.SetActive(false);
 
         if (!System.IO.Directory.Exists("Assets/Resources/Prefabs/UI"))

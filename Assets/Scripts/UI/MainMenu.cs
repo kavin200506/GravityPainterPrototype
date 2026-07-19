@@ -31,8 +31,8 @@ public class MainMenu : MonoBehaviour
     private Vector2 bottomClickZoneSize = new Vector2(220f, 440f);
 
     [Header("Coin UI Layout")]
-    [SerializeField] private Vector2 coinUIPosition = new Vector2(50f, -50f);
-    [SerializeField] private Vector2 coinUISize = new Vector2(250, 110f);
+    [SerializeField] private Vector2 coinUIPosition = new Vector2(35f, -35f);
+    [SerializeField] private Vector2 coinUISize = new Vector2(230f, 68f);
     private void OnValidate()
     {
         if (!useManualButtonLayout)

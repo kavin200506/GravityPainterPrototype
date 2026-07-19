@@ -118,20 +118,33 @@ public class TestStoreUI : MonoBehaviour
             sRt.offsetMin = new Vector2(40f, 60f);
             sRt.offsetMax = new Vector2(-40f, -320f); // Top offset leaves space for Header / 3D Preview
 
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+            scrollRect.movementType = ScrollRect.MovementType.Clamped;
+            scrollRect.inertia = true;
+            scrollRect.decelerationRate = 0.135f;
+            scrollRect.scrollSensitivity = 30f;
+
+            Image scrollBg = scrollRect.GetComponent<Image>();
+            if (scrollBg == null) scrollBg = scrollRect.gameObject.AddComponent<Image>();
+            if (scrollBg.sprite == null) scrollBg.color = new Color(0f, 0f, 0f, 0f);
+            scrollBg.raycastTarget = true;
+
             if (scrollRect.viewport != null)
             {
                 Mask vMask = scrollRect.viewport.GetComponent<Mask>();
-                if (vMask == null) vMask = scrollRect.viewport.gameObject.AddComponent<Mask>();
-                vMask.showMaskGraphic = false;
+                if (vMask != null)
+                {
+                    if (Application.isPlaying) Destroy(vMask);
+                    else DestroyImmediate(vMask);
+                }
 
                 Image vImg = scrollRect.viewport.GetComponent<Image>();
-                if (vImg == null) vImg = scrollRect.viewport.gameObject.AddComponent<Image>();
-                vImg.color = new Color(1f, 1f, 1f, 0.01f);
-            }
+                if (vImg != null) vImg.raycastTarget = false;
 
-            scrollRect.movementType = ScrollRect.MovementType.Elastic;
-            scrollRect.inertia = true;
-            scrollRect.scrollSensitivity = 40f;
+                RectMask2D rMask = scrollRect.viewport.GetComponent<RectMask2D>();
+                if (rMask == null) scrollRect.viewport.gameObject.AddComponent<RectMask2D>();
+            }
         }
 
         // 5. Configure Grid Parent (Vertical Layout for rows)

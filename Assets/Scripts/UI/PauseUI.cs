@@ -2,11 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class PauseUI : MonoBehaviour
 {
     public static PauseUI Instance { get; private set; }
+    public static bool IsPaused => Instance != null && Instance._isPaused;
 
     private bool _isPaused = false;
     private GameObject _pauseOverlay;
@@ -63,9 +63,27 @@ public class PauseUI : MonoBehaviour
         pauseUI.SetupUI(canvasObj.transform);
     }
 
+    private static Sprite LoadPauseSprite(string primaryPath, string fallbackPath = null)
+    {
+        Sprite sp = Resources.Load<Sprite>(primaryPath);
+        if (sp == null && !string.IsNullOrEmpty(fallbackPath))
+        {
+            sp = Resources.Load<Sprite>(fallbackPath);
+        }
+#if UNITY_EDITOR
+        if (sp == null)
+        {
+            sp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/" + primaryPath + ".png");
+            if (sp == null && !string.IsNullOrEmpty(fallbackPath))
+                sp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/" + fallbackPath + ".png");
+        }
+#endif
+        return sp;
+    }
+
     private void SetupUI(Transform parent)
     {
-        // 1. Pause Overlay (hidden by default)
+        // 1. Pause Overlay (semi-transparent backdrop so playing level remains visible in background)
         _pauseOverlay = new GameObject("PauseOverlay");
         _pauseOverlay.transform.SetParent(parent, false);
         
@@ -76,150 +94,107 @@ public class PauseUI : MonoBehaviour
         overlayRect.offsetMax = Vector2.zero;
 
         Image overlayImage = _pauseOverlay.AddComponent<Image>();
-        overlayImage.color = new Color(0f, 0f, 0f, 0.75f);
+        overlayImage.color = new Color(0f, 0f, 0f, 0.45f);
         _pauseOverlay.SetActive(false);
 
-        // Pause Panel (Golden Frame Background)
+        // Pause Panel (Centered Modal Window using pause_page.png)
         GameObject panelObj = new GameObject("PausePanel");
         panelObj.transform.SetParent(_pauseOverlay.transform, false);
         RectTransform panelRect = panelObj.AddComponent<RectTransform>();
         panelRect.anchorMin = new Vector2(0.5f, 0.5f);
         panelRect.anchorMax = new Vector2(0.5f, 0.5f);
         panelRect.pivot = new Vector2(0.5f, 0.5f);
-        panelRect.sizeDelta = new Vector2(1000f, 600f); // Landscape to fit the new scroll
+        panelRect.sizeDelta = new Vector2(900f, 650f);
 
         Image panelImage = panelObj.AddComponent<Image>();
-        Sprite bgSprite = Resources.Load<Sprite>("UI/PauseBackground");
-        if (bgSprite == null)
-        {
-            Texture2D bgTex = Resources.Load<Texture2D>("UI/PauseBackground");
-            if (bgTex != null)
-            {
-                bgSprite = Sprite.Create(bgTex, new Rect(0f, 0f, bgTex.width, bgTex.height), new Vector2(0.5f, 0.5f));
-            }
-        }
-        
+        Sprite bgSprite = LoadPauseSprite("UI/Pause_Page/pause_page", "UI/PauseBackground");
         if (bgSprite != null)
         {
             panelImage.sprite = bgSprite;
-            // Optionally preserve aspect ratio if needed, but for a frame we usually slice or stretch. 
-            // We'll preserve aspect so the frame doesn't look distorted.
             panelImage.preserveAspect = true;
         }
         else
         {
-            panelImage.color = new Color(0.2f, 0.2f, 0.2f, 1f);
+            panelImage.color = new Color(0.2f, 0.2f, 0.2f, 0.95f);
         }
 
-        // Resume Button inside PausePanel
-        GameObject resumeBtnObj = new GameObject("ResumeButton");
-        resumeBtnObj.transform.SetParent(panelObj.transform, false);
-        RectTransform resumeRect = resumeBtnObj.AddComponent<RectTransform>();
-        resumeRect.sizeDelta = new Vector2(200f, 200f);
-        resumeRect.anchoredPosition = new Vector2(0f, 0f); // Dead center
+        // Center Container for the 3 Action Buttons inside the panel
+        GameObject buttonGroupObj = new GameObject("ButtonGroup");
+        buttonGroupObj.transform.SetParent(panelObj.transform, false);
+        RectTransform groupRt = buttonGroupObj.AddComponent<RectTransform>();
+        groupRt.anchorMin = new Vector2(0.5f, 0.5f);
+        groupRt.anchorMax = new Vector2(0.5f, 0.5f);
+        groupRt.pivot = new Vector2(0.5f, 0.5f);
+        groupRt.anchoredPosition = new Vector2(0f, -20f);
+        groupRt.sizeDelta = new Vector2(800f, 250f);
 
-        Image resumeImg = resumeBtnObj.AddComponent<Image>();
-        Sprite resumeSprite = Resources.Load<Sprite>("UI/ResumeIcon");
-        if (resumeSprite == null)
-        {
-            Texture2D tex = Resources.Load<Texture2D>("UI/ResumeIcon");
-            if (tex != null)
-            {
-                resumeSprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-            }
-        }
-
-        if (resumeSprite != null)
-        {
-            resumeImg.sprite = resumeSprite;
-            resumeImg.color = Color.white;
-            resumeImg.preserveAspect = true;
-        }
-        else
-        {
-            resumeImg.color = new Color(0.2f, 0.6f, 1f, 1f);
-        }
-
-        Button resumeBtn = resumeBtnObj.AddComponent<Button>();
-        resumeBtn.onClick.AddListener(TogglePause);
-
-
-        // Restart Button inside PausePanel
+        // LEFT: Restart Button (reply.png)
         GameObject restartBtnObj = new GameObject("RestartButton");
-        restartBtnObj.transform.SetParent(panelObj.transform, false);
+        restartBtnObj.transform.SetParent(buttonGroupObj.transform, false);
         RectTransform restartRect = restartBtnObj.AddComponent<RectTransform>();
-        restartRect.sizeDelta = new Vector2(200f, 200f); // Make it square for the icon
-        restartRect.anchoredPosition = new Vector2(-280f, 0f); // Left side
+        restartRect.anchorMin = new Vector2(0.5f, 0.5f);
+        restartRect.anchorMax = new Vector2(0.5f, 0.5f);
+        restartRect.pivot = new Vector2(0.5f, 0.5f);
+        restartRect.sizeDelta = new Vector2(175f, 175f);
+        restartRect.anchoredPosition = new Vector2(-230f, 0f);
 
         Image restartImg = restartBtnObj.AddComponent<Image>();
-        Sprite restartSprite = Resources.Load<Sprite>("UI/RestartIcon");
-        if (restartSprite == null)
-        {
-            Texture2D tex = Resources.Load<Texture2D>("UI/RestartIcon");
-            if (tex != null)
-            {
-                restartSprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-            }
-        }
-
+        Sprite restartSprite = LoadPauseSprite("UI/Pause_Page/reply", "UI/RestartIcon");
         if (restartSprite != null)
         {
             restartImg.sprite = restartSprite;
             restartImg.color = Color.white;
             restartImg.preserveAspect = true;
         }
-        else
-        {
-            // Fallback
-            restartImg.color = new Color(0f, 0f, 0f, 0.4f); 
-        }
 
         Button restartBtn = restartBtnObj.AddComponent<Button>();
         restartBtn.onClick.AddListener(RestartLevel);
 
-        // We no longer need the text object since it's an icon now!
+        // CENTER: Resume Button (play.png)
+        GameObject resumeBtnObj = new GameObject("ResumeButton");
+        resumeBtnObj.transform.SetParent(buttonGroupObj.transform, false);
+        RectTransform resumeRect = resumeBtnObj.AddComponent<RectTransform>();
+        resumeRect.anchorMin = new Vector2(0.5f, 0.5f);
+        resumeRect.anchorMax = new Vector2(0.5f, 0.5f);
+        resumeRect.pivot = new Vector2(0.5f, 0.5f);
+        resumeRect.sizeDelta = new Vector2(210f, 210f);
+        resumeRect.anchoredPosition = new Vector2(0f, 0f);
 
-        // Home Button inside PausePanel
-        GameObject homeBtnObj = new GameObject("HomeButton");
-        homeBtnObj.transform.SetParent(panelObj.transform, false);
-        RectTransform homeRect = homeBtnObj.AddComponent<RectTransform>();
-        homeRect.sizeDelta = new Vector2(200f, 200f); // Make it square for the icon
-        homeRect.anchoredPosition = new Vector2(280f, 0f); // Right side
-
-        Image homeImg = homeBtnObj.AddComponent<Image>();
-        Sprite homeSprite = Resources.Load<Sprite>("UI/HomeIcon");
-        if (homeSprite == null)
+        Image resumeImg = resumeBtnObj.AddComponent<Image>();
+        Sprite resumeSprite = LoadPauseSprite("UI/Pause_Page/play", "UI/ResumeIcon");
+        if (resumeSprite != null)
         {
-            Texture2D tex = Resources.Load<Texture2D>("UI/HomeIcon");
-            if (tex != null)
-            {
-                homeSprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-            }
+            resumeImg.sprite = resumeSprite;
+            resumeImg.color = Color.white;
+            resumeImg.preserveAspect = true;
         }
 
+        Button resumeBtn = resumeBtnObj.AddComponent<Button>();
+        resumeBtn.onClick.AddListener(TogglePause);
+
+        // RIGHT: Home Button (home.png)
+        GameObject homeBtnObj = new GameObject("HomeButton");
+        homeBtnObj.transform.SetParent(buttonGroupObj.transform, false);
+        RectTransform homeRect = homeBtnObj.AddComponent<RectTransform>();
+        homeRect.anchorMin = new Vector2(0.5f, 0.5f);
+        homeRect.anchorMax = new Vector2(0.5f, 0.5f);
+        homeRect.pivot = new Vector2(0.5f, 0.5f);
+        homeRect.sizeDelta = new Vector2(175f, 175f);
+        homeRect.anchoredPosition = new Vector2(230f, 0f);
+
+        Image homeImg = homeBtnObj.AddComponent<Image>();
+        Sprite homeSprite = LoadPauseSprite("UI/Pause_Page/home", "UI/HomeIcon");
         if (homeSprite != null)
         {
             homeImg.sprite = homeSprite;
             homeImg.color = Color.white;
             homeImg.preserveAspect = true;
         }
-        else
-        {
-            // Fallback
-            homeImg.color = new Color(0f, 0f, 0f, 0.4f); 
-        }
 
         Button homeBtn = homeBtnObj.AddComponent<Button>();
         homeBtn.onClick.AddListener(GoHome);
 
-        // We no longer need the text object since it's an icon now!
-        
-        // Add nice labels underneath the three icons
-        AddLabelUnderButton(resumeBtnObj, "Resume");
-        AddLabelUnderButton(restartBtnObj, "Restart");
-        AddLabelUnderButton(homeBtnObj, "Home");
-
-        // 2. Pause Button (Top Right)
+        // 2. In-Game Pause Button (Top Right HUD)
         GameObject btnObj = new GameObject("PauseButton");
         btnObj.transform.SetParent(parent, false);
         
@@ -228,54 +203,25 @@ public class PauseUI : MonoBehaviour
         btnRect.anchorMax = new Vector2(1f, 1f);
         btnRect.pivot = new Vector2(1f, 1f);
         btnRect.anchoredPosition = new Vector2(-50f, -50f);
-        btnRect.sizeDelta = new Vector2(150f, 150f);
+        btnRect.sizeDelta = new Vector2(140f, 140f);
 
         Image btnImg = btnObj.AddComponent<Image>();
-        Sprite pauseSprite = Resources.Load<Sprite>("UI/PauseIcon");
-        if (pauseSprite == null)
-        {
-            Texture2D tex = Resources.Load<Texture2D>("UI/PauseIcon");
-            if (tex != null)
-            {
-                pauseSprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-            }
-        }
-
+        Sprite pauseSprite = LoadPauseSprite("UI/Pause_Page/pause", "UI/PauseIcon");
         if (pauseSprite != null)
         {
             btnImg.sprite = pauseSprite;
+            btnImg.color = Color.white;
+            btnImg.preserveAspect = true;
         }
         else
         {
-            // Fallback appearance if the sprite is missing
             btnImg.color = Color.white; 
-            Debug.LogWarning("Pause icon sprite not found at Resources/UI/PauseIcon. Please place the image there and set its Texture Type to Sprite (2D and UI).");
         }
 
         Button pauseBtn = btnObj.AddComponent<Button>();
         pauseBtn.onClick.AddListener(TogglePause);
         
         EnsureEventSystem();
-    }
-
-    private void AddLabelUnderButton(GameObject buttonObj, string labelText)
-    {
-        GameObject textObj = new GameObject("Label (TMP)");
-        textObj.transform.SetParent(buttonObj.transform, false);
-        
-        RectTransform textRect = textObj.AddComponent<RectTransform>();
-        textRect.anchorMin = new Vector2(0.5f, 0.5f);
-        textRect.anchorMax = new Vector2(0.5f, 0.5f);
-        textRect.pivot = new Vector2(0.5f, 0.5f);
-        textRect.sizeDelta = new Vector2(300f, 60f);
-        textRect.anchoredPosition = new Vector2(0f, -140f); // Positioned nicely below the 200x200 icon
-        
-        TextMeshProUGUI tmpText = textObj.AddComponent<TextMeshProUGUI>();
-        tmpText.text = labelText;
-        tmpText.alignment = TextAlignmentOptions.Center;
-        tmpText.fontSize = 50f;
-        tmpText.color = Color.white; 
-        tmpText.fontStyle = FontStyles.Bold;
     }
 
     private void TogglePause()
@@ -332,3 +278,4 @@ public class PauseUI : MonoBehaviour
         }
     }
 }
+
