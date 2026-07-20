@@ -25,7 +25,7 @@ public class FixMenuPages : EditorWindow
             Transform[] allTransforms = canvas.GetComponentsInChildren<Transform>(true);
             foreach (Transform t in allTransforms)
             {
-                if (t.name == "PopUp" || t.name.Contains("Settings") || t.name.Contains("LevelSelect"))
+                if (t.name != "PopUp" && (t.name.Contains("Settings") || t.name.Contains("LevelSelect")))
                 {
                     RectTransform rt = t as RectTransform;
                     if (rt != null)

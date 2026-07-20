@@ -17,8 +17,14 @@ public class LevelMenu : MonoBehaviour
     [SerializeField] private Vector2 gridSpacing = new Vector2(16f, 16f);
     [SerializeField] private float scrollPadding = 16f;
     [SerializeField] private float focusScale = 1.04f;
-    [SerializeField] private Vector2 scrollAreaSize = new Vector2(560f, 720f);
-    [SerializeField] private Vector2 scrollAreaPosition = new Vector2(0f, -80f);
+
+    [Header("PopUp Layout")]
+    [SerializeField] private Vector2 popUpSize = new Vector2(780f, 1250f);
+    [SerializeField] private Vector2 popUpPosition = new Vector2(0f, -40f);
+
+    [Header("Scroll Area Layout")]
+    [SerializeField] private Vector2 scrollAreaSize = new Vector2(560f, 650f);
+    [SerializeField] private Vector2 scrollAreaPosition = new Vector2(0f, -65f);
     [SerializeField] private Color completedColor = Color.white;
     [SerializeField] private Color focusColor = new Color(0.8f, 0.9f, 1f, 1f);
     [SerializeField] private Color lockedColor = new Color(0.4f, 0.4f, 0.4f, 1f);
@@ -27,7 +33,7 @@ public class LevelMenu : MonoBehaviour
     [SerializeField] private Sprite lockIconSprite;
 
     [Header("Back Button Layout")]
-    [SerializeField] private Vector2 backButtonPosition = new Vector2(400f, 700f);
+    [SerializeField] private Vector2 backButtonPosition = new Vector2(-324f, 705f);
     [SerializeField] private Vector2 backButtonSize = new Vector2(150f, 150f);
     [SerializeField] private Vector2 backButtonAnchor = new Vector2(0.5f, 0.5f);
 
@@ -59,10 +65,18 @@ public class LevelMenu : MonoBehaviour
             RectTransform popUpRt = popUp.GetComponent<RectTransform>();
             if (popUpRt != null)
             {
-                popUpRt.anchorMin = Vector2.zero;
-                popUpRt.anchorMax = Vector2.one;
-                popUpRt.offsetMin = Vector2.zero;
-                popUpRt.offsetMax = Vector2.zero;
+                popUpPosition = popUpRt.anchoredPosition;
+                popUpSize = popUpRt.sizeDelta;
+            }
+        }
+
+        Transform backBtn = transform.Find("BackButton");
+        if (backBtn != null)
+        {
+            RectTransform backRt = backBtn.GetComponent<RectTransform>();
+            if (backRt != null)
+            {
+                backButtonPosition = backRt.anchoredPosition;
             }
         }
 
@@ -126,6 +140,18 @@ public class LevelMenu : MonoBehaviour
 
     private void EnsureScrollUi()
     {
+        Transform existingScroll = transform.Find("PopUp/Level List");
+        if (existingScroll == null) existingScroll = transform.Find("Level List");
+        if (existingScroll != null)
+        {
+            RectTransform sRt = existingScroll.GetComponent<RectTransform>();
+            if (sRt != null)
+            {
+                scrollAreaSize = sRt.sizeDelta;
+                scrollAreaPosition = sRt.anchoredPosition;
+            }
+        }
+
         if (_uiBuilt)
         {
             return;

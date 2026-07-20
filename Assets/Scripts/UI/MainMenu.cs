@@ -751,11 +751,6 @@ public class MainMenu : MonoBehaviour
                     rt.anchoredPosition3D = new Vector3(-590f, 1045f, -639f);
                     Debug.Log($"[MainMenu] Adjusted Store BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to (-590, 1045, -639)");
                 }
-                else
-                {
-                    rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, 909f);
-                    Debug.Log($"[MainMenu] Adjusted BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to Y = 909");
-                }
             }
         }
     }
