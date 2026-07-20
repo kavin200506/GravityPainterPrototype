@@ -5,7 +5,8 @@ using UnityEngine;
 /// </summary>
 public static class StarEvaluator
 {
-    private const float CoinThreshold = 0.7f;
+    /// <summary>Fraction of coins that must be collected to earn the coin star (70%).</summary>
+    public const float CoinThreshold = 0.7f;
 
     public struct StarResult
     {

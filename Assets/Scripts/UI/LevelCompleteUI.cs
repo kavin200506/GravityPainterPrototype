@@ -342,10 +342,13 @@ public class LevelCompleteUI : MonoBehaviour
         string time = LevelTimer.FormatTime(_elapsedTime);
         string par = LevelTimer.FormatTime(_parTime);
 
-        _statsText.text = _collectedCoins + "/" + _totalCoins + " coins  |  " + time + " / " + par;
+        // Show required coins (70% threshold) so the player sees what they needed
+        int required = Mathf.CeilToInt(_totalCoins * StarEvaluator.CoinThreshold);
+        _statsText.text = _collectedCoins + "/" + required + " coins  |  " + time + " / " + par;
 
         Debug.Log("[LevelCompleteUI] Stats: " + _statsText.text);
     }
+
 
     // ── Star Animation ───────────────────────────────────────────────────
 

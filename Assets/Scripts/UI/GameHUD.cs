@@ -294,9 +294,16 @@ public class GameHUD : MonoBehaviour
         if (_coinCountText != null)
         {
             if (totalInLevel > 0)
-                _coinCountText.text = count + " / " + totalInLevel;
+            {
+                // Show collected / required, where required = ceil(total * 0.70)
+                // so the player always sees exactly how many coins they need for the star.
+                int required = Mathf.CeilToInt(totalInLevel * StarEvaluator.CoinThreshold);
+                _coinCountText.text = count + " / " + required;
+            }
             else
+            {
                 _coinCountText.text = count.ToString();
+            }
         }
     }
 
