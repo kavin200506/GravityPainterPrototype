@@ -12,6 +12,7 @@ public class GameHUD : MonoBehaviour
     private TextMeshProUGUI _timerText;
     private int _lastLives = -1;
     private int _lastCoins = -1;
+    private int _lastTotalCoins = -1;
     private string _lastTimerString = "";
 
     private void Awake()
@@ -273,7 +274,7 @@ public class GameHUD : MonoBehaviour
     private void UpdateFromState()
     {
         UpdateLives(LifeManager.CurrentLives);
-        UpdateCoins(CoinManager.SessionCoins);
+        UpdateCoins(CoinManager.SessionCoins, CoinManager.TotalCoinsInLevel);
     }
 
     public void UpdateLives(int lives)
@@ -286,11 +287,17 @@ public class GameHUD : MonoBehaviour
         }
     }
 
-    public void UpdateCoins(int count)
+    public void UpdateCoins(int count, int totalInLevel)
     {
         _lastCoins = count;
+        _lastTotalCoins = totalInLevel;
         if (_coinCountText != null)
-            _coinCountText.text = count.ToString();
+        {
+            if (totalInLevel > 0)
+                _coinCountText.text = count + " / " + totalInLevel;
+            else
+                _coinCountText.text = count.ToString();
+        }
     }
 
     private void CreateTimerDisplay()
@@ -369,8 +376,9 @@ public class GameHUD : MonoBehaviour
             UpdateLives(lives);
 
         int coins = CoinManager.SessionCoins;
-        if (coins != _lastCoins)
-            UpdateCoins(coins);
+        int totalCoins = CoinManager.TotalCoinsInLevel;
+        if (coins != _lastCoins || totalCoins != _lastTotalCoins)
+            UpdateCoins(coins, totalCoins);
 
         UpdateTimerDisplay();
     }
