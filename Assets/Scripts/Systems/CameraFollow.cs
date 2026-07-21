@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Follows the ball from behind its movement direction and looks at a point ahead of it
 /// so the player can see upcoming tiles and read red / blue / yellow directions.
+/// Also supports slight horizontal camera shifting by swiping left or right on the screen.
 /// </summary>
 public class CameraFollow : MonoBehaviour
 {
@@ -18,9 +20,27 @@ public class CameraFollow : MonoBehaviour
     [Tooltip("Ball speed below this uses defaultForward instead of velocity.")]
     [SerializeField] private float minSpeedForVelocityHeading = 0.35f;
 
+    [Header("Horizontal Swipe Offset")]
+    [Tooltip("Enable slight camera horizontal shift when swiping left/right on screen.")]
+    [SerializeField] private bool enableSwipeOffset = true;
+    [Tooltip("Maximum horizontal distance the camera can shift (keep small for minimal movement).")]
+    [SerializeField] private float maxSwipeOffset = 1.5f;
+    [Tooltip("Sensitivity of swipe drag to camera shift.")]
+    [SerializeField] private float swipeSensitivity = 0.005f;
+    [Tooltip("Automatically smooth camera back to center when swipe ends.")]
+    [SerializeField] private bool autoReturnToCenter = true;
+    [Tooltip("Speed at which camera returns to center when not swiping.")]
+    [SerializeField] private float returnToCenterSpeed = 4f;
+    [Tooltip("Smoothing time for swipe offset transitions.")]
+    [SerializeField] private float swipeSmoothTime = 0.15f;
+
     private Rigidbody _targetBody;
     private Vector3 _lastPlanarForward;
     private Vector3 _velocity;
+
+    private float _currentSwipeOffset;
+    private float _targetSwipeOffset;
+    private float _swipeOffsetVelocity;
 
     private Camera _camera;
 
@@ -54,10 +74,15 @@ public class CameraFollow : MonoBehaviour
             }
         }
 
+        HandleSwipeInput();
+
+        _currentSwipeOffset = Mathf.SmoothDamp(_currentSwipeOffset, _targetSwipeOffset, ref _swipeOffsetVelocity, swipeSmoothTime);
+
         Vector3 planarForward = GetPlanarForward();
         Quaternion heading = Quaternion.LookRotation(planarForward, Vector3.up);
 
-        Vector3 desiredPosition = target.position + heading * offset;
+        Vector3 adjustedOffset = offset + Vector3.right * _currentSwipeOffset;
+        Vector3 desiredPosition = target.position + heading * adjustedOffset;
         transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref _velocity, smoothTime);
 
         Vector3 lookTarget = target.position + planarForward * lookAhead + Vector3.up * 0.5f;
@@ -65,6 +90,49 @@ public class CameraFollow : MonoBehaviour
             transform.rotation,
             Quaternion.LookRotation(lookTarget - transform.position, Vector3.up),
             Time.deltaTime / Mathf.Max(smoothTime, 0.01f));
+    }
+
+    private void HandleSwipeInput()
+    {
+        if (!enableSwipeOffset || Time.timeScale == 0f || PauseUI.IsPaused)
+        {
+            return;
+        }
+
+        bool isSwiping = false;
+        float deltaX = 0f;
+
+        Touchscreen touch = Touchscreen.current;
+        if (touch != null && touch.primaryTouch.press.isPressed)
+        {
+            if (!touch.primaryTouch.press.wasPressedThisFrame)
+            {
+                deltaX = touch.primaryTouch.delta.x.ReadValue();
+                isSwiping = true;
+            }
+        }
+        else
+        {
+            Mouse mouse = Mouse.current;
+            if (mouse != null && mouse.leftButton.isPressed)
+            {
+                if (!mouse.leftButton.wasPressedThisFrame)
+                {
+                    deltaX = mouse.delta.x.ReadValue();
+                    isSwiping = true;
+                }
+            }
+        }
+
+        if (isSwiping && Mathf.Abs(deltaX) > 0.01f)
+        {
+            _targetSwipeOffset += deltaX * swipeSensitivity;
+            _targetSwipeOffset = Mathf.Clamp(_targetSwipeOffset, -maxSwipeOffset, maxSwipeOffset);
+        }
+        else if (!isSwiping && autoReturnToCenter)
+        {
+            _targetSwipeOffset = Mathf.MoveTowards(_targetSwipeOffset, 0f, Time.deltaTime * returnToCenterSpeed);
+        }
     }
 
     private void ResolveTarget()
