@@ -6,44 +6,65 @@ using UnityEngine;
 /// Manages the Subway-Surfers-style tutorial for Level 1.
 ///
 /// Behaviour:
-///  • Only runs if it's the player's FIRST time on Level 1
-///    (LevelProgress.GetSelectedMenuLevel() == 1 and DifficultyManager.LevelsCompleted == 0).
-///  • Waits for ProceduralLevelBuilder to finish building the level.
-///  • Finds which tile the ball is currently on, looks ahead to the next tile,
-///    and shows a glowing particle indicator + hint text at the correct tap region.
-///  • When the ball advances to the next tile the indicator moves forward.
-///  • When the level completes the tutorial is permanently dismissed via PlayerPrefs.
+///  • Only runs on Level 1 (first-time players).
+///  • Uses a hardcoded lookup of tile names → hint type (Left / Right / Forward).
+///  • Shows a glowing particle indicator + hint text over the current tile.
+///  • Advances automatically as the ball moves tile-to-tile.
+///  • Permanently dismissed via PlayerPrefs when the level completes.
 /// </summary>
 [DefaultExecutionOrder(100)]   // run after builder (-200) and ball controller
 public class TutorialManager : MonoBehaviour
 {
     // ── Constants ──────────────────────────────────────────────────────
-    private const string TutorialShownKey     = "TutorialShown_Level1";
-    private const float  TileAdvanceThreshold = 1.2f;   // metres – how close the ball must be to advance indicator
-    private const float  StartDelay           = 1.5f;   // seconds after level built before first hint appears
-    private const float  SideOffset           = 0.28f;  // normalised side threshold fraction for indicator pos
+    private const string TutorialShownKey = "TutorialShown_Level1";
+    private const float  StartDelay       = 1.5f;   // seconds before first hint appears
+    private const float  SideOffset       = 0.28f;  // how far into the side region the indicator sits
 
     // ── Label strings ──────────────────────────────────────────────────
     private const string MsgForward = "Tap the CENTER\nof the tile to move forward";
     private const string MsgLeft    = "Tap the LEFT SIDE\nof the tile to turn left";
     private const string MsgRight   = "Tap the RIGHT SIDE\nof the tile to turn right";
 
-    // ── Runtime references (filled on Start) ───────────────────────────
+    // ── Hardcoded tile-name → hint lookup for Level 1 ─────────────────
+    // Only corner tiles need explicit hints; all others default to Forward.
+    private static readonly Dictionary<string, TapHint> TileHints =
+        new Dictionary<string, TapHint>(System.StringComparer.OrdinalIgnoreCase)
+    {
+        // ── LEFT turn tiles ────────────────────────────────────────────
+        { "Tile_corner_4_0_-3_0",   TapHint.Left },
+        { "Tile_corner_4_1_-3_0",   TapHint.Left },
+        { "Tile_corner_6_0_-3_-2",  TapHint.Left },
+        { "Tile_corner_6_1_-3_-2",  TapHint.Left },
+        { "Tile_corner_8_0_-2_-3",  TapHint.Left },
+        { "Tile_corner_8_1_-2_-3",  TapHint.Left },
+        { "Tile_corner_9_0_-1_-3",  TapHint.Left },
+        { "Tile_corner_9_1_-1_-3",  TapHint.Left },
+        { "Tile_corner_13_0_0_-2",  TapHint.Left },
+        { "Tile_corner_13_1_0_-2",  TapHint.Left },
+
+        // ── RIGHT turn tiles ───────────────────────────────────────────
+        { "Tile_corner_7_0_-2_-2",  TapHint.Right },
+        { "Tile_corner_7_1_-2_-2",  TapHint.Right },
+        { "Tile_corner_11_0_-1_-1", TapHint.Right },
+        { "Tile_corner_11_1_-1_-1", TapHint.Right },
+        { "Tile_corner_12_0_0_-1",  TapHint.Right },
+        { "Tile_corner_12_1_0_-1",  TapHint.Right },
+        { "Tile_corner_14_1_1_-2",  TapHint.Right },
+        { "Tile_corner_14_0_1_-2",  TapHint.Right },
+    };
+
+    // ── Runtime references ─────────────────────────────────────────────
     private ProceduralLevelBuilder _builder;
     private BallController         _ball;
     private TutorialIndicator      _indicator;
 
     private IReadOnlyList<GameObject> _tiles;
-    private int   _currentTileIndex = -1;
-    private bool  _active;
-    private bool  _started;
+    private int  _currentTileIndex = -1;
+    private bool _active;
 
     // ─────────────────────────────────────────────────────────────────
     private void Awake()
     {
-        // Only show tutorial for level 1 first-time players
-        // Note: do NOT disable here based on IsLevel1 — we check in Start()
-        // after all objects are initialised.
         bool alreadySeen = PlayerPrefs.GetInt(TutorialShownKey, 0) == 1;
         if (alreadySeen)
         {
@@ -54,7 +75,7 @@ public class TutorialManager : MonoBehaviour
 
     private void Start()
     {
-        // Level 1 check: GetSelectedMenuLevel returns 1 for the first procedural level
+        // Only run on Level 1
         bool isLevel1 = LevelProgress.GetSelectedMenuLevel() == 1;
         if (!isLevel1)
         {
@@ -73,28 +94,25 @@ public class TutorialManager : MonoBehaviour
             return;
         }
 
-        // Create the indicator object
+        // Create the particle indicator
         GameObject indGo = new GameObject("TutorialIndicator");
         indGo.transform.SetParent(null);
         _indicator = indGo.AddComponent<TutorialIndicator>();
 
-        // TIMING FIX: ProceduralLevelBuilder has [DefaultExecutionOrder(-200)] and
-        // fires OnLevelBuilt from Awake — which runs BEFORE our Start().
-        // So we must check if tiles are already built and initialize immediately.
+        // TIMING FIX: builder fires OnLevelBuilt in Awake (order -200) — before our Start.
+        // Check if already built and start immediately if so.
         if (_builder.LastBuiltSeed >= 0 && _builder.SpawnedTiles != null && _builder.SpawnedTiles.Count > 0)
         {
-            Debug.Log("[Tutorial] Level already built with " + _builder.SpawnedTiles.Count + " tiles — starting immediately.");
+            Debug.Log("[Tutorial] Level already built (" + _builder.SpawnedTiles.Count + " tiles) — starting immediately.");
             _tiles = _builder.SpawnedTiles;
             StartCoroutine(BeginAfterDelay(StartDelay));
         }
         else
         {
-            // Level not built yet — subscribe to the event
             _builder.OnLevelBuilt += OnLevelBuilt;
             Debug.Log("[Tutorial] Waiting for level to build...");
         }
 
-        // Also hook LevelCompleteUI (finish = mark tutorial done)
         StartCoroutine(WatchForLevelComplete());
     }
 
@@ -107,23 +125,16 @@ public class TutorialManager : MonoBehaviour
     private IEnumerator BeginAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        _active  = true;
-        _started = true;
-        // Show hint for the first tile immediately
+        _active = true;
         ShowHintForTile(0);
     }
 
-    // ─────────────────────────────────────────────────────────────────
+    // ── Update — track ball → closest tile ────────────────────────────
     private void Update()
     {
-        if (!_active || _tiles == null || _tiles.Count == 0) return;
-        if (_ball == null) return;
+        if (!_active || _tiles == null || _tiles.Count == 0 || _ball == null) return;
 
-        Vector3 ballPos = _ball.transform.position;
-
-        // Find the closest tile index to the ball
-        int closest = FindClosestTileIndex(ballPos);
-
+        int closest = FindClosestTileIndex(_ball.transform.position);
         if (closest != _currentTileIndex && closest >= 0)
         {
             _currentTileIndex = closest;
@@ -131,82 +142,40 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    // ── Core logic ─────────────────────────────────────────────────────
-
-    private void ShowHintForTile(int tileIndex)
+    // ── Show hint for the tile at index ───────────────────────────────
+    private void ShowHintForTile(int index)
     {
-        if (_tiles == null || tileIndex < 0 || tileIndex >= _tiles.Count) return;
+        if (_tiles == null || index < 0 || index >= _tiles.Count) return;
 
-        GameObject currentTile = _tiles[tileIndex];
-        if (currentTile == null) return;
+        GameObject tile = _tiles[index];
+        if (tile == null) return;
 
-        Vector3 tileCenter = GetTileCenter(currentTile);
+        // Look up the hint by tile name — default to Forward if not listed
+        TapHint hint = TileHints.TryGetValue(tile.name, out TapHint h) ? h : TapHint.Forward;
 
-        // Determine the direction to the NEXT tile to figure out straight / left / right
-        TapHint hint    = TapHint.Forward;
-        string  message = MsgForward;
+        string message = hint == TapHint.Left  ? MsgLeft
+                       : hint == TapHint.Right ? MsgRight
+                       :                         MsgForward;
 
-        if (tileIndex + 1 < _tiles.Count)
-        {
-            GameObject nextTile = _tiles[tileIndex + 1];
-            if (nextTile != null)
-            {
-                hint    = GetTurnHint(currentTile.transform, nextTile.transform);
-                message = hint == TapHint.Left    ? MsgLeft
-                        : hint == TapHint.Right   ? MsgRight
-                        :                           MsgForward;
-            }
-        }
+        Debug.Log("[Tutorial] Tile=" + tile.name + " Hint=" + hint);
 
-        // Calculate where on the tile the indicator should appear
-        Vector3 indicatorPos = GetIndicatorWorldPos(currentTile, hint);
-
+        Vector3 indicatorPos = GetIndicatorWorldPos(tile, hint);
         _indicator.ShowAt(indicatorPos, hint, message);
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────
+    // ── Position helpers ──────────────────────────────────────────────
 
-    /// <summary>Looks at the direction from the current tile to the next tile
-    /// relative to the current tile's local forward, and returns Left / Right / Forward.</summary>
-    private TapHint GetTurnHint(Transform current, Transform next)
-    {
-        Vector3 toNext = next.position - current.position;
-        toNext.y = 0f;
-        if (toNext.sqrMagnitude < 0.01f) return TapHint.Forward;
-
-        Vector3 forward = current.forward;
-        forward.y = 0f;
-        forward.Normalize();
-
-        float dot   = Vector3.Dot(toNext.normalized, forward);
-        float cross = Vector3.Cross(forward, toNext.normalized).y;
-
-        // If cross magnitude is larger than dot magnitude, it's a turn
-        if (Mathf.Abs(cross) > Mathf.Abs(dot) * 0.5f)
-        {
-            return cross > 0f ? TapHint.Right : TapHint.Left;
-        }
-
-        return TapHint.Forward;
-    }
-
-    /// <summary>Returns the world position for the indicator based on the hint type
-    /// (centre, left third, or right third of the tile surface).</summary>
+    /// <summary>Returns world position of the indicator tap zone on the tile.</summary>
     private Vector3 GetIndicatorWorldPos(GameObject tile, TapHint hint)
     {
         Vector3 center = GetTileCenter(tile);
-
         if (hint == TapHint.Forward) return center;
 
-        // Get the tile's right axis (XZ plane only)
         Vector3 right = tile.transform.right;
         right.y = 0f;
         right.Normalize();
 
-        // Estimate half-width from collider or bounds
-        float halfWidth = GetTileHalfWidth(tile);
-
-        float offset = halfWidth * SideOffset * 2f;   // position in the outer third
+        float offset = GetTileHalfWidth(tile) * SideOffset * 2f;
         return hint == TapHint.Left
             ? center - right * offset
             : center + right * offset;
@@ -214,7 +183,6 @@ public class TutorialManager : MonoBehaviour
 
     private Vector3 GetTileCenter(GameObject tile)
     {
-        // Try BoxCollider first
         BoxCollider box = tile.GetComponentInChildren<BoxCollider>();
         if (box != null)
         {
@@ -239,7 +207,6 @@ public class TutorialManager : MonoBehaviour
         BoxCollider box = tile.GetComponentInChildren<BoxCollider>();
         if (box != null)
         {
-            // Use the world-space extent along the tile's right axis
             Vector3 worldSize = Vector3.Scale(box.size, box.transform.lossyScale);
             return worldSize.x * 0.5f;
         }
@@ -252,42 +219,33 @@ public class TutorialManager : MonoBehaviour
 
     private int FindClosestTileIndex(Vector3 ballPos)
     {
-        int   best    = -1;
+        int   best     = -1;
         float bestDist = float.MaxValue;
 
         for (int i = 0; i < _tiles.Count; i++)
         {
             if (_tiles[i] == null) continue;
             float d = Vector3.Distance(_tiles[i].transform.position, ballPos);
-            if (d < bestDist)
-            {
-                bestDist = d;
-                best     = i;
-            }
+            if (d < bestDist) { bestDist = d; best = i; }
         }
 
         return best;
     }
 
-    // ── Level completion watch ─────────────────────────────────────────
-
+    // ── Level complete watch ──────────────────────────────────────────
     private IEnumerator WatchForLevelComplete()
     {
-        // Poll until the level complete panel appears or scene unloads
         while (true)
         {
             yield return new WaitForSeconds(0.5f);
+            if (this == null) yield break;
 
-            // Check if the LevelCompleteUI canvas is visible
             LevelCompleteUI ui = FindFirstObjectByType<LevelCompleteUI>();
             if (ui != null && ui.gameObject.activeInHierarchy)
             {
                 DismissTutorial();
                 yield break;
             }
-
-            // Safety: if tutorial object is no longer in the game (scene reload) bail
-            if (this == null) yield break;
         }
     }
 
@@ -295,18 +253,14 @@ public class TutorialManager : MonoBehaviour
     {
         _active = false;
         _indicator?.Hide();
-        // Mark as shown so it never appears again
         PlayerPrefs.SetInt(TutorialShownKey, 1);
         PlayerPrefs.Save();
-        Debug.Log("[Tutorial] Tutorial completed and dismissed permanently.");
+        Debug.Log("[Tutorial] Tutorial dismissed permanently.");
     }
 
     private void OnDestroy()
     {
-        if (_builder != null)
-            _builder.OnLevelBuilt -= OnLevelBuilt;
-
-        if (_indicator != null)
-            Destroy(_indicator.gameObject);
+        if (_builder != null) _builder.OnLevelBuilt -= OnLevelBuilt;
+        if (_indicator != null) Destroy(_indicator.gameObject);
     }
 }
