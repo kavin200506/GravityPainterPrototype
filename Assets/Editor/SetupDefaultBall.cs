@@ -3,19 +3,22 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Creates the Default ball prefab from Silver Ball.glb with a proper URP silver chrome material.
-/// Runs automatically on editor load (edit mode only) and via menu item.
+/// Creates Assets/Resources/Prefabs/BallSkins/Default.prefab from the existing
+/// Sci-Fi Ball 3D model GLTF with a custom silver chrome URP material applied.
+/// Runs automatically on editor domain reload (edit mode only) and via:
+///   Tools → Gravity Painter → Setup Default Ball
 /// </summary>
 [InitializeOnLoad]
 public static class SetupDefaultBall
 {
-    private const string GlbPath      = "Assets/Art/Models/GLB/Silver Ball.glb";
-    private const string PrefabPath   = "Assets/Resources/Prefabs/BallSkins/Default.prefab";
-    private const string MaterialPath = "Assets/Art/Materials/SilverBallMaterial.mat";
+    // The GLTF model that already exists in the project
+    private const string GltfPath    = "Assets/Art/Models/GLB/Sci-Fi Ball 3D Model/Untitled.gltf";
+    private const string PrefabPath  = "Assets/Resources/Prefabs/BallSkins/Default.prefab";
+    private const string MatPath     = "Assets/Art/Materials/SilverBallMaterial.mat";
 
     static SetupDefaultBall()
     {
-        // Only run in edit mode, never during play
+        // Auto-run after domain reload — only in edit mode
         EditorApplication.delayCall += () =>
         {
             if (!EditorApplication.isPlaying)
@@ -28,71 +31,67 @@ public static class SetupDefaultBall
     {
         if (EditorApplication.isPlaying)
         {
-            Debug.LogWarning("[SetupDefaultBall] Cannot run during Play Mode.");
+            Debug.LogWarning("[SetupDefaultBall] Exit play mode first.");
             return;
         }
 
-        // ── Step 1: Force the GLB to ignore its embedded dark material ──
-        ModelImporter importer = AssetImporter.GetAtPath(GlbPath) as ModelImporter;
-        if (importer == null)
+        // ── 1. Find GLTF model ─────────────────────────────────────────
+        GameObject gltfAsset = AssetDatabase.LoadAssetAtPath<GameObject>(GltfPath);
+        if (gltfAsset == null)
         {
-            Debug.LogWarning("[SetupDefaultBall] GLB not found at: " + GlbPath);
-            return;
+            // Fallback: search AssetDatabase for any imported ball mesh
+            string[] guids = AssetDatabase.FindAssets("Untitled t:GameObject", new[] { "Assets/Art/Models/GLB/Sci-Fi Ball 3D Model" });
+            if (guids.Length > 0)
+                gltfAsset = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guids[0]));
         }
 
-        if (importer.materialImportMode != ModelImporterMaterialImportMode.None)
+        if (gltfAsset == null)
         {
-            importer.materialImportMode = ModelImporterMaterialImportMode.None;
-            importer.SaveAndReimport();
-            // Delay the rest until after reimport completes
-            EditorApplication.delayCall += FinishSetup;
+            Debug.LogWarning("[SetupDefaultBall] Sci-Fi Ball GLTF not found at: " + GltfPath);
             return;
         }
 
-        FinishSetup();
-    }
-
-    private static void FinishSetup()
-    {
-        // ── Step 2: Create or update the silver chrome URP material ──
-        EnsureMaterialsFolder();
-        Material silverMat = AssetDatabase.LoadAssetAtPath<Material>(MaterialPath);
-
+        // ── 2. Create or refresh silver chrome URP material ────────────
+        EnsureFolder("Assets/Art/Materials");
+        Material silverMat = AssetDatabase.LoadAssetAtPath<Material>(MatPath);
         Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
+
         if (urpLit == null)
         {
-            Debug.LogWarning("[SetupDefaultBall] URP/Lit shader not found — is URP installed?");
+            Debug.LogWarning("[SetupDefaultBall] URP/Lit shader not found.");
             return;
         }
 
         if (silverMat == null)
         {
             silverMat = new Material(urpLit);
-            AssetDatabase.CreateAsset(silverMat, MaterialPath);
+            AssetDatabase.CreateAsset(silverMat, MatPath);
         }
 
-        // Silver chrome: bright base so ambient light makes it visible even without reflection probes
+        // Silver chrome: bright enough to be visible even without reflection probes
         silverMat.shader = urpLit;
-        silverMat.SetColor("_BaseColor",    new Color(0.85f, 0.87f, 0.92f, 1f));
-        silverMat.SetFloat("_Metallic",     0.75f);
-        silverMat.SetFloat("_Smoothness",   0.88f);
-        silverMat.SetColor("_EmissionColor", new Color(0.10f, 0.10f, 0.13f));
+        silverMat.SetColor("_BaseColor",     new Color(0.85f, 0.87f, 0.92f, 1f));
+        silverMat.SetFloat("_Metallic",      0.75f);
+        silverMat.SetFloat("_Smoothness",    0.88f);
+        // Subtle emissive so it's never pure black in dark scenes
+        silverMat.SetColor("_EmissionColor", new Color(0.10f, 0.10f, 0.14f, 1f));
         silverMat.EnableKeyword("_EMISSION");
         EditorUtility.SetDirty(silverMat);
+        AssetDatabase.SaveAssets();
 
-        // ── Step 3: Load GLB and create prefab ──
-        GameObject glbAsset = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
-        if (glbAsset == null)
-        {
-            Debug.LogWarning("[SetupDefaultBall] Cannot load GLB after reimport: " + GlbPath);
-            return;
-        }
+        // ── 3. Build the prefab ────────────────────────────────────────
+        EnsureFolder("Assets/Resources/Prefabs/BallSkins");
 
-        EnsurePrefabFolder();
-
-        GameObject temp = Object.Instantiate(glbAsset);
+        GameObject temp = Object.Instantiate(gltfAsset);
         temp.name = "Default";
 
+        // Strip physics (BallController owns the collider)
+        foreach (Collider col in temp.GetComponentsInChildren<Collider>(true))
+            Object.DestroyImmediate(col);
+        foreach (Rigidbody rb in temp.GetComponentsInChildren<Rigidbody>(true))
+            Object.DestroyImmediate(rb);
+
+        // Apply silver material to every renderer
         foreach (MeshRenderer mr in temp.GetComponentsInChildren<MeshRenderer>(true))
         {
             var mats = new Material[mr.sharedMaterials.Length];
@@ -108,24 +107,17 @@ public static class SetupDefaultBall
 
         PrefabUtility.SaveAsPrefabAsset(temp, PrefabPath);
         Object.DestroyImmediate(temp);
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log("[SetupDefaultBall] ✅ Default ball prefab saved with silver chrome material.");
+        Debug.Log("[SetupDefaultBall] ✅ Default ball prefab saved at: " + PrefabPath);
     }
 
-    private static void EnsureMaterialsFolder()
+    private static void EnsureFolder(string path)
     {
-        string dir = System.IO.Path.GetDirectoryName(MaterialPath);
-        if (!System.IO.Directory.Exists(dir))
-            System.IO.Directory.CreateDirectory(dir);
-    }
-
-    private static void EnsurePrefabFolder()
-    {
-        string dir = System.IO.Path.GetDirectoryName(PrefabPath);
-        if (!System.IO.Directory.Exists(dir))
-            System.IO.Directory.CreateDirectory(dir);
+        if (!System.IO.Directory.Exists(path))
+            System.IO.Directory.CreateDirectory(path);
     }
 }
 #endif
