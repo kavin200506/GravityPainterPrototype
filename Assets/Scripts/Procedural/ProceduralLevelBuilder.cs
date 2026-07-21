@@ -90,12 +90,13 @@ public class ProceduralLevelBuilder : MonoBehaviour
     public int Seed => seed;
     public int LastBuiltSeed { get; private set; } = -1;
     public int LastBuiltTileCount { get; private set; }
+    public int LastBuiltCoinCount { get; private set; }
     public float LastBuiltDifficulty { get; private set; } = -1f;
     public string LastBuiltTier =>
         LastBuiltDifficulty >= 0f ? DifficultyManager.GetTierName(LastBuiltDifficulty) : "(none)";
     public IReadOnlyList<GameObject> SpawnedTiles => _spawnedTiles;
 
-    public event Action<int, int> OnLevelBuilt;
+    public event Action<int, int, int> OnLevelBuilt;
 
     private void Awake()
     {
@@ -244,6 +245,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
         }
 
         GameObject goalTile = null;
+        int spawnedCoinCount = 0;
         int checkpointTileIndex = cells.Count / 2;
         int finishTileIndex = cells.Count - 1;
 
@@ -406,6 +408,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 GameObject coinObj = Instantiate(coinPrefab, coinPos, startingRot, levelRoot);
                 coinObj.name = "Coin_" + i;
                 CampaignCoinPlacement.SnapCoinToTile(coinObj.transform, tile.transform);
+                spawnedCoinCount++;
             }
 
             if (LevelProgress.GetSelectedMenuLevel() == 97 && i == checkpointTileIndex + 1)
@@ -420,7 +423,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
             }
         }
 
-        SpawnCornerPads(cells);
+        spawnedCoinCount += SpawnCornerPads(cells);
         SpawnPowerUps(cells, actualSeed, powerUpIndices);
         SpawnCheckpoint();
 
@@ -429,6 +432,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
 
         LastBuiltSeed = actualSeed;
         LastBuiltTileCount = _spawnedTiles.Count;
+        LastBuiltCoinCount = spawnedCoinCount;
         _watchedSeed = actualSeed;
         seed = actualSeed;
 
@@ -439,13 +443,14 @@ public class ProceduralLevelBuilder : MonoBehaviour
             + ", grid=" + _activeConfig.gridWidth + "x" + _activeConfig.gridDepth
             + ", turnFreq=" + _activeConfig.turnFrequency.ToString("F2")
             + ", obstacles=" + obstaclesByIndex.Count
+            + ", coins=" + spawnedCoinCount
             + ", menuLevel=" + LevelProgress.GetSelectedMenuLevel()
             + ", requested seed=" + buildSeed
             + ", used seed=" + actualSeed
             + ", tiles=" + _spawnedTiles.Count
             + ", finish at " + cells[cells.Count - 1].GridPos);
 
-        OnLevelBuilt?.Invoke(actualSeed, _spawnedTiles.Count);
+        OnLevelBuilt?.Invoke(actualSeed, _spawnedTiles.Count, spawnedCoinCount);
         return true;
     }
 
@@ -601,11 +606,13 @@ public class ProceduralLevelBuilder : MonoBehaviour
         return tile;
     }
 
-    private void SpawnCornerPads(IReadOnlyList<LevelCell> cells)
+    /// <summary>Returns the number of coins spawned on corner pads.</summary>
+    private int SpawnCornerPads(IReadOnlyList<LevelCell> cells)
     {
+        int cornerCoinCount = 0;
         if (!_activeConfig.addCornerPads || cells == null)
         {
-            return;
+            return cornerCoinCount;
         }
 
         var placed = ProceduralTilePlacement.BuildPlacementPlan(cells, _activeConfig);
@@ -645,6 +652,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                     GameObject coinObj = Instantiate(coinPrefab, coinPos, startingRot, levelRoot);
                     coinObj.name = "Coin_CornerPad_" + i + "_" + padIndex;
                     CampaignCoinPlacement.SnapCoinToTile(coinObj.transform, pad.transform);
+                    cornerCoinCount++;
                 }
 
                 placed.Add(new ProceduralTilePlacement.PlacedTile
@@ -655,6 +663,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 });
             }
         }
+        return cornerCoinCount;
     }
 
     private static bool WouldOverlapNonNeighborMainTiles(

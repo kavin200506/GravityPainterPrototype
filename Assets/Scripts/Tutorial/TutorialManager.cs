@@ -116,7 +116,7 @@ public class TutorialManager : MonoBehaviour
         StartCoroutine(WatchForLevelComplete());
     }
 
-    private void OnLevelBuilt(int seed, int tileCount)
+    private void OnLevelBuilt(int seed, int tileCount, int coinCount)
     {
         _tiles = _builder.SpawnedTiles;
         StartCoroutine(BeginAfterDelay(StartDelay));

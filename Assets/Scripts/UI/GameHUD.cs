@@ -64,7 +64,8 @@ public class GameHUD : MonoBehaviour
             if (builder != null)
             {
                 Debug.Log("[GameHUD] Procedural level found. LastBuiltSeed=" + builder.LastBuiltSeed
-                    + " TileCount=" + builder.LastBuiltTileCount);
+                    + " TileCount=" + builder.LastBuiltTileCount
+                    + " CoinCount=" + builder.LastBuiltCoinCount);
 
                 // Unsubscribe first to prevent duplicate subscriptions
                 builder.OnLevelBuilt -= OnProceduralLevelBuilt;
@@ -75,8 +76,8 @@ public class GameHUD : MonoBehaviour
                 if (builder.LastBuiltTileCount > 0)
                 {
                     Debug.Log("[GameHUD] Builder already built! Starting timer immediately with "
-                        + builder.LastBuiltTileCount + " tiles");
-                    OnProceduralLevelBuilt(builder.LastBuiltSeed, builder.LastBuiltTileCount);
+                        + builder.LastBuiltTileCount + " tiles, " + builder.LastBuiltCoinCount + " coins");
+                    OnProceduralLevelBuilt(builder.LastBuiltSeed, builder.LastBuiltTileCount, builder.LastBuiltCoinCount);
                 }
             }
             else
@@ -91,9 +92,8 @@ public class GameHUD : MonoBehaviour
         }
     }
 
-    private static void OnProceduralLevelBuilt(int seed, int tileCount)
+    private static void OnProceduralLevelBuilt(int seed, int tileCount, int coinCount)
     {
-        int coinCount = CountCoinsInLevel();
         CoinManager.SetTotalCoinsInLevel(coinCount);
         LevelTimer.Start(tileCount);
 

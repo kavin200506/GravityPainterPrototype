@@ -31,8 +31,8 @@ public class MainMenu : MonoBehaviour
     private Vector2 bottomClickZoneSize = new Vector2(220f, 440f);
 
     [Header("Coin UI Layout")]
-    [SerializeField] private Vector2 coinUIPosition = new Vector2(35f, -35f);
-    [SerializeField] private Vector2 coinUISize = new Vector2(230f, 68f);
+    [SerializeField] private Vector2 coinUIPosition = new Vector2(50f, -50f);
+    [SerializeField] private Vector2 coinUISize = new Vector2(350f, 165f);
     private void OnValidate()
     {
         if (!useManualButtonLayout)
@@ -214,6 +214,7 @@ public class MainMenu : MonoBehaviour
         SetupButtonClickZones(ResolveMainMenuRoot());
         WireMenuButtons();
         AdjustAllBackButtons();
+        EnsureCoinDisplay();
 
         if (ConsumeOpenLevelSelectFlag())
         {
@@ -223,6 +224,27 @@ public class MainMenu : MonoBehaviour
         {
             CloseLevelSelect();
         }
+    }
+
+    private void EnsureCoinDisplay()
+    {
+        // Reuse any existing CoinDisplayUI in the scene
+        CoinDisplayUI existing = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (existing != null)
+        {
+            ApplyCoinUILayout();
+            existing.gameObject.SetActive(true);
+            return;
+        }
+
+        // None found – create one on the main canvas
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null) return;
+
+        GameObject coinGO = new GameObject("CoinDisplay", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(Button), typeof(CoinDisplayUI));
+        coinGO.transform.SetParent(canvas.transform, false);
+
+        ApplyCoinUILayout();
     }
 
     private static Transform FindInChildren(Transform parent, string name)

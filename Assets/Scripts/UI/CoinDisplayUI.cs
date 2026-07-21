@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 
 [RequireComponent(typeof(Button))]
+[ExecuteAlways]
 public class CoinDisplayUI : MonoBehaviour
 {
     public Button Button { get; private set; }
@@ -31,6 +32,28 @@ public class CoinDisplayUI : MonoBehaviour
         SetupHierarchy();
     }
 
+    private void OnValidate()
+    {
+#if UNITY_EDITOR
+        // Defer to next frame so Unity has finished any in-progress layout pass
+        UnityEditor.EditorApplication.delayCall += () =>
+        {
+            if (this == null) return;
+            Button = GetComponent<Button>();
+            SetupHierarchy();
+        };
+#endif
+    }
+
+#if UNITY_EDITOR
+    [ContextMenu("Force Apply Hierarchy")]
+    private void ForceApply()
+    {
+        Button = GetComponent<Button>();
+        SetupHierarchy();
+    }
+#endif
+
     private void OnEnable()
     {
         UpdateCoinDisplay();
@@ -58,7 +81,7 @@ public class CoinDisplayUI : MonoBehaviour
         RectTransform rootRt = transform as RectTransform;
         if (rootRt != null)
         {
-            rootRt.sizeDelta = new Vector2(230f, 68f);
+            rootRt.sizeDelta = new Vector2(350f, 165f);
         }
 
         // 1. Pill Background
@@ -75,13 +98,24 @@ public class CoinDisplayUI : MonoBehaviour
         pillRt.anchorMin = new Vector2(0f, 0f);
         pillRt.anchorMax = new Vector2(1f, 1f);
         pillRt.pivot = new Vector2(0.5f, 0.5f);
-        pillRt.offsetMin = new Vector2(-147f, 0f);
-        pillRt.offsetMax = new Vector2(3f, 0f);
-        pillRt.localScale = new Vector3(0.4426213f, 0.54583f, 1f);
-        pillRt.localRotation = Quaternion.identity;
+        Sprite customPanel = LoadPanelSprite();
+        if (customPanel != null)
+        {
+            pillRt.offsetMin = Vector2.zero;
+            pillRt.offsetMax = Vector2.zero;
+            pillRt.localScale = Vector3.one;
+            pillBgImage.sprite = customPanel;
+            pillBgImage.type = customPanel.border == Vector4.zero ? Image.Type.Simple : Image.Type.Sliced;
+        }
+        else
+        {
+            pillRt.offsetMin = new Vector2(-147f, 0f);
+            pillRt.offsetMax = new Vector2(3f, 0f);
+            pillRt.localScale = new Vector3(0.4426213f, 0.54583f, 1f);
+            pillBgImage.sprite = GetPillSprite();
+            pillBgImage.type = Image.Type.Simple;
+        }
 
-        pillBgImage.sprite = GetPillSprite();
-        pillBgImage.type = Image.Type.Simple;
         pillBgImage.preserveAspect = false;
         pillBgImage.color = Color.white;
         pillBgImage.raycastTarget = false;
@@ -104,6 +138,8 @@ public class CoinDisplayUI : MonoBehaviour
         _glowRt.pivot = new Vector2(0.5f, 0.5f);
         _glowRt.anchoredPosition = new Vector2(34f, 0f);
         _glowRt.sizeDelta = new Vector2(95f, 95f);
+        
+        if (customPanel != null) glowT.gameObject.SetActive(false);
 
         // 3. Coin Icon
         Transform coinT = transform.Find("CoinIcon");
@@ -134,6 +170,8 @@ public class CoinDisplayUI : MonoBehaviour
         _coinIconRt.anchoredPosition = new Vector2(34f, 0f);
         _coinIconRt.sizeDelta = new Vector2(58f, 58f);
         _initialCoinLocalPos = _coinIconRt.anchoredPosition;
+        
+        if (customPanel != null) coinT.gameObject.SetActive(false);
 
         // 4. Coin Shine (Specular accent on coin top-left)
         Transform shineT = coinT.Find("CoinShine");
@@ -154,6 +192,8 @@ public class CoinDisplayUI : MonoBehaviour
         shineRt.anchoredPosition = new Vector2(-12f, 12f);
         shineRt.sizeDelta = new Vector2(18f, 18f);
 
+        if (customPanel != null) shineT.gameObject.SetActive(false);
+
         // 5. Coin Text (TextMeshProUGUI)
         Transform textT = transform.Find("CoinText");
         if (textT == null)
@@ -167,12 +207,21 @@ public class CoinDisplayUI : MonoBehaviour
         _textRt.anchorMin = new Vector2(0f, 0f);
         _textRt.anchorMax = new Vector2(1f, 1f);
         _textRt.pivot = new Vector2(0.5f, 0.5f);
-        _textRt.offsetMin = new Vector2(17f, 0f);
-        _textRt.offsetMax = new Vector2(-83f, 0f);
+        if (customPanel != null)
+        {
+            // Match inspector: Left 147.5, Top -5, Right -62.5, Bottom 5
+            _textRt.offsetMin = new Vector2(147.5f, 5f);
+            _textRt.offsetMax = new Vector2(-62.5f, -5f);
+        }
+        else
+        {
+            _textRt.offsetMin = new Vector2(17f, 0f);
+            _textRt.offsetMax = new Vector2(-83f, 0f);
+        }
         _textRt.localScale = Vector3.one;
         _textRt.localRotation = Quaternion.identity;
 
-        coinText.fontSize = 38f;
+        coinText.fontSize = 50f;
         coinText.fontStyle = FontStyles.Bold;
         coinText.color = Color.white;
         coinText.alignment = TextAlignmentOptions.MidlineLeft;
@@ -284,6 +333,15 @@ public class CoinDisplayUI : MonoBehaviour
     }
 
     private static Sprite _cachedPillSprite;
+
+    private static Sprite LoadPanelSprite()
+    {
+        Sprite s = Resources.Load<Sprite>("UI/Store_Page/price_panel");
+#if UNITY_EDITOR
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Store_Page/price_panel.png");
+#endif
+        return s;
+    }
 
     private static Sprite GetPillSprite()
     {

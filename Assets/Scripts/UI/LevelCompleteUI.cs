@@ -465,6 +465,7 @@ public class LevelCompleteUI : MonoBehaviour
         return s;
     }
 
+
     private void UpdateStatsText()
     {
         if (_coinsText != null)
