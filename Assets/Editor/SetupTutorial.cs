@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 [InitializeOnLoad]
 public static class SetupTutorial
 {
-    private const string ProceduralScenePath = "Assets/Scenes/Procedural(test).unity";
+    private const string ProceduralScenePath = "Assets/Procedural(test).unity";
     private const string TutorialGoName      = "TutorialManager";
 
     static SetupTutorial()

@@ -42,11 +42,10 @@ public class TutorialManager : MonoBehaviour
     private void Awake()
     {
         // Only show tutorial for level 1 first-time players
-        bool isLevel1       = LevelProgress.GetSelectedMenuLevel() == 1
-                              && DifficultyManager.LevelsCompleted == 0;
-        bool alreadySeen    = PlayerPrefs.GetInt(TutorialShownKey, 0) == 1;
-
-        if (!isLevel1 || alreadySeen)
+        // Note: do NOT disable here based on IsLevel1 — we check in Start()
+        // after all objects are initialised.
+        bool alreadySeen = PlayerPrefs.GetInt(TutorialShownKey, 0) == 1;
+        if (alreadySeen)
         {
             gameObject.SetActive(false);
             return;
@@ -55,6 +54,15 @@ public class TutorialManager : MonoBehaviour
 
     private void Start()
     {
+        // Level 1 check: GetSelectedMenuLevel returns 1 for the first procedural level
+        bool isLevel1 = LevelProgress.GetSelectedMenuLevel() == 1;
+        if (!isLevel1)
+        {
+            Debug.Log("[Tutorial] Not Level 1 (selected=" + LevelProgress.GetSelectedMenuLevel() + ") — tutorial disabled.");
+            gameObject.SetActive(false);
+            return;
+        }
+
         _builder = FindFirstObjectByType<ProceduralLevelBuilder>();
         _ball    = FindFirstObjectByType<BallController>();
 
@@ -70,8 +78,21 @@ public class TutorialManager : MonoBehaviour
         indGo.transform.SetParent(null);
         _indicator = indGo.AddComponent<TutorialIndicator>();
 
-        // Subscribe to level built event
-        _builder.OnLevelBuilt += OnLevelBuilt;
+        // TIMING FIX: ProceduralLevelBuilder has [DefaultExecutionOrder(-200)] and
+        // fires OnLevelBuilt from Awake — which runs BEFORE our Start().
+        // So we must check if tiles are already built and initialize immediately.
+        if (_builder.LastBuiltSeed >= 0 && _builder.SpawnedTiles != null && _builder.SpawnedTiles.Count > 0)
+        {
+            Debug.Log("[Tutorial] Level already built with " + _builder.SpawnedTiles.Count + " tiles — starting immediately.");
+            _tiles = _builder.SpawnedTiles;
+            StartCoroutine(BeginAfterDelay(StartDelay));
+        }
+        else
+        {
+            // Level not built yet — subscribe to the event
+            _builder.OnLevelBuilt += OnLevelBuilt;
+            Debug.Log("[Tutorial] Waiting for level to build...");
+        }
 
         // Also hook LevelCompleteUI (finish = mark tutorial done)
         StartCoroutine(WatchForLevelComplete());
