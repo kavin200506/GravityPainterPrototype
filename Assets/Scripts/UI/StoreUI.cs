@@ -156,7 +156,7 @@ public class StoreUI : MonoBehaviour
                 backBtnRect.anchorMin = new Vector2(0.5f, 0.5f);
                 backBtnRect.anchorMax = new Vector2(0.5f, 0.5f);
                 backBtnRect.pivot = new Vector2(0f, 1f);
-                backBtnRect.anchoredPosition = new Vector2(-622f, 922f);
+                backBtnRect.anchoredPosition3D = new Vector3(-539.4f, 989.4f, 639f);
                 backBtnRect.sizeDelta = new Vector2(540f, 275f);
                 backBtnRect.localRotation = Quaternion.identity;
                 backBtnRect.localScale = Vector3.one;

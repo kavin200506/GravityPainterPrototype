@@ -22,14 +22,10 @@ public class FixStoreBackButton
                     rect.anchorMin = new Vector2(0.5f, 0.5f);
                     rect.anchorMax = new Vector2(0.5f, 0.5f);
                     rect.pivot = new Vector2(0f, 1f);
-                    rect.anchoredPosition = new Vector2(-622f, 922f);
+                    rect.anchoredPosition3D = new Vector3(-539.4f, 989.4f, 639f);
                     rect.sizeDelta = new Vector2(540f, 275f);
                     rect.localRotation = Quaternion.identity;
                     rect.localScale = Vector3.one;
-                    
-                    Vector3 localPos = rect.localPosition;
-                    localPos.z = 0;
-                    rect.localPosition = localPos;
                     
                     EditorUtility.SetDirty(rect);
                     changed = true;

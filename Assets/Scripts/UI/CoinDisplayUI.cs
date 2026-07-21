@@ -25,6 +25,7 @@ public class CoinDisplayUI : MonoBehaviour
     private RectTransform _coinIconRt;
     private RectTransform _textRt;
     private RectTransform _glowRt;
+    private CanvasGroup _canvasGroup;
 
     private void Awake()
     {
@@ -236,8 +237,32 @@ public class CoinDisplayUI : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (Application.isPlaying)
+        {
+            _canvasGroup = GetComponent<CanvasGroup>();
+            if (_canvasGroup == null)
+            {
+                _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+    }
+
     private void Update()
     {
+        if (Application.isPlaying && _canvasGroup != null)
+        {
+            bool storeActive = IsStoreActive();
+            float targetAlpha = storeActive ? 0f : 1f;
+            if (_canvasGroup.alpha != targetAlpha)
+            {
+                _canvasGroup.alpha = targetAlpha;
+                _canvasGroup.interactable = !storeActive;
+                _canvasGroup.blocksRaycasts = !storeActive;
+            }
+        }
+
         int currentCoins = CoinManager.GetTotalCoins();
         if (_lastDisplayedCoins != currentCoins)
         {
@@ -253,6 +278,30 @@ public class CoinDisplayUI : MonoBehaviour
         }
 
         AnimateJuice();
+    }
+
+    private bool IsStoreActive()
+    {
+        // Check StoreManager
+        StoreManager storeManager = FindFirstObjectByType<StoreManager>(FindObjectsInactive.Include);
+        if (storeManager != null && storeManager.storePanel != null && storeManager.storePanel.activeInHierarchy)
+            return true;
+
+        // Check TestStoreUI
+        TestStoreUI testStoreUI = FindFirstObjectByType<TestStoreUI>(FindObjectsInactive.Include);
+        if (testStoreUI != null && testStoreUI.storeRoot != null && testStoreUI.storeRoot.activeInHierarchy)
+            return true;
+        if (testStoreUI != null && testStoreUI.gameObject.activeInHierarchy)
+            return true;
+
+        // Check StoreUI
+        StoreUI storeUI = FindFirstObjectByType<StoreUI>(FindObjectsInactive.Include);
+        if (storeUI != null && storeUI.storePanel != null && storeUI.storePanel.activeInHierarchy)
+            return true;
+        if (storeUI != null && storeUI.gameObject.activeInHierarchy)
+            return true;
+
+        return false;
     }
 
     private void TriggerPopEffect()
