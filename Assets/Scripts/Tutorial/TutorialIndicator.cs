@@ -9,19 +9,22 @@ using UnityEngine;
 public class TutorialIndicator : MonoBehaviour
 {
     // ── Tuning ─────────────────────────────────────────────────────────
-    private const float HoverHeight      = 1.8f;   // world-units above tile surface
-    private const float LabelHeight      = 2.6f;   // extra height for the text label
+    private const float HoverHeight      = 0.4f;   // world-units above tile surface
+    private const float LabelHeight      = 1.8f;   // height for the text label above tile
     private const float PulsePeriod      = 1.0f;   // seconds for one scale pulse
-    private const float ParticleRate     = 20f;
-    private const float ParticleLifetime = 0.9f;
-    private const float ParticleSpeed    = 0.6f;
-    private const float ParticleSize     = 0.18f;
-    private const float RingRadius       = 0.28f;  // spawn ring radius
+    private const float ParticleRate     = 16f;
+    private const float ParticleLifetime = 0.5f;
+    private const float ParticleSpeed    = 0.15f;  // gentle float
+    private const float ParticleSize     = 0.35f;  // soft glowing dot size
+    private const float RingRadius       = 0.35f;  // spawn ring radius
 
     // Label colours
-    private static readonly Color LabelColor   = new Color(1f, 0.92f, 0.3f, 1f);  // gold
+    private static readonly Color LabelColor   = new Color(1f, 0.95f, 0.4f, 1f);  // bright gold
     private static readonly Color GlowColorA   = new Color(1f, 0.85f, 0.2f, 1f);  // gold warm
     private static readonly Color GlowColorB   = new Color(0.4f, 1f, 1f,  0f);   // teal → transparent
+
+    private static Texture2D _softCircleTex;
+    private static Material _particleMat;
 
     // ── State ──────────────────────────────────────────────────────────
     private ParticleSystem _ps;
@@ -52,10 +55,11 @@ public class TutorialIndicator : MonoBehaviour
 
         // Colour the label and particles by hint type
         Color particleColor = hint == TapHint.Forward
-            ? new Color(0.3f, 1f, 0.5f)      // green = forward
+            ? new Color(0.2f, 1f, 0.4f)      // green = forward
             : hint == TapHint.Left
-                ? new Color(0.3f, 0.7f, 1f)  // blue  = left
-                : new Color(1f, 0.5f, 0.2f); // orange = right
+                ? new Color(0.2f, 0.7f, 1f)  // blue  = left
+                : new Color(1f, 0.5f, 0.1f); // orange = right
+
         _label.color = particleColor;
         SetParticleColor(particleColor);
 
@@ -92,8 +96,7 @@ public class TutorialIndicator : MonoBehaviour
         _ps = psGo.AddComponent<ParticleSystem>();
         var renderer = psGo.GetComponent<ParticleSystemRenderer>();
         renderer.renderMode = ParticleSystemRenderMode.Billboard;
-        // Use Unity's built-in Default-Particle material
-        renderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
+        renderer.material = GetOrCreateParticleMaterial();
 
         // Main
         var main = _ps.main;
@@ -103,7 +106,7 @@ public class TutorialIndicator : MonoBehaviour
         main.startSpeed      = ParticleSpeed;
         main.startSize       = ParticleSize;
         main.startColor      = GlowColorA;
-        main.gravityModifier = -0.15f;  // float upward slightly
+        main.gravityModifier = 0f;  // Stay hovering near tile
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.playOnAwake     = false;
 
@@ -113,9 +116,9 @@ public class TutorialIndicator : MonoBehaviour
 
         // Shape: ring → taps converge in the centre visually
         var shape = _ps.shape;
-        shape.enabled        = true;
-        shape.shapeType      = ParticleSystemShapeType.Circle;
-        shape.radius         = RingRadius;
+        shape.enabled         = true;
+        shape.shapeType       = ParticleSystemShapeType.Circle;
+        shape.radius          = RingRadius;
         shape.radiusThickness = 0f;   // emit from edge only (ring)
 
         // Color over lifetime: warm gold → teal → fade out
@@ -129,7 +132,7 @@ public class TutorialIndicator : MonoBehaviour
             },
             new GradientAlphaKey[] {
                 new GradientAlphaKey(1f, 0f),
-                new GradientAlphaKey(1f, 0.5f),
+                new GradientAlphaKey(0.8f, 0.4f),
                 new GradientAlphaKey(0f, 1f)
             }
         );
@@ -139,19 +142,19 @@ public class TutorialIndicator : MonoBehaviour
         var sizeOL = _ps.sizeOverLifetime;
         sizeOL.enabled = true;
         AnimationCurve sizeCurve = new AnimationCurve(
-            new Keyframe(0f,   0.3f),
-            new Keyframe(0.4f, 1.0f),
+            new Keyframe(0f,   0.4f),
+            new Keyframe(0.3f, 1.0f),
             new Keyframe(1f,   0.1f)
         );
         sizeOL.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
 
         // Noise: subtle wobble
         var noise = _ps.noise;
-        noise.enabled   = true;
-        noise.strength  = 0.1f;
-        noise.frequency = 0.8f;
-        noise.scrollSpeed = 0.4f;
-        noise.quality   = ParticleSystemNoiseQuality.Low;
+        noise.enabled     = true;
+        noise.strength    = 0.05f;
+        noise.frequency   = 0.8f;
+        noise.scrollSpeed = 0.2f;
+        noise.quality     = ParticleSystemNoiseQuality.Low;
     }
 
     private void BuildLabel()
@@ -160,14 +163,68 @@ public class TutorialIndicator : MonoBehaviour
         labelGo.transform.SetParent(transform.parent ?? transform, false);
 
         _label = labelGo.AddComponent<TextMeshPro>();
-        _label.fontSize        = 3.5f;
-        _label.alignment       = TextAlignmentOptions.Center;
-        _label.color           = LabelColor;
-        _label.fontStyle       = FontStyles.Bold;
+        _label.fontSize = 4.5f;
+        _label.alignment = TextAlignmentOptions.Center;
+        _label.color = LabelColor;
+        _label.fontStyle = FontStyles.Bold;
         _label.enableWordWrapping = true;
+        _label.rectTransform.sizeDelta = new Vector2(6f, 2f);
+        _label.sortingOrder = 10;
 
         // Face the main camera always
         labelGo.AddComponent<FaceCameraY>();
+    }
+
+    private static Material GetOrCreateParticleMaterial()
+    {
+        if (_particleMat != null) return _particleMat;
+
+        Shader shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+        if (shader == null) shader = Shader.Find("Universal Render Pipeline/Lit");
+        if (shader == null) shader = Shader.Find("Particles/Standard Unlit");
+        if (shader == null) shader = Shader.Find("Unlit/Transparent");
+
+        _particleMat = new Material(shader);
+        Texture2D tex = GetSoftCircleTexture();
+
+        if (_particleMat.HasProperty("_BaseMap")) _particleMat.SetTexture("_BaseMap", tex);
+        if (_particleMat.HasProperty("_MainTex")) _particleMat.SetTexture("_MainTex", tex);
+
+        if (_particleMat.HasProperty("_Surface")) _particleMat.SetFloat("_Surface", 1f); // 1 = Transparent
+        if (_particleMat.HasProperty("_Blend")) _particleMat.SetFloat("_Blend", 0f);     // Alpha Blend
+        _particleMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        _particleMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        _particleMat.SetInt("_ZWrite", 0);
+
+        return _particleMat;
+    }
+
+    private static Texture2D GetSoftCircleTexture()
+    {
+        if (_softCircleTex != null) return _softCircleTex;
+
+        int res = 64;
+        _softCircleTex = new Texture2D(res, res, TextureFormat.RGBA32, false);
+        _softCircleTex.wrapMode = TextureWrapMode.Clamp;
+
+        float center = (res - 1) / 2f;
+        float maxRadius = res / 2f;
+
+        Color[] colors = new Color[res * res];
+        for (int y = 0; y < res; y++)
+        {
+            for (int x = 0; x < res; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                float normDist = dist / maxRadius;
+                float alpha = Mathf.Clamp01(1f - normDist);
+                alpha = alpha * alpha * (3f - 2f * alpha); // Smoothstep curve
+                colors[y * res + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+        _softCircleTex.SetPixels(colors);
+        _softCircleTex.Apply();
+        return _softCircleTex;
     }
 
     private void SetParticleColor(Color c)
@@ -185,7 +242,7 @@ public class TutorialIndicator : MonoBehaviour
             },
             new GradientAlphaKey[] {
                 new GradientAlphaKey(1f, 0f),
-                new GradientAlphaKey(0.8f, 0.5f),
+                new GradientAlphaKey(0.8f, 0.4f),
                 new GradientAlphaKey(0f, 1f)
             }
         );
@@ -200,7 +257,7 @@ public class TutorialIndicator : MonoBehaviour
             while (t < PulsePeriod)
             {
                 t += Time.deltaTime;
-                float s = 1f + 0.2f * Mathf.Sin((t / PulsePeriod) * Mathf.PI * 2f);
+                float s = 1f + 0.15f * Mathf.Sin((t / PulsePeriod) * Mathf.PI * 2f);
                 transform.localScale = Vector3.one * s;
                 yield return null;
             }
@@ -230,3 +287,4 @@ public class FaceCameraY : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(dir);
     }
 }
+
