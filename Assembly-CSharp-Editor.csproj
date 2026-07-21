@@ -96,6 +96,8 @@
     <Compile Include="Assets\Scripts\Editor\OptimizeAllGameAssets.cs" />
     <Compile Include="Assets\Scripts\Editor\OptimizeTilesGltf.cs" />
     <Compile Include="Assets\Editor\GravityPainterProjectSettingsRepair.cs" />
+    <Compile Include="Assets\Editor\SetupTutorial.cs" />
+    <Compile Include="Assets\Editor\ResetTutorial.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\ThirdParty\MobileDependencyResolver\Editor\Google.VersionHandler.dll" />

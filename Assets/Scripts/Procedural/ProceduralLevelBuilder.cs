@@ -59,8 +59,10 @@ public class ProceduralLevelBuilder : MonoBehaviour
     [Header("Spawn Tuning")]
     [SerializeField] private float ballSpawnHeight = 2f;
     [SerializeField] private GameObject coinPrefab;
+#pragma warning disable CS0414
     [SerializeField, Range(0f, 1f)] private float coinSpawnChance = 0.25f;
     [SerializeField] private float coinSpawnHeight = 0.8f;
+#pragma warning restore CS0414
 
     [Header("Obstacles")]
     [SerializeField] private GameObject hammerPrefab;

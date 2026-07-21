@@ -29,7 +29,6 @@ public class PowerUpManager : MonoBehaviour
     private GameObject _speedIndicator;
     private GameObject _magnetIndicator;
     private BallController _ball;
-    private int _powerUpsLayer = -1;
 
     private TextMeshProUGUI _timerText;
     private GameObject _timerCanvas;

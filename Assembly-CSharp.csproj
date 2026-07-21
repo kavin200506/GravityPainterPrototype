@@ -129,6 +129,8 @@
     <Compile Include="Assets\Scripts\Systems\GameplayMusicController.cs" />
     <Compile Include="Assets\Scripts\Gameplay\CampaignCoinPlacement.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
+    <Compile Include="Assets\Scripts\Tutorial\TutorialIndicator.cs" />
+    <Compile Include="Assets\Scripts\Tutorial\TutorialManager.cs" />
     <Compile Include="Assets\Scripts\Core\TileZoneIndicator.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\Scripts\UI\PauseUI.cs" />

@@ -167,7 +167,7 @@ public class TutorialIndicator : MonoBehaviour
         _label.alignment = TextAlignmentOptions.Center;
         _label.color = LabelColor;
         _label.fontStyle = FontStyles.Bold;
-        _label.enableWordWrapping = true;
+        _label.textWrappingMode = TextWrappingModes.Normal;
         _label.rectTransform.sizeDelta = new Vector2(6f, 2f);
         _label.sortingOrder = 10;
 

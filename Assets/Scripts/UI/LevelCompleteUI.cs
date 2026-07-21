@@ -29,7 +29,9 @@ public class LevelCompleteUI : MonoBehaviour
 
     [Header("Layout (1080×1920 portrait canvas)")]
     [SerializeField] private float buttonHeight = 200f;
+#pragma warning disable CS0414
     [SerializeField] private float buttonSpacing = 48f;
+#pragma warning restore CS0414
     [Tooltip("Y position of the button row — higher = nearer top of screen.")]
     [SerializeField] private float buttonsAnchoredY = 520f;
     [Tooltip("Gap between the title text and the button row.")]
@@ -39,7 +41,9 @@ public class LevelCompleteUI : MonoBehaviour
     private Button _nextLevelButton;
     private Button _homeButton;
     private Image[] _starImages;
-    private TextMeshProUGUI _statsText;
+    private GameObject _statsContainer;
+    private TextMeshProUGUI _coinsText;
+    private TextMeshProUGUI _timeText;
     private Sprite _starFilledSprite;
     private Sprite _starEmptySprite;
     private StarEvaluator.StarResult _starResult;
@@ -67,6 +71,7 @@ public class LevelCompleteUI : MonoBehaviour
         _totalCoins = total;
         _elapsedTime = elapsed;
         _parTime = par;
+        UpdateStatsText();
     }
 
     private bool IsProceduralMode => proceduralBuilder != null;
@@ -87,7 +92,7 @@ public class LevelCompleteUI : MonoBehaviour
         LayoutTitleText();
 
         Debug.Log("[LevelCompleteUI] Awake complete. StarImages=" + (_starImages != null ? _starImages.Length : 0)
-            + " StatsText=" + (_statsText != null)
+            + " StatsContainer=" + (_statsContainer != null)
             + " RestartBtn=" + (_restartButton != null)
             + " NextBtn=" + (_nextLevelButton != null)
             + " HomeBtn=" + (_homeButton != null));
@@ -136,6 +141,7 @@ public class LevelCompleteUI : MonoBehaviour
         else
         {
             Debug.LogWarning("[LevelCompleteUI] No star result ready! Panel will show without star animation.");
+            StartCoroutine(AnimateStatsCoroutine());
         }
     }
 
@@ -329,24 +335,150 @@ public class LevelCompleteUI : MonoBehaviour
         {
             Destroy(existing.gameObject);
         }
-        _statsText = null;
+
+        _statsContainer = new GameObject(StatsTextName, typeof(RectTransform));
+        _statsContainer.transform.SetParent(transform, false);
+
+        RectTransform rootRt = _statsContainer.GetComponent<RectTransform>();
+        rootRt.anchorMin = new Vector2(0.5f, 0.5f);
+        rootRt.anchorMax = new Vector2(0.5f, 0.5f);
+        rootRt.pivot = new Vector2(0.5f, 0.5f);
+        rootRt.anchoredPosition = Vector2.zero;
+        rootRt.sizeDelta = new Vector2(1080f, 1920f);
+
+        Sprite coinIconSprite = LoadCoinIconSprite();
+        Sprite clockIconSprite = LoadClockIconSprite();
+        TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+
+        // 1. First Space: Coins (x: -103, y: -202, scale: 1.909358)
+        GameObject coinsBadge = new GameObject("CoinsBadge", typeof(RectTransform));
+        coinsBadge.transform.SetParent(_statsContainer.transform, false);
+
+        RectTransform coinsRt = coinsBadge.GetComponent<RectTransform>();
+        coinsRt.anchorMin = new Vector2(0.5f, 0.5f);
+        coinsRt.anchorMax = new Vector2(0.5f, 0.5f);
+        coinsRt.pivot = new Vector2(0.5f, 0.5f);
+        coinsRt.anchoredPosition = new Vector2(-103f, -202f);
+        coinsRt.sizeDelta = new Vector2(240f, 80f);
+        coinsRt.localScale = new Vector3(1.909358f, 1.909358f, 1.909358f);
+
+        GameObject coinIconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+        coinIconObj.transform.SetParent(coinsBadge.transform, false);
+        RectTransform cIconRt = coinIconObj.GetComponent<RectTransform>();
+        cIconRt.anchorMin = new Vector2(0f, 0.5f);
+        cIconRt.anchorMax = new Vector2(0f, 0.5f);
+        cIconRt.pivot = new Vector2(0f, 0.5f);
+        cIconRt.anchoredPosition = new Vector2(0f, 0f);
+        cIconRt.sizeDelta = new Vector2(60f, 60f);
+
+        Image coinIconImg = coinIconObj.GetComponent<Image>();
+        coinIconImg.sprite = coinIconSprite;
+        coinIconImg.preserveAspect = true;
+        coinIconImg.color = Color.white;
+        coinIconImg.raycastTarget = false;
+
+        GameObject coinTextObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        coinTextObj.transform.SetParent(coinsBadge.transform, false);
+        RectTransform cTextRt = coinTextObj.GetComponent<RectTransform>();
+        cTextRt.anchorMin = Vector2.zero;
+        cTextRt.anchorMax = Vector2.one;
+        cTextRt.pivot = new Vector2(0f, 0.5f);
+        cTextRt.offsetMin = new Vector2(70f, 0f);
+        cTextRt.offsetMax = Vector2.zero;
+
+        _coinsText = coinTextObj.GetComponent<TextMeshProUGUI>();
+        if (font != null) _coinsText.font = font;
+        _coinsText.fontSize = 42f;
+        _coinsText.fontStyle = FontStyles.Bold;
+        _coinsText.color = Color.white;
+        _coinsText.alignment = TextAlignmentOptions.MidlineLeft;
+        _coinsText.raycastTarget = false;
+
+        // 2. Second Space: Remaining Time (x: 245, y: -202, scale: 1.909358)
+        GameObject timeBadge = new GameObject("TimeBadge", typeof(RectTransform));
+        timeBadge.transform.SetParent(_statsContainer.transform, false);
+
+        RectTransform timeRt = timeBadge.GetComponent<RectTransform>();
+        timeRt.anchorMin = new Vector2(0.5f, 0.5f);
+        timeRt.anchorMax = new Vector2(0.5f, 0.5f);
+        timeRt.pivot = new Vector2(0.5f, 0.5f);
+        timeRt.anchoredPosition = new Vector2(245f, -202f);
+        timeRt.sizeDelta = new Vector2(240f, 80f);
+        timeRt.localScale = new Vector3(1.909358f, 1.909358f, 1.909358f);
+
+        GameObject timeIconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+        timeIconObj.transform.SetParent(timeBadge.transform, false);
+        RectTransform tIconRt = timeIconObj.GetComponent<RectTransform>();
+        tIconRt.anchorMin = new Vector2(0f, 0.5f);
+        tIconRt.anchorMax = new Vector2(0f, 0.5f);
+        tIconRt.pivot = new Vector2(0f, 0.5f);
+        tIconRt.anchoredPosition = new Vector2(0f, 0f);
+        tIconRt.sizeDelta = new Vector2(60f, 60f);
+
+        Image timeIconImg = timeIconObj.GetComponent<Image>();
+        timeIconImg.sprite = clockIconSprite;
+        timeIconImg.preserveAspect = true;
+        timeIconImg.color = Color.white;
+        timeIconImg.raycastTarget = false;
+
+        GameObject timeTextObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        timeTextObj.transform.SetParent(timeBadge.transform, false);
+        RectTransform tTextRt = timeTextObj.GetComponent<RectTransform>();
+        tTextRt.anchorMin = Vector2.zero;
+        tTextRt.anchorMax = Vector2.one;
+        tTextRt.pivot = new Vector2(0f, 0.5f);
+        tTextRt.offsetMin = new Vector2(70f, 0f);
+        tTextRt.offsetMax = Vector2.zero;
+
+        _timeText = timeTextObj.GetComponent<TextMeshProUGUI>();
+        if (font != null) _timeText.font = font;
+        _timeText.fontSize = 42f;
+        _timeText.fontStyle = FontStyles.Bold;
+        _timeText.color = Color.white;
+        _timeText.alignment = TextAlignmentOptions.MidlineLeft;
+        _timeText.raycastTarget = false;
+
+        UpdateStatsText();
+    }
+
+    private static Sprite LoadCoinIconSprite()
+    {
+        Sprite s = Resources.Load<Sprite>("UI/Store_Page/coin_icon_32");
+        if (s == null) s = Resources.Load<Sprite>("UI/Store_Page/coin_icon");
+        if (s == null) s = Resources.Load<Sprite>("UI/coin_icon");
+#if UNITY_EDITOR
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Store_Page/coin_icon_32.png");
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Store_Page/coin_icon.png");
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/coin_icon.png");
+#endif
+        return s;
+    }
+
+    private static Sprite LoadClockIconSprite()
+    {
+        Sprite s = Resources.Load<Sprite>("UI/Level_Complete/clock");
+        if (s == null) s = Resources.Load<Sprite>("UI/clock");
+#if UNITY_EDITOR
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Level_Complete/clock.png");
+#endif
+        if (s == null) s = LoadCoinIconSprite();
+        return s;
     }
 
     private void UpdateStatsText()
     {
-        if (_statsText == null)
+        if (_coinsText != null)
         {
-            return;
+            _coinsText.text = _collectedCoins.ToString();
         }
 
-        string time = LevelTimer.FormatTime(_elapsedTime);
-        string par = LevelTimer.FormatTime(_parTime);
+        if (_timeText != null)
+        {
+            float remaining = Mathf.Max(0f, _parTime - _elapsedTime);
+            _timeText.text = LevelTimer.FormatTime(remaining);
+        }
 
-        // Show required coins (70% threshold) so the player sees what they needed
-        int required = Mathf.CeilToInt(_totalCoins * StarEvaluator.CoinThreshold);
-        _statsText.text = _collectedCoins + "/" + required + " coins  |  " + time + " / " + par;
-
-        Debug.Log("[LevelCompleteUI] Stats: " + _statsText.text);
+        Debug.Log("[LevelCompleteUI] Stats: Coins=" + _collectedCoins + " Time=" + (_timeText != null ? _timeText.text : ""));
     }
 
 
@@ -367,9 +499,9 @@ public class LevelCompleteUI : MonoBehaviour
             }
         }
 
-        if (_statsText != null)
+        if (_statsContainer != null)
         {
-            _statsText.gameObject.SetActive(false);
+            _statsContainer.SetActive(false);
         }
         UpdateStatsText();
 
@@ -384,10 +516,54 @@ public class LevelCompleteUI : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.4f);
         }
 
-        if (_statsText != null)
+        yield return StartCoroutine(AnimateStatsCoroutine());
+    }
+
+    private IEnumerator AnimateStatsCoroutine()
+    {
+        if (_statsContainer != null)
         {
-            _statsText.gameObject.SetActive(true);
+            _statsContainer.SetActive(true);
         }
+
+        float targetCoins = _collectedCoins;
+        float startRemaining = _parTime;
+        float targetRemaining = Mathf.Max(0f, _parTime - _elapsedTime);
+
+        // Initial state before count animation begins
+        if (_coinsText != null) _coinsText.text = "0";
+        if (_timeText != null) _timeText.text = LevelTimer.FormatTime(startRemaining);
+
+        float duration = 1.0f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(elapsed / duration);
+
+            // Smooth cubic ease-out for polished visual feedback
+            float easeT = 1f - Mathf.Pow(1f - progress, 3f);
+
+            int currentCoins = Mathf.RoundToInt(Mathf.Lerp(0f, targetCoins, easeT));
+            float currentTime = Mathf.Lerp(startRemaining, targetRemaining, easeT);
+
+            if (_coinsText != null)
+            {
+                _coinsText.text = currentCoins.ToString();
+            }
+
+            if (_timeText != null)
+            {
+                _timeText.text = LevelTimer.FormatTime(Mathf.Max(0f, currentTime));
+            }
+
+            yield return null;
+        }
+
+        // Lock in final exact values
+        if (_coinsText != null) _coinsText.text = targetCoins.ToString();
+        if (_timeText != null) _timeText.text = LevelTimer.FormatTime(targetRemaining);
     }
 
     private IEnumerator AnimateSingleStar(int index, bool earned)
