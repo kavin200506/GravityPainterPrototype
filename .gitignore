@@ -16,6 +16,10 @@ new_BackUpThisFolder_ButDontShipItWithYourGame/
 # Unity package installers — import locally, do not commit
 *.unitypackage
 
+# Unity Performance Testing temporary run artifacts
+PerformanceTestRun*.json
+PerformanceTestRun*.json.meta
+
 # Visual Studio / IDE
 .vs/
 *.csproj
