@@ -23,13 +23,15 @@ public class CameraFollow : MonoBehaviour
     [Header("Horizontal Swipe Offset")]
     [Tooltip("Enable slight camera horizontal shift when swiping left/right on screen.")]
     [SerializeField] private bool enableSwipeOffset = true;
-    [Tooltip("Maximum horizontal distance the camera can shift (keep small for minimal movement).")]
-    [SerializeField] private float maxSwipeOffset = 1.5f;
+    [Tooltip("Maximum horizontal distance the camera can shift.")]
+    [SerializeField] private float maxSwipeOffset = 3f;
     [Tooltip("Sensitivity of swipe drag to camera shift.")]
     [SerializeField] private float swipeSensitivity = 0.005f;
     [Tooltip("Automatically smooth camera back to center when swipe ends.")]
     [SerializeField] private bool autoReturnToCenter = true;
-    [Tooltip("Speed at which camera returns to center when not swiping.")]
+    [Tooltip("Delay in seconds after swiping before returning to default center position.")]
+    [SerializeField] private float returnDelay = 3f;
+    [Tooltip("Speed at which camera returns to center when delay elapses.")]
     [SerializeField] private float returnToCenterSpeed = 4f;
     [Tooltip("Smoothing time for swipe offset transitions.")]
     [SerializeField] private float swipeSmoothTime = 0.15f;
@@ -41,6 +43,7 @@ public class CameraFollow : MonoBehaviour
     private float _currentSwipeOffset;
     private float _targetSwipeOffset;
     private float _swipeOffsetVelocity;
+    private float _lastSwipeTime;
 
     private Camera _camera;
 
@@ -128,8 +131,9 @@ public class CameraFollow : MonoBehaviour
         {
             _targetSwipeOffset += deltaX * swipeSensitivity;
             _targetSwipeOffset = Mathf.Clamp(_targetSwipeOffset, -maxSwipeOffset, maxSwipeOffset);
+            _lastSwipeTime = Time.unscaledTime;
         }
-        else if (!isSwiping && autoReturnToCenter)
+        else if (autoReturnToCenter && Time.unscaledTime - _lastSwipeTime >= returnDelay)
         {
             _targetSwipeOffset = Mathf.MoveTowards(_targetSwipeOffset, 0f, Time.deltaTime * returnToCenterSpeed);
         }
