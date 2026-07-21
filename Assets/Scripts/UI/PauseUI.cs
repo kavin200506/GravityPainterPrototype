@@ -242,6 +242,11 @@ public class PauseUI : MonoBehaviour
             ProceduralLevelBuilder builder = FindFirstObjectByType<ProceduralLevelBuilder>();
             if (builder != null)
             {
+                // Ensure any active power-ups are cleared from the ball before rebuilding
+                PowerUpManager pm = FindFirstObjectByType<PowerUpManager>();
+                if (pm != null)
+                    pm.ClearAllPowerUps();
+
                 builder.RebuildSameSeed();
             }
             return;

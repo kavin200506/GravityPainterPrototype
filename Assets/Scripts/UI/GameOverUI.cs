@@ -114,6 +114,10 @@ public class GameOverUI : MonoBehaviour
         LifeManager.ResetLives();
         CoinManager.ResetSessionCoins();
 
+        PowerUpManager pm = Object.FindFirstObjectByType<PowerUpManager>();
+        if (pm != null)
+            pm.ClearAllPowerUps();
+
         Scene active = SceneManager.GetActiveScene();
         if (LevelProgress.IsProceduralScene(active))
         {

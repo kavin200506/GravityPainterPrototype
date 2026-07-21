@@ -10,9 +10,11 @@ public class GameHUD : MonoBehaviour
     private Image[] _heartIcons;
     private TextMeshProUGUI _coinCountText;
     private TextMeshProUGUI _timerText;
+    private TextMeshProUGUI _levelText;
     private int _lastLives = -1;
     private int _lastCoins = -1;
     private int _lastTotalCoins = -1;
+    private int _lastLevelNumber = -1;
     private string _lastTimerString = "";
 
     private void Awake()
@@ -269,6 +271,9 @@ public class GameHUD : MonoBehaviour
         {
             levelText.font = font;
         }
+
+        _levelText = levelText;
+        _lastLevelNumber = levelNum;
     }
 
     private void UpdateFromState()
@@ -312,16 +317,42 @@ public class GameHUD : MonoBehaviour
         GameObject timerObj = new GameObject("TimerDisplay");
         timerObj.transform.SetParent(transform, false);
         RectTransform timerRect = timerObj.AddComponent<RectTransform>();
-        timerRect.anchorMin = new Vector2(0.5f, 1f);
-        timerRect.anchorMax = new Vector2(0.5f, 1f);
-        timerRect.pivot = new Vector2(0.5f, 1f);
-        timerRect.anchoredPosition = new Vector2(0f, -30f);
+        timerRect.anchorMin = new Vector2(0f, 1f);
+        timerRect.anchorMax = new Vector2(0f, 1f);
+        timerRect.pivot = new Vector2(0f, 1f);
+        timerRect.anchoredPosition = new Vector2(676f, -85f);
         timerRect.sizeDelta = new Vector2(300f, 80f);
 
-        _timerText = timerObj.AddComponent<TextMeshProUGUI>();
+        GameObject iconObj = new GameObject("TimerIcon");
+        iconObj.transform.SetParent(timerObj.transform, false);
+        RectTransform iconRect = iconObj.AddComponent<RectTransform>();
+        iconRect.anchorMin = new Vector2(0f, 0.5f);
+        iconRect.anchorMax = new Vector2(0f, 0.5f);
+        iconRect.pivot = new Vector2(0f, 0.5f);
+        iconRect.anchoredPosition = Vector2.zero;
+        iconRect.sizeDelta = new Vector2(50f, 50f);
+
+        Image iconImg = iconObj.AddComponent<Image>();
+        Sprite timerSprite = Resources.Load<Sprite>("UI/Pause_Page/timer");
+        if (timerSprite == null)
+            timerSprite = Resources.Load<Sprite>("UI/timer");
+        if (timerSprite != null)
+            iconImg.sprite = timerSprite;
+        else
+            iconImg.color = Color.white;
+
+        GameObject textObj = new GameObject("TimerText");
+        textObj.transform.SetParent(timerObj.transform, false);
+        RectTransform textRt = textObj.AddComponent<RectTransform>();
+        textRt.anchorMin = new Vector2(0f, 0f);
+        textRt.anchorMax = new Vector2(1f, 1f);
+        textRt.offsetMin = new Vector2(60f, 0f);
+        textRt.offsetMax = Vector2.zero;
+
+        _timerText = textObj.AddComponent<TextMeshProUGUI>();
         _timerText.fontSize = 56f;
         _timerText.color = Color.white;
-        _timerText.alignment = TextAlignmentOptions.Center;
+        _timerText.alignment = TextAlignmentOptions.MidlineLeft;
         _timerText.fontStyle = FontStyles.Bold;
         _timerText.text = "";
 
@@ -341,15 +372,8 @@ public class GameHUD : MonoBehaviour
 
         if (!LevelTimer.IsRunning)
         {
-            if (LevelTimer.ParTime > 0f)
-            {
-                _timerText.text = LevelTimer.GetRemainingTimeString();
-            }
-            else
-            {
-                _timerText.text = "NO TIMER";
-                _timerText.color = Color.red;
-            }
+            _timerText.text = "0:00";
+            _timerText.color = Color.red;
             return;
         }
 
@@ -388,5 +412,18 @@ public class GameHUD : MonoBehaviour
             UpdateCoins(coins, totalCoins);
 
         UpdateTimerDisplay();
+        UpdateLevelDisplay();
+    }
+
+    private void UpdateLevelDisplay()
+    {
+        if (_levelText == null) return;
+
+        int level = LevelProgress.GetActiveLevelNumber();
+        if (level != _lastLevelNumber)
+        {
+            _lastLevelNumber = level;
+            _levelText.text = "LEVEL " + level;
+        }
     }
 }

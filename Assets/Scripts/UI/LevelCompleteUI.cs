@@ -767,6 +767,11 @@ public class LevelCompleteUI : MonoBehaviour
             }
 
             HideAndResume();
+            // Ensure any active power-ups are cleared from the ball before rebuilding
+            PowerUpManager pm = FindFirstObjectByType<PowerUpManager>();
+            if (pm != null)
+                pm.ClearAllPowerUps();
+
             proceduralBuilder.RebuildSameSeed();
             return;
         }

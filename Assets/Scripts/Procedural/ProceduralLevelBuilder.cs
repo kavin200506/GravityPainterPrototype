@@ -193,8 +193,13 @@ public class ProceduralLevelBuilder : MonoBehaviour
             return false;
         }
 
-        // Reset session coins at the very start of level generation
+        // Reset session coins and active power-ups at the very start of level generation
         CoinManager.ResetSessionCoins();
+        PowerUpManager activePm = FindFirstObjectByType<PowerUpManager>();
+        if (activePm != null)
+        {
+            activePm.ClearAllPowerUps();
+        }
 
         HoldBallUntilPlaced();
         if (_activeConfig != null)

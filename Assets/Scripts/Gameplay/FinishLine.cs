@@ -148,6 +148,10 @@ public class FinishLine : MonoBehaviour
         CoinManager.ResetSessionCoins();
         CoinManager.ResetTotalCoinsInLevel();
 
+        PowerUpManager pm = FindFirstObjectByType<PowerUpManager>();
+        if (pm != null)
+            pm.ClearAllPowerUps();
+
         Scene active = SceneManager.GetActiveScene();
         if (LevelProgress.IsProceduralScene(active))
         {
