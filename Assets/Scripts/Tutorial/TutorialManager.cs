@@ -60,42 +60,24 @@ public class TutorialManager : MonoBehaviour
     private IReadOnlyList<GameObject> _tiles;
     private int  _currentTileIndex = -1;
     private bool _active;
+    private int  _levelNumber = -1;
+    private Coroutine _beginDelayCoroutine;
+    private Coroutine _watchCoroutine;
 
     // ─────────────────────────────────────────────────────────────────
     private void Awake()
     {
-        int selectedLevel = LevelProgress.GetSelectedMenuLevel();
-        if (selectedLevel != 1 && selectedLevel != 6)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
-
-        string shownKey = "TutorialShown_Level" + selectedLevel;
-        bool alreadySeen = PlayerPrefs.GetInt(shownKey, 0) == 1;
-        if (alreadySeen)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
+        // Do not disable gameObject in Awake so TutorialManager can listen to level build events.
     }
 
     private void Start()
     {
-        int selectedLevel = LevelProgress.GetSelectedMenuLevel();
-        if (selectedLevel != 1 && selectedLevel != 6)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
-
         _builder = FindFirstObjectByType<ProceduralLevelBuilder>();
         _ball    = FindFirstObjectByType<BallController>();
 
         if (_builder == null || _ball == null)
         {
             Debug.LogWarning("[Tutorial] Missing builder or ball — disabling tutorial.");
-            gameObject.SetActive(false);
             return;
         }
 
@@ -104,27 +86,68 @@ public class TutorialManager : MonoBehaviour
         indGo.transform.SetParent(null);
         _indicator = indGo.AddComponent<TutorialIndicator>();
 
-        // TIMING FIX: builder fires OnLevelBuilt in Awake (order -200) — before our Start.
-        // Check if already built and start immediately if so.
+        // Always listen for level builds (including Next Level rebuilds)
+        _builder.OnLevelBuilt += OnLevelBuilt;
+
+        // Check if level was built prior to Start (Awake order -200)
         if (_builder.LastBuiltSeed >= 0 && _builder.SpawnedTiles != null && _builder.SpawnedTiles.Count > 0)
         {
-            Debug.Log("[Tutorial] Level already built (" + _builder.SpawnedTiles.Count + " tiles) — starting immediately.");
-            _tiles = _builder.SpawnedTiles;
-            StartCoroutine(BeginAfterDelay(StartDelay));
+            EvaluateCurrentLevelAndStartIfNeeded();
         }
         else
         {
-            _builder.OnLevelBuilt += OnLevelBuilt;
             Debug.Log("[Tutorial] Waiting for level to build...");
         }
-
-        StartCoroutine(WatchForLevelComplete());
     }
 
     private void OnLevelBuilt(int seed, int tileCount, int coinCount)
     {
+        EvaluateCurrentLevelAndStartIfNeeded();
+    }
+
+    private void EvaluateCurrentLevelAndStartIfNeeded()
+    {
+        if (_beginDelayCoroutine != null)
+        {
+            StopCoroutine(_beginDelayCoroutine);
+            _beginDelayCoroutine = null;
+        }
+        if (_watchCoroutine != null)
+        {
+            StopCoroutine(_watchCoroutine);
+            _watchCoroutine = null;
+        }
+
+        _active = false;
+        _currentTileIndex = -1;
+
+        if (_indicator != null)
+        {
+            _indicator.Hide();
+        }
+
+        _levelNumber = LevelProgress.GetSelectedMenuLevel();
+        if (_levelNumber != 1 && _levelNumber != 6)
+        {
+            return;
+        }
+
+        string shownKey = "TutorialShown_Level" + _levelNumber;
+        bool alreadySeen = PlayerPrefs.GetInt(shownKey, 0) == 1;
+        if (alreadySeen)
+        {
+            return;
+        }
+
+        if (_builder == null || _builder.SpawnedTiles == null || _builder.SpawnedTiles.Count == 0)
+        {
+            return;
+        }
+
         _tiles = _builder.SpawnedTiles;
-        StartCoroutine(BeginAfterDelay(StartDelay));
+        Debug.Log("[Tutorial] Starting tutorial for Level " + _levelNumber + " (" + _tiles.Count + " tiles).");
+        _beginDelayCoroutine = StartCoroutine(BeginAfterDelay(StartDelay));
+        _watchCoroutine = StartCoroutine(WatchForLevelComplete());
     }
 
     private IEnumerator BeginAfterDelay(float delay)
@@ -155,8 +178,7 @@ public class TutorialManager : MonoBehaviour
         GameObject tile = _tiles[index];
         if (tile == null) return;
 
-        int selectedLevel = LevelProgress.GetSelectedMenuLevel();
-        if (selectedLevel == 1)
+        if (_levelNumber == 1)
         {
             // Look up the hint by tile name — default to Forward if not listed
             TapHint hint = TileHints.TryGetValue(tile.name, out TapHint h) ? h : TapHint.Forward;
@@ -170,7 +192,7 @@ public class TutorialManager : MonoBehaviour
             Vector3 indicatorPos = GetIndicatorWorldPos(tile, hint);
             _indicator.ShowAt(indicatorPos, hint, message);
         }
-        else if (selectedLevel == 6)
+        else if (_levelNumber == 6)
         {
             // Level 6 specific: only show on Tile_2_0_2 or Tile_11_0_3 (case-insensitive)
             if (tile.name.IndexOf("Tile_2_0_2", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -279,7 +301,10 @@ public class TutorialManager : MonoBehaviour
     {
         _active = false;
         _indicator?.Hide();
-        string shownKey = "TutorialShown_Level" + LevelProgress.GetSelectedMenuLevel();
+        // IMPORTANT: use _levelNumber (cached at Awake time) — NOT LevelProgress.GetSelectedMenuLevel().
+        // By the time the level-complete screen shows, the selected level may already point to the
+        // next level, which would wrongly mark that next level's tutorial as seen.
+        string shownKey = "TutorialShown_Level" + _levelNumber;
         PlayerPrefs.SetInt(shownKey, 1);
         PlayerPrefs.Save();
         Debug.Log("[Tutorial] Tutorial dismissed permanently for key: " + shownKey);
