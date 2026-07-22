@@ -282,6 +282,18 @@ public class GameHUD : MonoBehaviour
         UpdateCoins(CoinManager.SessionCoins, CoinManager.TotalCoinsInLevel);
     }
 
+    public void SetGameOverMode(bool active)
+    {
+        Transform hearts = transform.Find("Hearts");
+        if (hearts != null) hearts.gameObject.SetActive(!active);
+
+        Transform coinDisplay = transform.Find("CoinDisplay");
+        if (coinDisplay != null) coinDisplay.gameObject.SetActive(!active);
+
+        Transform timerDisplay = transform.Find("TimerDisplay");
+        if (timerDisplay != null) timerDisplay.gameObject.SetActive(!active);
+    }
+
     public void UpdateLives(int lives)
     {
         _lastLives = lives;

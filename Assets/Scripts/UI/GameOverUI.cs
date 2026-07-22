@@ -1,11 +1,21 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class GameOverUI : MonoBehaviour
 {
     private static GameObject _canvas;
+
+    private static Sprite LoadGameOverSprite(string fileName)
+    {
+        Sprite sp = Resources.Load<Sprite>("UI/Pause_Page/" + fileName);
+#if UNITY_EDITOR
+        if (sp == null)
+            sp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/Art/Sprites/UI/Pause_Page/" + fileName + ".png");
+#endif
+        return sp;
+    }
 
     public static void Show()
     {
@@ -30,24 +40,23 @@ public class GameOverUI : MonoBehaviour
         RectTransform overlayRect = overlay.AddComponent<RectTransform>();
         overlayRect.anchorMin = Vector2.zero;
         overlayRect.anchorMax = Vector2.one;
-        overlayRect.offsetMin = Vector2.zero;
-        overlayRect.offsetMax = Vector2.zero;
+        overlayRect.pivot = new Vector2(0.5f, 0.5f);
+        overlayRect.offsetMin = new Vector2(0f, -83f);
+        overlayRect.offsetMax = new Vector2(0f, -83f);
+        overlayRect.localScale = new Vector3(1f, 0.3579548f, 1f);
         Image overlayImg = overlay.AddComponent<Image>();
-        overlayImg.color = new Color(0f, 0f, 0f, 0.75f);
-
-        GameObject textObj = new GameObject("GameOverText");
-        textObj.transform.SetParent(canvasObj.transform, false);
-        RectTransform textRect = textObj.AddComponent<RectTransform>();
-        textRect.anchorMin = new Vector2(0.5f, 0.5f);
-        textRect.anchorMax = new Vector2(0.5f, 0.5f);
-        textRect.pivot = new Vector2(0.5f, 0.5f);
-        textRect.anchoredPosition = new Vector2(0f, 100f);
-        textRect.sizeDelta = new Vector2(600f, 100f);
-        TextMeshProUGUI text = textObj.AddComponent<TextMeshProUGUI>();
-        text.text = "Game Over";
-        text.fontSize = 80f;
-        text.color = Color.red;
-        text.alignment = TextAlignmentOptions.Center;
+        Sprite bgSprite = LoadGameOverSprite("Game_over");
+        if (bgSprite != null)
+        {
+            overlayImg.sprite = bgSprite;
+            overlayImg.type = Image.Type.Simple;
+            overlayImg.preserveAspect = false;
+            overlayImg.color = Color.white;
+        }
+        else
+        {
+            overlayImg.color = new Color(0f, 0f, 0f, 0.75f);
+        }
 
         GameObject btnObj = new GameObject("RestartButton");
         btnObj.transform.SetParent(canvasObj.transform, false);
@@ -59,15 +68,16 @@ public class GameOverUI : MonoBehaviour
         btnRect.sizeDelta = new Vector2(250f, 250f); // Make it a large square for the circular icon
         Image btnImg = btnObj.AddComponent<Image>();
         
-        Sprite restartSprite = Resources.Load<Sprite>("UI/restart_icon");
+        Sprite restartSprite = LoadGameOverSprite("reply");
         if (restartSprite != null)
         {
             btnImg.sprite = restartSprite;
+            btnImg.preserveAspect = true;
             btnImg.color = Color.white;
         }
         else
         {
-            btnImg.color = new Color(1f, 0.3f, 0.3f, 1f); // Fallback color
+            btnImg.color = new Color(1f, 0.3f, 0.3f, 1f);
         }
         
         Button btn = btnObj.AddComponent<Button>();
@@ -84,20 +94,27 @@ public class GameOverUI : MonoBehaviour
         homeRect.sizeDelta = new Vector2(250f, 250f); 
         Image homeImg = homeObj.AddComponent<Image>();
         
-        Sprite homeSprite = Resources.Load<Sprite>("UI/HomeIcon");
+        Sprite homeSprite = LoadGameOverSprite("home");
         if (homeSprite != null)
         {
             homeImg.sprite = homeSprite;
+            homeImg.preserveAspect = true;
             homeImg.color = Color.white;
         }
         else
         {
-            homeImg.color = new Color(0.3f, 0.3f, 1f, 1f); // Fallback color
+            homeImg.color = new Color(0.3f, 0.3f, 1f, 1f);
         }
         
         Button homeBtn = homeObj.AddComponent<Button>();
         homeBtn.onClick.AddListener(GoHomeFromGameOver);
         // -----------------------
+
+        if (PauseUI.Instance != null)
+            PauseUI.Instance.Hide();
+
+        if (GameHUD.Instance != null)
+            GameHUD.Instance.SetGameOverMode(true);
 
         _canvas = canvasObj;
     }
@@ -111,6 +128,10 @@ public class GameOverUI : MonoBehaviour
         }
 
         Time.timeScale = 1f;
+
+        if (GameHUD.Instance != null)
+            GameHUD.Instance.SetGameOverMode(false);
+
         LifeManager.ResetLives();
         CoinManager.ResetSessionCoins();
 
@@ -124,6 +145,8 @@ public class GameOverUI : MonoBehaviour
             ProceduralLevelBuilder builder = Object.FindFirstObjectByType<ProceduralLevelBuilder>();
             if (builder != null)
             {
+                if (PauseUI.Instance != null)
+                    PauseUI.Instance.Show();
                 builder.RebuildSameSeed();
                 return;
             }
