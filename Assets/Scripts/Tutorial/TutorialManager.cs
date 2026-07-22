@@ -172,8 +172,9 @@ public class TutorialManager : MonoBehaviour
         }
         else if (selectedLevel == 6)
         {
-            // Level 6 specific: only show on Tile_2_0_2 (case-insensitive)
-            if (tile.name.IndexOf("Tile_2_0_2", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            // Level 6 specific: only show on Tile_2_0_2 or Tile_11_0_3 (case-insensitive)
+            if (tile.name.IndexOf("Tile_2_0_2", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                tile.name.IndexOf("Tile_11_0_3", System.StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 TapHint hint = TapHint.Jump;
                 string message = "double tap on left or right side to jump";
