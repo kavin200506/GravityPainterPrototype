@@ -16,7 +16,6 @@ using UnityEngine;
 public class TutorialManager : MonoBehaviour
 {
     // ── Constants ──────────────────────────────────────────────────────
-    private const string TutorialShownKey = "TutorialShown_Level1";
     private const float  StartDelay       = 1.5f;   // seconds before first hint appears
     private const float  SideOffset       = 0.28f;  // how far into the side region the indicator sits
 
@@ -65,7 +64,15 @@ public class TutorialManager : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────
     private void Awake()
     {
-        bool alreadySeen = PlayerPrefs.GetInt(TutorialShownKey, 0) == 1;
+        int selectedLevel = LevelProgress.GetSelectedMenuLevel();
+        if (selectedLevel != 1 && selectedLevel != 6)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        string shownKey = "TutorialShown_Level" + selectedLevel;
+        bool alreadySeen = PlayerPrefs.GetInt(shownKey, 0) == 1;
         if (alreadySeen)
         {
             gameObject.SetActive(false);
@@ -75,11 +82,9 @@ public class TutorialManager : MonoBehaviour
 
     private void Start()
     {
-        // Only run on Level 1
-        bool isLevel1 = LevelProgress.GetSelectedMenuLevel() == 1;
-        if (!isLevel1)
+        int selectedLevel = LevelProgress.GetSelectedMenuLevel();
+        if (selectedLevel != 1 && selectedLevel != 6)
         {
-            Debug.Log("[Tutorial] Not Level 1 (selected=" + LevelProgress.GetSelectedMenuLevel() + ") — tutorial disabled.");
             gameObject.SetActive(false);
             return;
         }
@@ -150,17 +155,37 @@ public class TutorialManager : MonoBehaviour
         GameObject tile = _tiles[index];
         if (tile == null) return;
 
-        // Look up the hint by tile name — default to Forward if not listed
-        TapHint hint = TileHints.TryGetValue(tile.name, out TapHint h) ? h : TapHint.Forward;
+        int selectedLevel = LevelProgress.GetSelectedMenuLevel();
+        if (selectedLevel == 1)
+        {
+            // Look up the hint by tile name — default to Forward if not listed
+            TapHint hint = TileHints.TryGetValue(tile.name, out TapHint h) ? h : TapHint.Forward;
 
-        string message = hint == TapHint.Left  ? MsgLeft
-                       : hint == TapHint.Right ? MsgRight
-                       :                         MsgForward;
+            string message = hint == TapHint.Left  ? MsgLeft
+                           : hint == TapHint.Right ? MsgRight
+                           :                         MsgForward;
 
-        Debug.Log("[Tutorial] Tile=" + tile.name + " Hint=" + hint);
+            Debug.Log("[Tutorial] Tile=" + tile.name + " Hint=" + hint);
 
-        Vector3 indicatorPos = GetIndicatorWorldPos(tile, hint);
-        _indicator.ShowAt(indicatorPos, hint, message);
+            Vector3 indicatorPos = GetIndicatorWorldPos(tile, hint);
+            _indicator.ShowAt(indicatorPos, hint, message);
+        }
+        else if (selectedLevel == 6)
+        {
+            // Level 6 specific: only show on Tile_2_0_2 (case-insensitive)
+            if (tile.name.IndexOf("Tile_2_0_2", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                TapHint hint = TapHint.Jump;
+                string message = "double tap on left or right side to jump";
+                Debug.Log("[Tutorial] Level 6 Tile=" + tile.name + " Hint=" + hint);
+                Vector3 indicatorPos = GetIndicatorWorldPos(tile, hint);
+                _indicator.ShowAt(indicatorPos, hint, message);
+            }
+            else
+            {
+                _indicator.Hide();
+            }
+        }
     }
 
     // ── Position helpers ──────────────────────────────────────────────
@@ -169,7 +194,7 @@ public class TutorialManager : MonoBehaviour
     private Vector3 GetIndicatorWorldPos(GameObject tile, TapHint hint)
     {
         Vector3 center = GetTileCenter(tile);
-        if (hint == TapHint.Forward) return center;
+        if (hint == TapHint.Forward || hint == TapHint.Jump) return center;
 
         Vector3 right = tile.transform.right;
         right.y = 0f;
@@ -253,9 +278,10 @@ public class TutorialManager : MonoBehaviour
     {
         _active = false;
         _indicator?.Hide();
-        PlayerPrefs.SetInt(TutorialShownKey, 1);
+        string shownKey = "TutorialShown_Level" + LevelProgress.GetSelectedMenuLevel();
+        PlayerPrefs.SetInt(shownKey, 1);
         PlayerPrefs.Save();
-        Debug.Log("[Tutorial] Tutorial dismissed permanently.");
+        Debug.Log("[Tutorial] Tutorial dismissed permanently for key: " + shownKey);
     }
 
     private void OnDestroy()

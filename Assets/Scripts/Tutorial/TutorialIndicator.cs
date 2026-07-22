@@ -58,7 +58,9 @@ public class TutorialIndicator : MonoBehaviour
             ? new Color(0.2f, 1f, 0.4f)      // green = forward
             : hint == TapHint.Left
                 ? new Color(0.2f, 0.7f, 1f)  // blue  = left
-                : new Color(1f, 0.5f, 0.1f); // orange = right
+                : hint == TapHint.Right
+                    ? new Color(1f, 0.5f, 0.1f) // orange = right
+                    : new Color(1f, 0.2f, 0.9f); // magenta/pink = jump
 
         _label.color = particleColor;
         SetParticleColor(particleColor);
@@ -272,7 +274,7 @@ public class TutorialIndicator : MonoBehaviour
 }
 
 /// <summary>Which tap zone this hint is for.</summary>
-public enum TapHint { Forward, Left, Right }
+public enum TapHint { Forward, Left, Right, Jump }
 
 /// <summary>Simple billboard component — rotates Y toward the main camera each frame.</summary>
 public class FaceCameraY : MonoBehaviour
