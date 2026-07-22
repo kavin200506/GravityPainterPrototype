@@ -42,6 +42,18 @@ public class SettingsUI : MonoBehaviour
             closeButton.onClick.RemoveAllListeners();
             closeButton.onClick.AddListener(CloseSettings);
         }
+
+        // Disable SafeArea on parent if present to ensure truly full screen
+        SafeArea safeArea = GetComponentInParent<SafeArea>();
+        if (safeArea != null)
+        {
+            safeArea.enabled = false;
+            RectTransform saRect = safeArea.GetComponent<RectTransform>();
+            saRect.anchorMin = Vector2.zero;
+            saRect.anchorMax = Vector2.one;
+            saRect.offsetMin = Vector2.zero;
+            saRect.offsetMax = Vector2.zero;
+        }
     }
 
     private void GenerateUI()
@@ -63,7 +75,18 @@ public class SettingsUI : MonoBehaviour
 
         Image bgImage = GetComponent<Image>();
         if (bgImage == null) bgImage = gameObject.AddComponent<Image>();
-        bgImage.color = new Color(0, 0, 0, 0.95f);
+        
+        Sprite bgSprite = Resources.Load<Sprite>("UI/SettingsBackground");
+        if (bgSprite != null)
+        {
+            bgImage.sprite = bgSprite;
+            bgImage.color = Color.white;
+        }
+        else
+        {
+            bgImage.sprite = null;
+            bgImage.color = new Color(0, 0, 0, 0.95f);
+        }
 
         // Title
         CreateText("Title", transform, "SETTINGS", 80, new Vector2(0f, 600f));
@@ -188,6 +211,13 @@ public class SettingsUI : MonoBehaviour
     private void OnDisable()
     {
         PlayerPrefs.Save();
+
+        // Re-enable SafeArea when closing this menu so other menus get safe area
+        SafeArea safeArea = GetComponentInParent<SafeArea>();
+        if (safeArea != null)
+        {
+            safeArea.enabled = true;
+        }
     }
 
     public void OnMusicVolumeChanged(float val)

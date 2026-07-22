@@ -63,6 +63,11 @@ public static class SetupHammerObstacle
             return;
         }
 
+        if (!File.Exists(Level2ScenePath))
+        {
+            return;
+        }
+
         string previousScene = SceneManager.GetActiveScene().path;
         Scene scene = EditorSceneManager.OpenScene(Level2ScenePath, OpenSceneMode.Single);
 

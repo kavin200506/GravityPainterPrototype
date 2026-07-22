@@ -1,6 +1,7 @@
 {
   "buildFiles": [
     "/Users/kavin/Development/GravityPainterPrototype/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/CMakeLists.txt",
+    "/Users/kavin/Development/GravityPainterPrototype/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/FramePacing/CMakeLists.txt",
     "/Users/kavin/Development/GravityPainterPrototype/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/GameActivity/CMakeLists.txt"
   ],
   "cleanCommandsComponents": [
@@ -23,6 +24,13 @@
       "abi": "arm64-v8a",
       "artifactName": "game",
       "output": "/Users/kavin/Development/GravityPainterPrototype/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/3tk2h4w5/obj/arm64-v8a/libgame.so",
+      "runtimeFiles": []
+    },
+    "swappywrapper::@7e25bd1f32ce224db4e9": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "swappywrapper",
+      "output": "/Users/kavin/Development/GravityPainterPrototype/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/3tk2h4w5/obj/arm64-v8a/libswappywrapper.so",
       "runtimeFiles": []
     }
   },

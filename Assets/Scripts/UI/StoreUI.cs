@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[ExecuteAlways]
 public class StoreUI : MonoBehaviour
 {
     [Header("References")]
@@ -52,8 +53,115 @@ public class StoreUI : MonoBehaviour
         if (allSkins == null || allSkins.Count == 0)
             allSkins = new List<BallSkinData>(Resources.LoadAll<BallSkinData>("Settings/BallSkins"));
 
+        AutoConfigureLayoutRuntime();
+
         WireBackButton();
         WireConfirmButtons();
+    }
+
+    private void OnValidate()
+    {
+        AutoConfigureLayoutRuntime();
+    }
+
+    private void AutoConfigureLayoutRuntime()
+    {
+        GameObject panelObj = storePanel != null ? storePanel : gameObject;
+
+        // Force store panel to full screen
+        RectTransform storeRect = panelObj.GetComponent<RectTransform>();
+        if (storeRect != null)
+        {
+            storeRect.anchorMin = Vector2.zero;
+            storeRect.anchorMax = Vector2.one;
+            storeRect.offsetMin = Vector2.zero;
+            storeRect.offsetMax = Vector2.zero;
+        }
+
+        Image bgImg = panelObj.GetComponent<Image>();
+        if (bgImg != null)
+        {
+            Sprite bgSprite = Resources.Load<Sprite>("UI/Store_Page/BackgroundLevels");
+            if (bgSprite != null) bgImg.sprite = bgSprite;
+            bgImg.color = Color.white;
+        }
+
+        // Configure Grid Parent and Scroll Rect natively
+        if (gridParent != null)
+        {
+            GridLayoutGroup grid = gridParent.GetComponent<GridLayoutGroup>();
+            if (grid == null) grid = gridParent.AddComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(400f, 550f);
+            grid.spacing = new Vector2(50f, 50f);
+            grid.padding = new RectOffset(50, 50, 50, 50);
+            grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
+            grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+            grid.childAlignment = TextAnchor.UpperCenter;
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 2; // balanced 2 columns
+
+            ContentSizeFitter fitter = gridParent.GetComponent<ContentSizeFitter>();
+            if (fitter == null) fitter = gridParent.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            // Ensure ScrollRect doesn't overlap top area (Title/Back Button)
+            ScrollRect scroll = panelObj.GetComponentInChildren<ScrollRect>(true);
+            if (scroll != null)
+            {
+                RectTransform scrollRect = scroll.GetComponent<RectTransform>();
+                scrollRect.anchorMin = new Vector2(0f, 0f);
+                scrollRect.anchorMax = new Vector2(1f, 1f);
+                scrollRect.offsetMin = new Vector2(50f, 50f);
+                scrollRect.offsetMax = new Vector2(-50f, -250f); // 250px space for Top Bar
+                
+                scroll.horizontal = false;
+                scroll.vertical = true;
+                scroll.movementType = ScrollRect.MovementType.Clamped;
+                scroll.inertia = true;
+                scroll.decelerationRate = 0.135f;
+                scroll.scrollSensitivity = 30f;
+
+                Image scrollBg = scroll.GetComponent<Image>();
+                if (scrollBg == null) scrollBg = scroll.gameObject.AddComponent<Image>();
+                if (scrollBg.sprite == null) scrollBg.color = new Color(0f, 0f, 0f, 0f);
+                scrollBg.raycastTarget = true;
+
+                if (scroll.viewport != null)
+                {
+                    Mask oldMask = scroll.viewport.GetComponent<Mask>();
+                    if (oldMask != null)
+                    {
+                        if (Application.isPlaying) Destroy(oldMask);
+                        else DestroyImmediate(oldMask);
+                    }
+                    Image viewImg = scroll.viewport.GetComponent<Image>();
+                    if (viewImg != null) viewImg.raycastTarget = false;
+                    RectMask2D rMask = scroll.viewport.GetComponent<RectMask2D>();
+                    if (rMask == null) scroll.viewport.gameObject.AddComponent<RectMask2D>();
+                }
+            }
+        }
+
+        // Enforce Back Button layout from screenshot
+        Transform backBtnT = transform.Find("BackButton");
+        if (backBtnT == null && panelObj != null)
+            backBtnT = panelObj.transform.Find("BackButton");
+
+        if (backBtnT != null)
+        {
+            RectTransform backBtnRect = backBtnT.GetComponent<RectTransform>();
+            if (backBtnRect != null)
+            {
+                backBtnRect.anchorMin = new Vector2(0.5f, 0.5f);
+                backBtnRect.anchorMax = new Vector2(0.5f, 0.5f);
+                backBtnRect.pivot = new Vector2(0f, 1f);
+                backBtnRect.anchoredPosition3D = new Vector3(-539.4f, 989.4f, 639f);
+                backBtnRect.sizeDelta = new Vector2(540f, 275f);
+                backBtnRect.localRotation = Quaternion.identity;
+                backBtnRect.localScale = Vector3.one;
+            }
+        }
     }
 
     private void WireBackButton()
@@ -237,11 +345,25 @@ public class StoreUI : MonoBehaviour
             }
         }
 
-        if (card.lockIcon != null)
-            card.lockIcon.gameObject.SetActive(!unlocked);
-
         if (card.checkIcon != null)
+        {
             card.checkIcon.gameObject.SetActive(selected);
+            card.checkIcon.color = new Color(0.2f, 1f, 0.2f, 1f); // Green for equipped
+        }
+
+        // Make Lock Icon semi-transparent dark overlay covering the whole box
+        if (card.lockIcon != null)
+        {
+            card.lockIcon.gameObject.SetActive(!unlocked);
+            card.lockIcon.color = new Color(0f, 0f, 0f, 0.7f);
+            RectTransform lockRect = card.lockIcon.GetComponent<RectTransform>();
+            if (lockRect != null)
+            {
+                lockRect.anchorMin = new Vector2(0.5f, 0.5f);
+                lockRect.anchorMax = new Vector2(0.5f, 0.5f);
+                lockRect.sizeDelta = new Vector2(240f, 240f);
+            }
+        }
     }
 
     private void OnSkinCardClicked(BallSkinData skin)

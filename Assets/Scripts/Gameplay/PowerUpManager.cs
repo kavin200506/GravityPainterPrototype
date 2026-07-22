@@ -29,7 +29,6 @@ public class PowerUpManager : MonoBehaviour
     private GameObject _speedIndicator;
     private GameObject _magnetIndicator;
     private BallController _ball;
-    private int _powerUpsLayer = -1;
 
     private TextMeshProUGUI _timerText;
     private GameObject _timerCanvas;
@@ -50,7 +49,10 @@ public class PowerUpManager : MonoBehaviour
 
     private void CreateTimerUI()
     {
-        GameObject canvasObj = GameObject.Find("PowerUpHUD");
+        GameObject canvasObj = GameObject.Find("GameHUDCanvas");
+        if (canvasObj == null)
+            canvasObj = GameObject.Find("PowerUpHUD");
+
         if (canvasObj == null)
         {
             canvasObj = new GameObject("PowerUpHUD", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
@@ -69,11 +71,11 @@ public class PowerUpManager : MonoBehaviour
         rt.anchorMin = new Vector2(0f, 1f);
         rt.anchorMax = new Vector2(0f, 1f);
         rt.pivot = new Vector2(0f, 1f);
-        rt.anchoredPosition = new Vector2(20f, -20f);
+        rt.anchoredPosition = new Vector2(35f, -145f);
         rt.sizeDelta = new Vector2(400f, 200f);
 
         _timerText = textObj.GetComponent<TextMeshProUGUI>();
-        _timerText.fontSize = 38f;
+        _timerText.fontSize = 36f;
         _timerText.fontStyle = FontStyles.Bold;
         _timerText.alignment = TextAlignmentOptions.TopLeft;
         _timerText.text = "";

@@ -23,7 +23,6 @@ public class ProceduralLevelBuilder : MonoBehaviour
     {
         Hammer,
         Laser,
-        Spikes,
     }
 
     private readonly struct ObstacleTypeDefinition
@@ -60,13 +59,14 @@ public class ProceduralLevelBuilder : MonoBehaviour
     [Header("Spawn Tuning")]
     [SerializeField] private float ballSpawnHeight = 2f;
     [SerializeField] private GameObject coinPrefab;
+#pragma warning disable CS0414
     [SerializeField, Range(0f, 1f)] private float coinSpawnChance = 0.25f;
     [SerializeField] private float coinSpawnHeight = 0.8f;
+#pragma warning restore CS0414
 
     [Header("Obstacles")]
     [SerializeField] private GameObject hammerPrefab;
     [SerializeField] private GameObject laserBeamPrefab;
-    [SerializeField] private GameObject spikesPrefab;
 
     [Header("PowerUps")]
     [SerializeField] private GameObject speedCorePrefab;
@@ -90,12 +90,13 @@ public class ProceduralLevelBuilder : MonoBehaviour
     public int Seed => seed;
     public int LastBuiltSeed { get; private set; } = -1;
     public int LastBuiltTileCount { get; private set; }
+    public int LastBuiltCoinCount { get; private set; }
     public float LastBuiltDifficulty { get; private set; } = -1f;
     public string LastBuiltTier =>
         LastBuiltDifficulty >= 0f ? DifficultyManager.GetTierName(LastBuiltDifficulty) : "(none)";
     public IReadOnlyList<GameObject> SpawnedTiles => _spawnedTiles;
 
-    public event Action<int, int> OnLevelBuilt;
+    public event Action<int, int, int> OnLevelBuilt;
 
     private void Awake()
     {
@@ -167,7 +168,6 @@ public class ProceduralLevelBuilder : MonoBehaviour
 
         if (hammerPrefab == null) hammerPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Obstacles/Hammer.prefab");
         if (laserBeamPrefab == null) laserBeamPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Obstacles/KorrathBeam.prefab");
-        if (spikesPrefab == null) spikesPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Obstacles/Spikes.prefab");
         if (speedCorePrefab == null) speedCorePrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PowerUps/SpeedCore.prefab");
         if (magnetPrefab == null) magnetPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PowerUps/Magnet.prefab");
 
@@ -194,8 +194,13 @@ public class ProceduralLevelBuilder : MonoBehaviour
             return false;
         }
 
-        // Reset session coins at the very start of level generation
+        // Reset session coins and active power-ups at the very start of level generation
         CoinManager.ResetSessionCoins();
+        PowerUpManager activePm = FindFirstObjectByType<PowerUpManager>();
+        if (activePm != null)
+        {
+            activePm.ClearAllPowerUps();
+        }
 
         HoldBallUntilPlaced();
         if (_activeConfig != null)
@@ -240,8 +245,39 @@ public class ProceduralLevelBuilder : MonoBehaviour
         }
 
         GameObject goalTile = null;
+        int spawnedCoinCount = 0;
         int checkpointTileIndex = cells.Count / 2;
         int finishTileIndex = cells.Count - 1;
+
+        if (LevelProgress.GetSelectedMenuLevel() == 97)
+        {
+            int insertIndex = checkpointTileIndex + 3;
+            if (insertIndex < cells.Count)
+            {
+                LevelCell prev = cells[insertIndex - 1];
+                LevelCell next = cells[insertIndex];
+                Vector2Int dir = next.GridPos - prev.GridPos;
+                
+                LevelCell newCell = new LevelCell
+                {
+                    GridPos = next.GridPos,
+                    YRotation = next.YRotation,
+                    PathIndex = insertIndex,
+                    IsMainPath = true
+                };
+                
+                for (int i = insertIndex; i < cells.Count; i++)
+                {
+                    LevelCell c = cells[i];
+                    c.GridPos += dir;
+                    c.PathIndex++;
+                    cells[i] = c;
+                }
+                
+                cells.Insert(insertIndex, newCell);
+                finishTileIndex++;
+            }
+        }
 
         HashSet<int> powerUpIndices = new HashSet<int>();
         int lastPowerUpIndex = -1;
@@ -283,6 +319,19 @@ public class ProceduralLevelBuilder : MonoBehaviour
             powerUpIndices,
             actualSeed,
             difficulty);
+
+        if (LevelProgress.GetSelectedMenuLevel() == 97)
+        {
+            for (int j = checkpointTileIndex + 2; j < cells.Count; j++)
+            {
+                if (obstaclesByIndex.TryGetValue(j, out ObstacleKind kind) && kind == ObstacleKind.Laser)
+                {
+                    obstaclesByIndex.Remove(j);
+                    break;
+                }
+            }
+        }
+
         HashSet<int> obstacleIndices = new HashSet<int>(obstaclesByIndex.Keys);
 
         HashSet<int> coinIndices = new HashSet<int>();
@@ -359,6 +408,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 GameObject coinObj = Instantiate(coinPrefab, coinPos, startingRot, levelRoot);
                 coinObj.name = "Coin_" + i;
                 CampaignCoinPlacement.SnapCoinToTile(coinObj.transform, tile.transform);
+                spawnedCoinCount++;
             }
 
             if (LevelProgress.GetSelectedMenuLevel() == 97 && i == checkpointTileIndex + 1)
@@ -373,7 +423,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
             }
         }
 
-        SpawnCornerPads(cells);
+        spawnedCoinCount += SpawnCornerPads(cells);
         SpawnPowerUps(cells, actualSeed, powerUpIndices);
         SpawnCheckpoint();
 
@@ -382,6 +432,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
 
         LastBuiltSeed = actualSeed;
         LastBuiltTileCount = _spawnedTiles.Count;
+        LastBuiltCoinCount = spawnedCoinCount;
         _watchedSeed = actualSeed;
         seed = actualSeed;
 
@@ -392,13 +443,14 @@ public class ProceduralLevelBuilder : MonoBehaviour
             + ", grid=" + _activeConfig.gridWidth + "x" + _activeConfig.gridDepth
             + ", turnFreq=" + _activeConfig.turnFrequency.ToString("F2")
             + ", obstacles=" + obstaclesByIndex.Count
+            + ", coins=" + spawnedCoinCount
             + ", menuLevel=" + LevelProgress.GetSelectedMenuLevel()
             + ", requested seed=" + buildSeed
             + ", used seed=" + actualSeed
             + ", tiles=" + _spawnedTiles.Count
             + ", finish at " + cells[cells.Count - 1].GridPos);
 
-        OnLevelBuilt?.Invoke(actualSeed, _spawnedTiles.Count);
+        OnLevelBuilt?.Invoke(actualSeed, _spawnedTiles.Count, spawnedCoinCount);
         return true;
     }
 
@@ -554,11 +606,13 @@ public class ProceduralLevelBuilder : MonoBehaviour
         return tile;
     }
 
-    private void SpawnCornerPads(IReadOnlyList<LevelCell> cells)
+    /// <summary>Returns the number of coins spawned on corner pads.</summary>
+    private int SpawnCornerPads(IReadOnlyList<LevelCell> cells)
     {
+        int cornerCoinCount = 0;
         if (!_activeConfig.addCornerPads || cells == null)
         {
-            return;
+            return cornerCoinCount;
         }
 
         var placed = ProceduralTilePlacement.BuildPlacementPlan(cells, _activeConfig);
@@ -598,6 +652,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                     GameObject coinObj = Instantiate(coinPrefab, coinPos, startingRot, levelRoot);
                     coinObj.name = "Coin_CornerPad_" + i + "_" + padIndex;
                     CampaignCoinPlacement.SnapCoinToTile(coinObj.transform, pad.transform);
+                    cornerCoinCount++;
                 }
 
                 placed.Add(new ProceduralTilePlacement.PlacedTile
@@ -608,6 +663,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 });
             }
         }
+        return cornerCoinCount;
     }
 
     private static bool WouldOverlapNonNeighborMainTiles(
@@ -751,21 +807,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 difficulty);
         }
 
-        if (difficulty >= 0.85f)
-        {
-            TryPlaceRequiredObstacle(
-                ObstacleKind.Spikes,
-                plan,
-                picked,
-                unlockedTypes,
-                validIndices,
-                minGap,
-                cells,
-                checkpointTileIndex,
-                finishTileIndex,
-                powerUpIndices,
-                difficulty);
-        }
+
     }
 
     private void TryPlaceRequiredObstacle(
@@ -844,10 +886,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
             types.Add(new ObstacleTypeDefinition(ObstacleKind.Laser, laserBeamPrefab, 0.40f));
         }
 
-        if (spikesPrefab != null && difficulty >= 0.80f)
-        {
-            types.Add(new ObstacleTypeDefinition(ObstacleKind.Spikes, spikesPrefab, 0.80f));
-        }
+
 
         return types;
     }
@@ -1035,18 +1074,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
 
                 return 1f;
 
-            case ObstacleKind.Spikes:
-                if (difficulty < 0.80f)
-                {
-                    return 0.01f;
-                }
 
-                if (difficulty < 0.90f)
-                {
-                    return 0.45f;
-                }
-
-                return 0.9f;
 
             default:
                 return 0.1f;
@@ -1126,34 +1154,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
 
                 return 0.75f;
 
-            case ObstacleKind.Spikes:
-                if (difficulty < 0.80f || isTurnTile)
-                {
-                    return 0f;
-                }
 
-                if (nearFinish || checkpointDistance <= 1 || powerUpDistance <= 1)
-                {
-                    return 0f;
-                }
-
-                float midPathBias = 1f - Mathf.Clamp01(Mathf.Abs(pathProgress - 0.5f) / 0.5f);
-                if (midPathBias < 0.25f)
-                {
-                    return 0.15f;
-                }
-
-                if (straightRunLength >= 4)
-                {
-                    return 0.9f + midPathBias * 0.5f;
-                }
-
-                if (straightRunLength >= 3)
-                {
-                    return 0.75f + midPathBias * 0.45f;
-                }
-
-                return 0.2f + midPathBias * 0.25f;
 
             default:
                 return 1f;
@@ -1292,20 +1293,7 @@ public class ProceduralLevelBuilder : MonoBehaviour
                 return;
             }
 
-            case ObstacleKind.Spikes:
-            {
-                if (spikesPrefab == null)
-                {
-                    return;
-                }
 
-                GameObject spikes = Instantiate(spikesPrefab, levelRoot);
-                spikes.name = "Spike_" + index;
-                Vector3 position = tile.transform.position;
-                position.y = GetTileTopY(tile) + 0.01f;
-                spikes.transform.SetPositionAndRotation(position, tile.transform.rotation);
-                return;
-            }
         }
     }
 

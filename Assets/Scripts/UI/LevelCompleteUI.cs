@@ -1,29 +1,37 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Level-complete overlay on LevelCompleteCanvas: Restart, Next Level, Home (image buttons).
-/// Hierarchy: Panel (background) → "Level Completed" title → ActionButtons (just below title).
+/// Level-complete overlay on LevelCompleteCanvas: stars, stats, Restart, Next Level, Home.
+/// Hierarchy: Panel (background) → "Level Completed" title → StarContainer → StatsText → ActionButtons.
 /// </summary>
 public class LevelCompleteUI : MonoBehaviour
 {
     private const string ButtonsRootName = "ActionButtons";
+    private const string StarContainerName = "StarContainer";
+    private const string StatsTextName = "StatsText";
     private const string TitleObjectName = "Text (TMP)";
     private const string RestartResource = "UI/LevelCompleteUI/restart";
     private const string NextLevelResource = "UI/LevelCompleteUI/nextlevel";
     private const string HomeResource = "UI/LevelCompleteUI/home";
+    private const string StarFilledResource = "UI/LevelCompleteUI/star_filled";
+    private const string StarEmptyResource = "UI/LevelCompleteUI/star_empty";
 
     [SerializeField] private int currentLevel;
     [SerializeField] private ProceduralLevelBuilder proceduralBuilder;
+    [SerializeField] private Sprite backgroundSprite;
     [SerializeField] private Sprite restartButtonSprite;
     [SerializeField] private Sprite nextLevelButtonSprite;
     [SerializeField] private Sprite homeButtonSprite;
 
     [Header("Layout (1080×1920 portrait canvas)")]
     [SerializeField] private float buttonHeight = 200f;
+#pragma warning disable CS0414
     [SerializeField] private float buttonSpacing = 48f;
+#pragma warning restore CS0414
     [Tooltip("Y position of the button row — higher = nearer top of screen.")]
     [SerializeField] private float buttonsAnchoredY = 520f;
     [Tooltip("Gap between the title text and the button row.")]
@@ -32,6 +40,18 @@ public class LevelCompleteUI : MonoBehaviour
     private Button _restartButton;
     private Button _nextLevelButton;
     private Button _homeButton;
+    private Image[] _starImages;
+    private GameObject _statsContainer;
+    private TextMeshProUGUI _coinsText;
+    private TextMeshProUGUI _timeText;
+    private Sprite _starFilledSprite;
+    private Sprite _starEmptySprite;
+    private StarEvaluator.StarResult _starResult;
+    private bool _starResultReady;
+    private int _collectedCoins;
+    private int _totalCoins;
+    private float _elapsedTime;
+    private float _parTime;
 
     public void ConfigureProcedural(ProceduralLevelBuilder builder)
     {
@@ -39,22 +59,51 @@ public class LevelCompleteUI : MonoBehaviour
         UpdateNextLevelButton();
     }
 
+    public void SetStarResult(StarEvaluator.StarResult result)
+    {
+        _starResult = result;
+        _starResultReady = true;
+    }
+
+    public void SetStatsSnapshot(int collected, int total, float elapsed, float par)
+    {
+        _collectedCoins = collected;
+        _totalCoins = total;
+        _elapsedTime = elapsed;
+        _parTime = par;
+        UpdateStatsText();
+    }
+
     private bool IsProceduralMode => proceduralBuilder != null;
 
     private void Awake()
     {
+        Debug.Log("[LevelCompleteUI] Awake called on: " + gameObject.name);
+
         if (currentLevel < 1)
         {
             currentLevel = LevelProgress.GetActiveLevelNumber();
         }
 
         LoadDefaultSpritesIfNeeded();
+        BuildStarContainer();
+        BuildStatsText();
         BuildActionButtons();
         LayoutTitleText();
+
+        Debug.Log("[LevelCompleteUI] Awake complete. StarImages=" + (_starImages != null ? _starImages.Length : 0)
+            + " StatsContainer=" + (_statsContainer != null)
+            + " RestartBtn=" + (_restartButton != null)
+            + " NextBtn=" + (_nextLevelButton != null)
+            + " HomeBtn=" + (_homeButton != null));
     }
 
     private void OnEnable()
     {
+        Debug.Log("[LevelCompleteUI] OnEnable called. starResultReady=" + _starResultReady
+            + " level=" + currentLevel
+            + " procedural=" + IsProceduralMode);
+
         if (GameHUD.Instance != null)
         {
             GameHUD.Instance.gameObject.SetActive(false);
@@ -71,6 +120,7 @@ public class LevelCompleteUI : MonoBehaviour
         }
 
         EnsureBackgroundVisible();
+        EnsureActionButtonsExactLayout();
         UpdateNextLevelButton();
         UpdateProceduralTitle();
         GameplayMusicController.NotifyLevelCompleteOverlayVisible(true);
@@ -79,10 +129,29 @@ public class LevelCompleteUI : MonoBehaviour
         {
             PauseUI.Instance.Hide();
         }
+
+        if (_starResultReady)
+        {
+            Debug.Log("[LevelCompleteUI] Starting star animation. Stars="
+                + _starResult.star1 + "," + _starResult.star2 + "," + _starResult.star3
+                + " Coins=" + _collectedCoins + "/" + _totalCoins
+                + " Time=" + LevelTimer.FormatTime(_elapsedTime) + "/" + LevelTimer.FormatTime(_parTime));
+            StartCoroutine(AnimateStarsCoroutine());
+        }
+        else
+        {
+            Debug.LogWarning("[LevelCompleteUI] No star result ready! Panel will show without star animation.");
+            StartCoroutine(AnimateStatsCoroutine());
+        }
     }
 
     private void OnDisable()
     {
+        if (GameHUD.Instance != null)
+        {
+            GameHUD.Instance.gameObject.SetActive(true);
+        }
+
         GameplayMusicController.NotifyLevelCompleteOverlayVisible(false);
     }
 
@@ -91,25 +160,47 @@ public class LevelCompleteUI : MonoBehaviour
         Transform panel = transform.Find("Panel");
         if (panel == null)
         {
+            panel = transform.Find("SafeAreaPanel/Panel");
+        }
+        if (panel == null)
+        {
+            // Fallback to finding the first Panel named child or any background Image inside this canvas
+            foreach (Image img in GetComponentsInChildren<Image>(true))
+            {
+                if (img.gameObject.name == "Panel" || img.gameObject.name == "Background")
+                {
+                    panel = img.transform;
+                    break;
+                }
+            }
+        }
+        if (panel == null)
+        {
+            Debug.LogWarning("[LevelCompleteUI] No 'Panel' child found for background!");
             return;
         }
 
         Image image = panel.GetComponent<Image>();
-        if (image == null || image.sprite != null)
+        if (image == null)
         {
+            Debug.LogWarning("[LevelCompleteUI] Panel has no Image component!");
             return;
         }
 
-        Sprite background = LevelCompleteCanvasFactory.LoadBackgroundSprite();
-        if (background == null)
+        Sprite bgToUse = backgroundSprite != null ? backgroundSprite : LevelCompleteCanvasFactory.LoadBackgroundSprite();
+        if (bgToUse != null)
         {
-            return;
+            image.sprite = bgToUse;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.color = Color.white;
+            Debug.Log("[LevelCompleteUI] Background sprite applied: " + bgToUse.name);
         }
-
-        image.sprite = background;
-        image.type = Image.Type.Simple;
-        image.preserveAspect = true;
-        image.color = Color.white;
+        else if (image.sprite != null)
+        {
+            image.preserveAspect = false;
+            image.color = Color.white;
+        }
     }
 
     private void LoadDefaultSpritesIfNeeded()
@@ -117,6 +208,15 @@ public class LevelCompleteUI : MonoBehaviour
         restartButtonSprite = EnsureSprite(restartButtonSprite, RestartResource);
         nextLevelButtonSprite = EnsureSprite(nextLevelButtonSprite, NextLevelResource);
         homeButtonSprite = EnsureSprite(homeButtonSprite, HomeResource);
+        _starFilledSprite = EnsureSprite(_starFilledSprite, StarFilledResource);
+        _starEmptySprite = EnsureSprite(_starEmptySprite, StarEmptyResource);
+
+        Debug.Log("[LevelCompleteUI] Sprites loaded:"
+            + " restart=" + (restartButtonSprite != null)
+            + " next=" + (nextLevelButtonSprite != null)
+            + " home=" + (homeButtonSprite != null)
+            + " starFilled=" + (_starFilledSprite != null)
+            + " starEmpty=" + (_starEmptySprite != null));
     }
 
     private static Sprite EnsureSprite(Sprite assigned, string resourcesPath)
@@ -142,10 +242,9 @@ public class LevelCompleteUI : MonoBehaviour
         titleRect.pivot = new Vector2(0.5f, 0.5f);
 
         float titleHeight = titleRect.sizeDelta.y;
-        float titleY = buttonsAnchoredY + buttonHeight * 0.5f + titleGap + titleHeight * 0.5f;
+        float titleY = buttonsAnchoredY + buttonHeight * 0.5f + titleGap + titleHeight * 0.5f + 300f;
         titleRect.anchoredPosition = new Vector2(0f, titleY);
 
-        // Draw order: background → buttons → title on top (readable over artwork).
         titleRect.SetAsLastSibling();
     }
 
@@ -173,6 +272,361 @@ public class LevelCompleteUI : MonoBehaviour
             + ")";
     }
 
+    // ── Star Container ───────────────────────────────────────────────────
+
+    private void BuildStarContainer()
+    {
+        Transform existing = transform.Find(StarContainerName);
+        if (existing != null)
+        {
+            Destroy(existing.gameObject);
+        }
+
+        GameObject container = new GameObject(StarContainerName, typeof(RectTransform));
+        container.transform.SetParent(transform, false);
+
+        RectTransform containerRect = container.GetComponent<RectTransform>();
+        containerRect.anchorMin = new Vector2(0.5f, 0.5f);
+        containerRect.anchorMax = new Vector2(0.5f, 0.5f);
+        containerRect.pivot = new Vector2(0.5f, 0.5f);
+        containerRect.sizeDelta = new Vector2(600f, 200f);
+        containerRect.anchoredPosition = new Vector2(0f, 141f);
+
+        _starImages = new Image[3];
+        float starSize = 150f;
+        float starSpacing = 40f;
+        float totalWidth = starSize * 3 + starSpacing * 2f;
+        float startX = -totalWidth * 0.5f;
+
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject starObj = new GameObject("Star" + (i + 1), typeof(RectTransform), typeof(Image));
+            starObj.transform.SetParent(container.transform, false);
+
+            RectTransform starRect = starObj.GetComponent<RectTransform>();
+            starRect.anchorMin = new Vector2(0.5f, 0.5f);
+            starRect.anchorMax = new Vector2(0.5f, 0.5f);
+            starRect.pivot = new Vector2(0.5f, 0.5f);
+            starRect.sizeDelta = new Vector2(starSize, starSize);
+            starRect.anchoredPosition = new Vector2(startX + (starSize * 0.5f) + i * (starSize + starSpacing), 0f);
+
+            Image starImage = starObj.GetComponent<Image>();
+            starImage.sprite = _starEmptySprite;
+            starImage.type = Image.Type.Simple;
+            starImage.preserveAspect = true;
+
+            if (_starEmptySprite == null)
+            {
+                starImage.color = new Color(0.3f, 0.3f, 0.3f, 0.8f);
+            }
+            else
+            {
+                starImage.color = Color.white;
+            }
+
+            _starImages[i] = starImage;
+        }
+    }
+
+    private void BuildStatsText()
+    {
+        Transform existing = transform.Find(StatsTextName);
+        if (existing != null)
+        {
+            Destroy(existing.gameObject);
+        }
+
+        _statsContainer = new GameObject(StatsTextName, typeof(RectTransform));
+        _statsContainer.transform.SetParent(transform, false);
+
+        RectTransform rootRt = _statsContainer.GetComponent<RectTransform>();
+        rootRt.anchorMin = new Vector2(0.5f, 0.5f);
+        rootRt.anchorMax = new Vector2(0.5f, 0.5f);
+        rootRt.pivot = new Vector2(0.5f, 0.5f);
+        rootRt.anchoredPosition = Vector2.zero;
+        rootRt.sizeDelta = new Vector2(1080f, 1920f);
+
+        Sprite coinIconSprite = LoadCoinIconSprite();
+        Sprite clockIconSprite = LoadClockIconSprite();
+        TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+
+        // 1. First Space: Coins (x: -103, y: -202, scale: 1.909358)
+        GameObject coinsBadge = new GameObject("CoinsBadge", typeof(RectTransform));
+        coinsBadge.transform.SetParent(_statsContainer.transform, false);
+
+        RectTransform coinsRt = coinsBadge.GetComponent<RectTransform>();
+        coinsRt.anchorMin = new Vector2(0.5f, 0.5f);
+        coinsRt.anchorMax = new Vector2(0.5f, 0.5f);
+        coinsRt.pivot = new Vector2(0.5f, 0.5f);
+        coinsRt.anchoredPosition = new Vector2(-103f, -202f);
+        coinsRt.sizeDelta = new Vector2(240f, 80f);
+        coinsRt.localScale = new Vector3(1.909358f, 1.909358f, 1.909358f);
+
+        GameObject coinIconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+        coinIconObj.transform.SetParent(coinsBadge.transform, false);
+        RectTransform cIconRt = coinIconObj.GetComponent<RectTransform>();
+        cIconRt.anchorMin = new Vector2(0f, 0.5f);
+        cIconRt.anchorMax = new Vector2(0f, 0.5f);
+        cIconRt.pivot = new Vector2(0f, 0.5f);
+        cIconRt.anchoredPosition = new Vector2(0f, 0f);
+        cIconRt.sizeDelta = new Vector2(60f, 60f);
+
+        Image coinIconImg = coinIconObj.GetComponent<Image>();
+        coinIconImg.sprite = coinIconSprite;
+        coinIconImg.preserveAspect = true;
+        coinIconImg.color = Color.white;
+        coinIconImg.raycastTarget = false;
+
+        GameObject coinTextObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        coinTextObj.transform.SetParent(coinsBadge.transform, false);
+        RectTransform cTextRt = coinTextObj.GetComponent<RectTransform>();
+        cTextRt.anchorMin = Vector2.zero;
+        cTextRt.anchorMax = Vector2.one;
+        cTextRt.pivot = new Vector2(0f, 0.5f);
+        cTextRt.offsetMin = new Vector2(70f, 0f);
+        cTextRt.offsetMax = Vector2.zero;
+
+        _coinsText = coinTextObj.GetComponent<TextMeshProUGUI>();
+        if (font != null) _coinsText.font = font;
+        _coinsText.fontSize = 42f;
+        _coinsText.fontStyle = FontStyles.Bold;
+        _coinsText.color = Color.white;
+        _coinsText.alignment = TextAlignmentOptions.MidlineLeft;
+        _coinsText.raycastTarget = false;
+
+        // 2. Second Space: Remaining Time (x: 245, y: -202, scale: 1.909358)
+        GameObject timeBadge = new GameObject("TimeBadge", typeof(RectTransform));
+        timeBadge.transform.SetParent(_statsContainer.transform, false);
+
+        RectTransform timeRt = timeBadge.GetComponent<RectTransform>();
+        timeRt.anchorMin = new Vector2(0.5f, 0.5f);
+        timeRt.anchorMax = new Vector2(0.5f, 0.5f);
+        timeRt.pivot = new Vector2(0.5f, 0.5f);
+        timeRt.anchoredPosition = new Vector2(245f, -202f);
+        timeRt.sizeDelta = new Vector2(240f, 80f);
+        timeRt.localScale = new Vector3(1.909358f, 1.909358f, 1.909358f);
+
+        GameObject timeIconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+        timeIconObj.transform.SetParent(timeBadge.transform, false);
+        RectTransform tIconRt = timeIconObj.GetComponent<RectTransform>();
+        tIconRt.anchorMin = new Vector2(0f, 0.5f);
+        tIconRt.anchorMax = new Vector2(0f, 0.5f);
+        tIconRt.pivot = new Vector2(0f, 0.5f);
+        tIconRt.anchoredPosition = new Vector2(0f, 0f);
+        tIconRt.sizeDelta = new Vector2(60f, 60f);
+
+        Image timeIconImg = timeIconObj.GetComponent<Image>();
+        timeIconImg.sprite = clockIconSprite;
+        timeIconImg.preserveAspect = true;
+        timeIconImg.color = Color.white;
+        timeIconImg.raycastTarget = false;
+
+        GameObject timeTextObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        timeTextObj.transform.SetParent(timeBadge.transform, false);
+        RectTransform tTextRt = timeTextObj.GetComponent<RectTransform>();
+        tTextRt.anchorMin = Vector2.zero;
+        tTextRt.anchorMax = Vector2.one;
+        tTextRt.pivot = new Vector2(0f, 0.5f);
+        tTextRt.offsetMin = new Vector2(70f, 0f);
+        tTextRt.offsetMax = Vector2.zero;
+
+        _timeText = timeTextObj.GetComponent<TextMeshProUGUI>();
+        if (font != null) _timeText.font = font;
+        _timeText.fontSize = 42f;
+        _timeText.fontStyle = FontStyles.Bold;
+        _timeText.color = Color.white;
+        _timeText.alignment = TextAlignmentOptions.MidlineLeft;
+        _timeText.raycastTarget = false;
+
+        UpdateStatsText();
+    }
+
+    private static Sprite LoadCoinIconSprite()
+    {
+        Sprite s = Resources.Load<Sprite>("UI/Store_Page/coin_icon_32");
+        if (s == null) s = Resources.Load<Sprite>("UI/Store_Page/coin_icon");
+        if (s == null) s = Resources.Load<Sprite>("UI/coin_icon");
+#if UNITY_EDITOR
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Store_Page/coin_icon_32.png");
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Store_Page/coin_icon.png");
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/coin_icon.png");
+#endif
+        return s;
+    }
+
+    private static Sprite LoadClockIconSprite()
+    {
+        Sprite s = Resources.Load<Sprite>("UI/Level_Complete/clock");
+        if (s == null) s = Resources.Load<Sprite>("UI/clock");
+#if UNITY_EDITOR
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Level_Complete/clock.png");
+#endif
+        if (s == null) s = LoadCoinIconSprite();
+        return s;
+    }
+
+
+    private void UpdateStatsText()
+    {
+        if (_coinsText != null)
+        {
+            _coinsText.text = _collectedCoins.ToString();
+        }
+
+        if (_timeText != null)
+        {
+            float remaining = Mathf.Max(0f, _parTime - _elapsedTime);
+            _timeText.text = LevelTimer.FormatTime(remaining);
+        }
+
+        Debug.Log("[LevelCompleteUI] Stats: Coins=" + _collectedCoins + " Time=" + (_timeText != null ? _timeText.text : ""));
+    }
+
+
+    // ── Star Animation ───────────────────────────────────────────────────
+
+    private IEnumerator AnimateStarsCoroutine()
+    {
+        if (_starImages == null)
+        {
+            yield break;
+        }
+
+        foreach (Image img in _starImages)
+        {
+            if (img != null)
+            {
+                img.transform.localScale = Vector3.zero;
+            }
+        }
+
+        if (_statsContainer != null)
+        {
+            _statsContainer.SetActive(false);
+        }
+        UpdateStatsText();
+
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        int totalStars = _starResult.totalStars;
+
+        for (int i = 0; i < 3; i++)
+        {
+            bool earned = i < totalStars;
+            yield return StartCoroutine(AnimateSingleStar(i, earned));
+            yield return new WaitForSecondsRealtime(0.4f);
+        }
+
+        yield return StartCoroutine(AnimateStatsCoroutine());
+    }
+
+    private IEnumerator AnimateStatsCoroutine()
+    {
+        if (_statsContainer != null)
+        {
+            _statsContainer.SetActive(true);
+        }
+
+        float targetCoins = _collectedCoins;
+        float startRemaining = _parTime;
+        float targetRemaining = Mathf.Max(0f, _parTime - _elapsedTime);
+
+        // Initial state before count animation begins
+        if (_coinsText != null) _coinsText.text = "0";
+        if (_timeText != null) _timeText.text = LevelTimer.FormatTime(startRemaining);
+
+        float duration = 1.0f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(elapsed / duration);
+
+            // Smooth cubic ease-out for polished visual feedback
+            float easeT = 1f - Mathf.Pow(1f - progress, 3f);
+
+            int currentCoins = Mathf.RoundToInt(Mathf.Lerp(0f, targetCoins, easeT));
+            float currentTime = Mathf.Lerp(startRemaining, targetRemaining, easeT);
+
+            if (_coinsText != null)
+            {
+                _coinsText.text = currentCoins.ToString();
+            }
+
+            if (_timeText != null)
+            {
+                _timeText.text = LevelTimer.FormatTime(Mathf.Max(0f, currentTime));
+            }
+
+            yield return null;
+        }
+
+        // Lock in final exact values
+        if (_coinsText != null) _coinsText.text = targetCoins.ToString();
+        if (_timeText != null) _timeText.text = LevelTimer.FormatTime(targetRemaining);
+    }
+
+    private IEnumerator AnimateSingleStar(int index, bool earned)
+    {
+        if (index < 0 || index >= _starImages.Length || _starImages[index] == null)
+        {
+            yield break;
+        }
+
+        Image starImage = _starImages[index];
+        Transform starTransform = starImage.transform;
+
+        if (earned)
+        {
+            if (_starFilledSprite != null)
+            {
+                starImage.sprite = _starFilledSprite;
+            }
+            else
+            {
+                starImage.color = new Color(1f, 0.84f, 0f, 1f);
+            }
+        }
+
+        float duration = 0.4f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            float scale = Mathf.Lerp(0f, 1.3f, t);
+            starTransform.localScale = new Vector3(scale, scale, 1f);
+
+            if (!earned)
+            {
+                starImage.color = new Color(0.5f, 0.5f, 0.5f, Mathf.Lerp(0f, 0.6f, t));
+            }
+
+            yield return null;
+        }
+
+        elapsed = 0f;
+        float bounceDuration = 0.15f;
+
+        while (elapsed < bounceDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / bounceDuration);
+
+            float scale = Mathf.Lerp(1.3f, 1f, t);
+            starTransform.localScale = new Vector3(scale, scale, 1f);
+
+            yield return null;
+        }
+
+        starTransform.localScale = Vector3.one;
+    }
+
+    // ── Action Buttons ───────────────────────────────────────────────────
+
     private void BuildActionButtons()
     {
         Transform existing = transform.Find(ButtonsRootName);
@@ -193,23 +647,51 @@ public class LevelCompleteUI : MonoBehaviour
         rootRect.sizeDelta = new Vector2(1080f, 250f);
 
         Vector2 buttonSize = new Vector2(300f, 200f);
-        float totalWidth = buttonSize.x * 3 + buttonSpacing * 2f;
-        float x = -totalWidth * 0.5f;
 
-        _restartButton = PlaceButton(root.transform, "Restart", RestartLevel, null, buttonSize, ref x);
-        _nextLevelButton = PlaceButton(root.transform, "Next Level", GoToNextLevel, null, buttonSize, ref x);
-        _homeButton = PlaceButton(root.transform, "Home", GoHome, null, buttonSize, ref x);
+        _restartButton = PlaceButtonAt(root.transform, "Restart", RestartLevel, restartButtonSprite, buttonSize, new Vector2(-382f, -55f), new Vector3(1f, 1.2517f, 1f));
+        _nextLevelButton = PlaceButtonAt(root.transform, "Next Level", GoToNextLevel, nextLevelButtonSprite, buttonSize, new Vector2(-2f, -65f), new Vector3(1.5373f, 1.8618f, 1f));
+        _homeButton = PlaceButtonAt(root.transform, "Home", GoHome, homeButtonSprite, buttonSize, new Vector2(385f, -65f), new Vector3(1f, 1.2517f, 1f));
 
         UpdateNextLevelButton();
     }
 
-    private Button PlaceButton(
+    private void EnsureActionButtonsExactLayout()
+    {
+        if (_restartButton == null || _nextLevelButton == null || _homeButton == null)
+        {
+            BuildActionButtons();
+        }
+
+        if (_restartButton != null)
+        {
+            RectTransform r = _restartButton.GetComponent<RectTransform>();
+            r.anchoredPosition = new Vector2(-382f, -55f);
+            r.localScale = new Vector3(1f, 1.2517f, 1f);
+        }
+
+        if (_nextLevelButton != null)
+        {
+            RectTransform r = _nextLevelButton.GetComponent<RectTransform>();
+            r.anchoredPosition = new Vector2(-2f, -65f);
+            r.localScale = new Vector3(1.5373f, 1.8618f, 1f);
+        }
+
+        if (_homeButton != null)
+        {
+            RectTransform r = _homeButton.GetComponent<RectTransform>();
+            r.anchoredPosition = new Vector2(385f, -65f);
+            r.localScale = new Vector3(1f, 1.2517f, 1f);
+        }
+    }
+
+    private Button PlaceButtonAt(
         Transform parent,
         string label,
         UnityEngine.Events.UnityAction onClick,
         Sprite sprite,
         Vector2 size,
-        ref float x)
+        Vector2 position,
+        Vector3 scale)
     {
         GameObject buttonObject = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
         buttonObject.transform.SetParent(parent, false);
@@ -219,13 +701,23 @@ public class LevelCompleteUI : MonoBehaviour
         rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = size;
-        rect.anchoredPosition = new Vector2(x + size.x * 0.5f, 0f);
-
-        x += size.x + buttonSpacing;
+        rect.anchoredPosition = position;
+        rect.localScale = scale;
 
         Image image = buttonObject.GetComponent<Image>();
         image.raycastTarget = true;
-        image.color = Color.clear;
+
+        if (sprite != null)
+        {
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
+            image.color = Color.white;
+        }
+        else
+        {
+            image.color = new Color(0.15f, 0.15f, 0.15f, 0.85f);
+        }
 
         Button button = buttonObject.GetComponent<Button>();
         button.targetGraphic = image;
@@ -252,10 +744,15 @@ public class LevelCompleteUI : MonoBehaviour
         _nextLevelButton.interactable = hasNext;
     }
 
+    // ── Navigation ───────────────────────────────────────────────────────
+
     public void RestartLevel()
     {
         LifeManager.ResetLives();
         CoinManager.ResetSessionCoins();
+        CoinManager.ResetTotalCoinsInLevel();
+        LevelTimer.Reset();
+        _starResultReady = false;
 
         if (IsProceduralMode || LevelProgress.IsProceduralScene(SceneManager.GetActiveScene()))
         {
@@ -271,6 +768,11 @@ public class LevelCompleteUI : MonoBehaviour
             }
 
             HideAndResume();
+            // Ensure any active power-ups are cleared from the ball before rebuilding
+            PowerUpManager pm = FindFirstObjectByType<PowerUpManager>();
+            if (pm != null)
+                pm.ClearAllPowerUps();
+
             proceduralBuilder.RebuildSameSeed();
             return;
         }
@@ -291,6 +793,9 @@ public class LevelCompleteUI : MonoBehaviour
     {
         LifeManager.ResetLives();
         CoinManager.ResetSessionCoins();
+        CoinManager.ResetTotalCoinsInLevel();
+        LevelTimer.Reset();
+        _starResultReady = false;
 
         if (IsProceduralMode || LevelProgress.IsProceduralScene(SceneManager.GetActiveScene()))
         {
@@ -335,6 +840,8 @@ public class LevelCompleteUI : MonoBehaviour
     public void GoHome()
     {
         Time.timeScale = 1f;
+        LevelTimer.Reset();
+        _starResultReady = false;
         MainMenu.RequestOpenLevelSelect();
         SceneManager.LoadScene("MainMenu");
     }

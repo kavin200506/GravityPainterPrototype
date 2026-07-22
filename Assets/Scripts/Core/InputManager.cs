@@ -25,6 +25,11 @@ public class InputManager : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale == 0f || PauseUI.IsPaused)
+        {
+            return;
+        }
+
         if (mainCamera == null)
         {
             return;
@@ -69,7 +74,11 @@ public class InputManager : MonoBehaviour
 
         CancelPendingSidePaint();
         ResetSideDoubleTap();
+
+        ZoneType previousZone = tile.zoneType;
         tile.SetZoneFromWorldPoint(hitPoint);
+        Debug.Log("[InputManager] Tile tapped: " + tile.gameObject.name
+            + " zone changed: " + previousZone + " -> " + tile.zoneType);
     }
 
     private void HandleSideTap(TileZone tile, Vector3 hitPoint, bool toLeftEdge)
@@ -103,6 +112,13 @@ public class InputManager : MonoBehaviour
     private IEnumerator PaintSideAfterDelay()
     {
         yield return new WaitForSecondsRealtime(DoubleTapMaxDelay);
+        if (Time.timeScale == 0f || PauseUI.IsPaused)
+        {
+            _pendingSidePaintRoutine = null;
+            _pendingPaintTile = null;
+            yield break;
+        }
+
         if (_pendingPaintTile != null)
         {
             _pendingPaintTile.SetZoneFromWorldPoint(_pendingPaintPoint);

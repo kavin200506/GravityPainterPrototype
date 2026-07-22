@@ -36,13 +36,9 @@ public static class GravityPainterProjectSettingsRepair
 
     private static readonly (string path, bool enabled)[] RequiredScenes =
     {
+        ("Assets/Scenes/LoadingScene.unity", true),
         ("Assets/Scenes/Menus/MainMenu.unity", true),
-        ("Assets/Scenes/Levels/Level 1.unity", true),
-        ("Assets/Scenes/Levels/Level 2.unity", true),
         ("Assets/Procedural(test).unity", true),
-        ("Assets/Scenes/Levels/Level 3.unity", false),
-        ("Assets/Scenes/Levels/Level 4.unity", false),
-        ("Assets/Scenes/Levels/Level 5.unity", false),
     };
 
     static GravityPainterProjectSettingsRepair()

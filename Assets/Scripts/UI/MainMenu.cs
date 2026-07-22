@@ -13,6 +13,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private Button storeButton;
     public StoreUI storeUI;
+    [Tooltip("The active ball-skin store screen. When assigned, this takes priority over the legacy storeUI.")]
+    public TestStoreUI testStoreUI;
 
     [Header("Menu Root Layout")]
     [SerializeField] private Vector2 menuRootPosition = new Vector2(0f, 0f);
@@ -20,22 +22,26 @@ public class MainMenu : MonoBehaviour
 
     [Header("Button Layout")]
     [SerializeField] private bool useManualButtonLayout = true;
-    [SerializeField] private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(0f, -87f), new Vector2(640f, 140f), new Vector3(6f, 6f, 1f));
-    private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-303f, -477f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
-    private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-104f, -475f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
-    private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(104f, -481f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
-    private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(315f, -484f), new Vector2(420f, 240f), new Vector3(1.1f, 2.75f, 1f));
+    private MainMenuButtonLayout playButtonLayout = new MainMenuButtonLayout("Play", new Vector2(-6f, -85f), new Vector2(800f, 400f), new Vector3(0.7754443f, 1.9291f, 1f));
+    private Vector2 playClickZoneSize = new Vector2(600f, 140f);
+    private MainMenuButtonLayout levelsButtonLayout = new MainMenuButtonLayout("Levels", new Vector2(-364f, -534f), new Vector2(300f, 550f), new Vector3(1.509404f, 1.2171f, 1f));
+    private MainMenuButtonLayout howToPlayButtonLayout = new MainMenuButtonLayout("HowToPlay", new Vector2(-131f, -534f), new Vector2(300f, 550f), new Vector3(1.509404f, 1.2171f, 1f));
+    private MainMenuButtonLayout storeButtonLayout = new MainMenuButtonLayout("Store", new Vector2(114f, -534f), new Vector2(300f, 550f), new Vector3(1.509404f, 1.2171f, 1f));
+    private MainMenuButtonLayout settingsButtonLayout = new MainMenuButtonLayout("Settings", new Vector2(363f, -534f), new Vector2(300f, 550f), new Vector3(1.509404f, 1.2171f, 1f));
+    private Vector2 bottomClickZoneSize = new Vector2(220f, 440f);
 
     [Header("Coin UI Layout")]
     [SerializeField] private Vector2 coinUIPosition = new Vector2(50f, -50f);
-    [SerializeField] private Vector2 coinUISize = new Vector2(250, 110f);
+    [SerializeField] private Vector2 coinUISize = new Vector2(350f, 165f);
     private void OnValidate()
     {
         if (!useManualButtonLayout)
             return;
 
         ApplyButtonLayout();
+        AdjustAllBackButtons();
     }
+
 
     private void Start()
     {
@@ -45,19 +51,78 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform menu = canvas.transform.Find("MainMenu");
+                if (menu == null) menu = FindInChildren(canvas.transform, "MainMenu");
                 if (menu != null)
                     mainMenuRoot = menu.gameObject;
             }
         }
 
-        if (levelsPanel == null)
+        if (levelsPanel == null || levelsPanel.name == "Levels Panel")
         {
+            // Try direct find first, then search under SafeAreaPanel
             Canvas canvas = FindFirstObjectByType<Canvas>();
             if (canvas != null)
             {
-                Transform panel = canvas.transform.Find("Levels Panel");
+                Transform panel = canvas.transform.Find("LevelSelectMenu");
+                if (panel == null) panel = FindInChildren(canvas.transform, "LevelSelectMenu");
+                if (panel == null)
+                {
+                    panel = canvas.transform.Find("Levels Panel");
+                    if (panel == null) panel = FindInChildren(canvas.transform, "Levels Panel");
+                }
                 if (panel != null)
+                {
                     levelsPanel = panel.gameObject;
+
+                    if (levelsPanel.name == "LevelSelectMenu")
+                    {
+                        LevelMenu menuScript = levelsPanel.GetComponent<LevelMenu>();
+                        if (menuScript == null)
+                        {
+                            menuScript = levelsPanel.AddComponent<LevelMenu>();
+                            Debug.Log("Automatically attached LevelMenu to LevelSelectMenu!");
+                        }
+
+#if UNITY_EDITOR
+                        UnityEditor.SerializedObject so = new UnityEditor.SerializedObject(menuScript);
+                        so.Update();
+                        
+                        Sprite holderSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Level_Page/LevelNumberHolder.png");
+                        if (holderSprite != null)
+                        {
+                            so.FindProperty("buttonSprite").objectReferenceValue = holderSprite;
+                        }
+
+                        Sprite lockSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Level_Page/Padlock.png");
+                        if (lockSprite != null)
+                        {
+                            so.FindProperty("lockIconSprite").objectReferenceValue = lockSprite;
+                        }
+                        
+                        so.FindProperty("completedColor").colorValue = Color.white;
+                        so.FindProperty("focusColor").colorValue = new Color(0.8f, 0.9f, 1f, 1f);
+                        so.FindProperty("lockedColor").colorValue = new Color(0.4f, 0.4f, 0.4f, 1f);
+                        so.FindProperty("minimumLevels").intValue = 20;
+                        so.FindProperty("cellSize").vector2Value = new Vector2(120f, 120f);
+                        so.FindProperty("gridSpacing").vector2Value = new Vector2(16f, 16f);
+                        so.FindProperty("scrollPadding").floatValue = 16f;
+                        
+                        so.ApplyModifiedProperties();
+#endif
+                        
+                        Transform oldPanel = canvas.transform.Find("Levels Panel");
+                        if (oldPanel == null) oldPanel = FindInChildren(canvas.transform, "Levels Panel");
+                        if (oldPanel != null && oldPanel.gameObject != levelsPanel)
+                        {
+                            if (Application.isPlaying)
+                                Destroy(oldPanel.gameObject);
+                            else
+                                DestroyImmediate(oldPanel.gameObject);
+                                
+                            Debug.Log("Cleaned up old Levels Panel.");
+                        }
+                    }
+                }
             }
         }
 
@@ -67,6 +132,8 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform panel = canvas.transform.Find("HowTo");
+                if (panel == null) panel = FindInChildren(canvas.transform, "HowTo");
+                if (panel == null) panel = FindInChildren(canvas.transform, "HowToPlay");
                 if (panel != null)
                     howToPanel = panel.gameObject;
             }
@@ -78,6 +145,7 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform panel = canvas.transform.Find("SettingsPanel");
+                if (panel == null) panel = FindInChildren(canvas.transform, "SettingsPanel");
                 if (panel == null)
                 {
                     GameObject newPanel = new GameObject("SettingsPanel");
@@ -102,13 +170,39 @@ public class MainMenu : MonoBehaviour
             if (canvas != null)
             {
                 Transform store = canvas.transform.Find("StorePanel");
+                if (store == null) store = FindInChildren(canvas.transform, "StorePanel");
                 if (store != null)
                     storeUI = store.GetComponent<StoreUI>();
             }
         }
 
+        if (testStoreUI == null)
+        {
+            Canvas canvas = FindFirstObjectByType<Canvas>();
+            if (canvas != null)
+            {
+                Transform storeTest = FindInChildren(canvas.transform, "StoreTest");
+                if (storeTest != null)
+                    testStoreUI = storeTest.GetComponent<TestStoreUI>();
+            }
+        }
+
+        StoreManager newStore = FindFirstObjectByType<StoreManager>(FindObjectsInactive.Include);
+        if (newStore != null && newStore.storePanel != null)
+            newStore.storePanel.SetActive(false);
+
+        Canvas mainCanvas = FindFirstObjectByType<Canvas>();
+        if (mainCanvas != null)
+        {
+            Transform storeP = mainCanvas.transform.Find("StorePanel");
+            if (storeP != null) storeP.gameObject.SetActive(false);
+        }
+
         if (storeUI != null && storeUI.storePanel != null)
             storeUI.storePanel.SetActive(false);
+
+        if (testStoreUI != null && testStoreUI.storeRoot != null)
+            testStoreUI.storeRoot.SetActive(false);
 
         if (howToPanel != null)
             howToPanel.SetActive(false);
@@ -117,10 +211,52 @@ public class MainMenu : MonoBehaviour
             settingsPanel.SetActive(false);
 
         ApplyButtonLayout();
+        SetupButtonClickZones(ResolveMainMenuRoot());
         WireMenuButtons();
+        AdjustAllBackButtons();
+        EnsureCoinDisplay();
 
         if (ConsumeOpenLevelSelectFlag())
+        {
             ShowLevelSelect();
+        }
+        else
+        {
+            CloseLevelSelect();
+        }
+    }
+
+    private void EnsureCoinDisplay()
+    {
+        // Reuse any existing CoinDisplayUI in the scene
+        CoinDisplayUI existing = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (existing != null)
+        {
+            ApplyCoinUILayout();
+            existing.gameObject.SetActive(true);
+            return;
+        }
+
+        // None found – create one on the main canvas
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null) return;
+
+        GameObject coinGO = new GameObject("CoinDisplay", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(Button), typeof(CoinDisplayUI));
+        coinGO.transform.SetParent(canvas.transform, false);
+
+        ApplyCoinUILayout();
+    }
+
+    private static Transform FindInChildren(Transform parent, string name)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform child = parent.GetChild(i);
+            if (child.name == name) return child;
+            Transform found = FindInChildren(child, name);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     [ContextMenu("Apply Button Layout")]
@@ -155,7 +291,7 @@ public class MainMenu : MonoBehaviour
         ApplyButtonLayoutEntry(root, storeButtonLayout);
         ApplyButtonLayoutEntry(root, settingsButtonLayout);
 
-        string[] stretchButtons = { "Levels", "HowToPlay", "Store", "Settings" };
+        string[] stretchButtons = { "Play", "Levels", "HowToPlay", "Store", "Settings" };
         foreach (string name in stretchButtons)
             SetButtonStretch(root, name);
 
@@ -204,8 +340,7 @@ public class MainMenu : MonoBehaviour
         rect.sizeDelta = layout.sizeDelta;
         rect.localScale = layout.localScale;
 
-        if (buttonTransform.TryGetComponent(out Image image))
-            image.preserveAspect = true;
+        // preserveAspect handled by stretchButtons loop below
     }
 
     private static void EnsureChildOfRoot(Transform root, string childName)
@@ -219,6 +354,67 @@ public class MainMenu : MonoBehaviour
         Transform childOnCanvas = canvas.Find(childName);
         if (childOnCanvas != null)
             childOnCanvas.SetParent(root, false);
+    }
+
+    private void SetupButtonClickZones(Transform root)
+    {
+        SetupClickZoneForButton(root, "Play", playClickZoneSize, new Vector3(1f, 0.71119f, 1f));
+        Vector3 bottomClickZoneScale = new Vector3(0.61381f, 0.79509f, 1f);
+        SetupClickZoneForButton(root, "Levels", bottomClickZoneSize, bottomClickZoneScale);
+        SetupClickZoneForButton(root, "HowToPlay", bottomClickZoneSize, bottomClickZoneScale);
+        SetupClickZoneForButton(root, "Store", bottomClickZoneSize, bottomClickZoneScale);
+        SetupClickZoneForButton(root, "Settings", bottomClickZoneSize, bottomClickZoneScale);
+    }
+
+    private void SetupClickZoneForButton(Transform root, string buttonName, Vector2 clickZoneSize, Vector3 clickZoneScale)
+    {
+        Transform btnTransform = root.Find(buttonName);
+        if (btnTransform == null || !btnTransform.TryGetComponent(out RectTransform btnRect))
+            return;
+
+        Transform czTransform = btnRect.Find("ClickZone");
+        if (czTransform == null)
+        {
+            GameObject cz = new GameObject("ClickZone", typeof(RectTransform));
+            cz.transform.SetParent(btnRect, false);
+            czTransform = cz.transform;
+        }
+
+        RectTransform czRect = czTransform as RectTransform;
+        czRect.anchorMin = new Vector2(0.5f, 0.5f);
+        czRect.anchorMax = new Vector2(0.5f, 0.5f);
+        czRect.pivot = new Vector2(0.5f, 0.5f);
+        czRect.anchoredPosition = Vector2.zero;
+        czRect.sizeDelta = clickZoneSize;
+        czRect.localScale = clickZoneScale;
+
+        Button czBtn = czTransform.GetComponent<Button>();
+        Button parentBtn = btnRect.GetComponent<Button>();
+        if (czBtn == null)
+        {
+            czBtn = czTransform.gameObject.AddComponent<Button>();
+            if (parentBtn != null)
+                czBtn.interactable = parentBtn.interactable;
+        }
+
+        if (parentBtn != null)
+            DestroyImmediate(parentBtn);
+
+        Image czImage = czTransform.GetComponent<Image>();
+        if (czImage == null)
+            czImage = czTransform.gameObject.AddComponent<Image>();
+        czImage.sprite = null;
+        czImage.color = new Color(1f, 1f, 1f, 0f);
+        czImage.raycastTarget = true;
+
+        // Disable raycastTarget on all Graphic components of the parent and its children (except the ClickZone itself)
+        foreach (Graphic g in btnTransform.GetComponentsInChildren<Graphic>(true))
+        {
+            if (g.gameObject.name != "ClickZone")
+            {
+                g.raycastTarget = false;
+            }
+        }
     }
 
     private static void SetButtonStretch(Transform root, string buttonName)
@@ -275,12 +471,98 @@ public class MainMenu : MonoBehaviour
         WireButton(root, "HowToPlay", OpenHowToPlay);
         WireButton(root, "Store", OpenStore);
         WireButton(root, "Settings", OpenSettings);
+
+        // Wire HowTo back/cancel buttons
+        if (howToPanel != null)
+        {
+            Button[] buttons = howToPanel.GetComponentsInChildren<Button>(true);
+            foreach (Button b in buttons)
+            {
+                string btnName = b.name.ToLower();
+                if (btnName.Contains("back") || btnName.Contains("close") || btnName.Contains("cancle") || btnName.Contains("cancel"))
+                {
+                    b.onClick.RemoveListener(CloseHowToPlay);
+                    b.onClick.AddListener(CloseHowToPlay);
+                }
+            }
+        }
+
+        // Wire Settings back button
+        if (settingsPanel != null)
+        {
+            Transform backBtn = settingsPanel.transform.Find("Back");
+            if (backBtn != null)
+                WireSubPageButton(backBtn, CloseSettings);
+        }
+
+        // Wire Store back button
+        if (storeUI != null && storeUI.storePanel != null)
+        {
+            Button[] buttons = storeUI.storePanel.GetComponentsInChildren<Button>(true);
+            foreach (Button b in buttons)
+            {
+                string btnName = b.name.ToLower();
+                if (btnName.Contains("back") || btnName.Contains("close") || btnName.Contains("cancle") || btnName.Contains("cancel"))
+                {
+                    b.onClick.RemoveListener(CloseStore);
+                    b.onClick.AddListener(CloseStore);
+                }
+            }
+        }
+
+        // Wire the active store screen's back button as well, so it always returns to the main menu.
+        if (testStoreUI != null && testStoreUI.storeRoot != null)
+        {
+            Button[] buttons = testStoreUI.storeRoot.GetComponentsInChildren<Button>(true);
+            foreach (Button b in buttons)
+            {
+                string btnName = b.name.ToLower();
+                if (btnName.Contains("back") || btnName.Contains("close") || btnName.Contains("cancle") || btnName.Contains("cancel"))
+                {
+                    b.onClick.RemoveListener(CloseStore);
+                    b.onClick.AddListener(CloseStore);
+                }
+            }
+        }
+
+        // Wire LevelSelect back button
+        if (levelsPanel != null)
+        {
+            Transform backBtn = levelsPanel.transform.Find("BackButton");
+            if (backBtn != null)
+                WireSubPageButton(backBtn, CloseLevelSelect);
+        }
+    }
+
+    private void WireSubPageButton(Transform buttonParent, UnityEngine.Events.UnityAction action)
+    {
+        // Check ClickZone child first, then parent
+        Transform cz = buttonParent.Find("ClickZone");
+        Button btn = null;
+        if (cz != null)
+            btn = cz.GetComponent<Button>();
+        if (btn == null)
+            buttonParent.TryGetComponent(out btn);
+        if (btn == null) return;
+
+        btn.onClick.RemoveListener(action);
+        btn.onClick.AddListener(action);
     }
 
     private void WireButton(Transform root, string childName, UnityEngine.Events.UnityAction action)
     {
         Transform child = root.Find(childName);
-        if (child == null || !child.TryGetComponent(out Button button))
+        if (child == null)
+            return;
+
+        Transform cz = child.Find("ClickZone");
+        Button button;
+        if (cz != null)
+            button = cz.GetComponent<Button>();
+        else
+            child.TryGetComponent(out button);
+
+        if (button == null)
             return;
 
         button.onClick.RemoveAllListeners();
@@ -308,6 +590,10 @@ public class MainMenu : MonoBehaviour
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(false);
 
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(false);
+
         if (levelsPanel != null)
         {
             levelsPanel.SetActive(true);
@@ -324,12 +610,20 @@ public class MainMenu : MonoBehaviour
 
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(true);
+
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(true);
     }
 
     public void OpenHowToPlay()
     {
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(false);
+
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(false);
 
         if (howToPanel != null)
             howToPanel.SetActive(true);
@@ -342,6 +636,10 @@ public class MainMenu : MonoBehaviour
 
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(true);
+
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(true);
     }
 
     public void OpenSettings()
@@ -360,6 +658,8 @@ public class MainMenu : MonoBehaviour
 
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(true);
+
+        ShowCoinDisplay();
     }
 
     public void OpenStore()
@@ -367,18 +667,61 @@ public class MainMenu : MonoBehaviour
         if (mainMenuRoot != null)
             mainMenuRoot.SetActive(false);
 
-        if (storeUI != null)
+        StoreManager newStore = FindFirstObjectByType<StoreManager>(FindObjectsInactive.Include);
+        if (newStore != null && newStore.storePanel != null)
+        {
+            newStore.storePanel.SetActive(true);
+            newStore.RefreshStore();
+            return;
+        }
+
+        if (testStoreUI != null)
+            testStoreUI.Open();
+        else if (storeUI != null)
             storeUI.Open();
     }
 
     public void CloseStore()
     {
-        if (storeUI != null)
+        Debug.Log("[MainMenu] CloseStore called!");
+        StoreManager newStore = FindFirstObjectByType<StoreManager>(FindObjectsInactive.Include);
+        if (newStore != null && newStore.storePanel != null)
+        {
+            Debug.Log("[MainMenu] Deactivating newStore.storePanel: " + newStore.storePanel.name);
+            newStore.storePanel.SetActive(false);
+        }
+
+        if (testStoreUI != null)
+        {
+            Debug.Log("[MainMenu] Closing testStoreUI");
+            testStoreUI.Close();
+        }
+        else if (storeUI != null)
+        {
+            Debug.Log("[MainMenu] Closing storeUI");
             storeUI.Close();
+        }
 
         if (mainMenuRoot != null)
+        {
+            Debug.Log("[MainMenu] Activating mainMenuRoot: " + mainMenuRoot.name);
             mainMenuRoot.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("[MainMenu] mainMenuRoot is NULL!");
+        }
+
+        ShowCoinDisplay();
     }
+
+    private void ShowCoinDisplay()
+    {
+        CoinDisplayUI coinDisplay = FindFirstObjectByType<CoinDisplayUI>(FindObjectsInactive.Include);
+        if (coinDisplay != null)
+            coinDisplay.gameObject.SetActive(true);
+    }
+
 
     public void PlayGame()
     {
@@ -398,5 +741,39 @@ public class MainMenu : MonoBehaviour
             ProceduralSession.MarkFreshRunFromMenu();
 
         SceneManager.LoadScene(sceneName);
+    }
+
+    private bool IsInsideStore(Transform t)
+    {
+        Transform curr = t;
+        while (curr != null)
+        {
+            if (curr.name == "StorePanel" || curr.name == "StoreTest")
+            {
+                return true;
+            }
+            curr = curr.parent;
+        }
+        return false;
+    }
+
+    private void AdjustAllBackButtons()
+    {
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null) return;
+
+        RectTransform[] allRects = canvas.GetComponentsInChildren<RectTransform>(true);
+        foreach (RectTransform rt in allRects)
+        {
+            if (rt.gameObject.name == "BackButton" || rt.gameObject.name == "BackBtn" || rt.gameObject.name == "Back")
+            {
+                if (IsInsideStore(rt))
+                {
+                    // Exact position from the user's screenshot for the store page back button
+                    rt.anchoredPosition3D = new Vector3(-539.4f, 989.4f, 639f);
+                    Debug.Log($"[MainMenu] Adjusted Store BackButton '{rt.gameObject.name}' in '{rt.parent.name}' to (-539.4, 989.4, 639)");
+                }
+            }
+        }
     }
 }

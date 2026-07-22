@@ -93,7 +93,7 @@ public static class TileMeshMaterialUtility
             return false;
         }
 
-        return name.Contains("Universal Render Pipeline");
+        return name.Contains("Universal Render Pipeline") || name.Contains("glTF") || name.Contains("Shader Graphs");
     }
 
     private static Shader GetUrpLit()
