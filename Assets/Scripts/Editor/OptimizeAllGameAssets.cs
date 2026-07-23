@@ -89,8 +89,9 @@ public static class OptimizeAllGameAssets
                 }
                 videoSettings.enableTranscoding = true;
                 videoSettings.codec = VideoCodec.H264;
-                videoSettings.resizeMode = VideoResizeMode.HalfRes;
-                videoSettings.spatialQuality = VideoSpatialQuality.MediumSpatialQuality;
+                // OriginalSize = full resolution — do NOT use HalfRes as it makes the loading page look blurry
+                videoSettings.resizeMode = VideoResizeMode.OriginalSize;
+                videoSettings.spatialQuality = VideoSpatialQuality.HighSpatialQuality;
 
                 videoImporter.SetTargetSettings("Android", videoSettings);
                 videoImporter.SaveAndReimport();
