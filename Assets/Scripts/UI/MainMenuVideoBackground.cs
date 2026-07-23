@@ -235,12 +235,17 @@ public class MainMenuVideoBackground : MonoBehaviour
 
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
+        // 12px overscan on all sides pushes hardware video decoder edge artifacts safely past screen boundaries
+        rect.offsetMin = new Vector2(-12f, -12f);
+        rect.offsetMax = new Vector2(12f, 12f);
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.localScale = Vector3.one;
         transform.SetAsFirstSibling();
     }
+
+    [Header("Edge Trimming")]
+    [Tooltip("Crop fraction to remove Android video decoder green edge line artifacts.")]
+    [SerializeField] private float edgeCrop = 0.005f;
 
     private void ApplyUvRect()
     {
@@ -249,10 +254,17 @@ public class MainMenuVideoBackground : MonoBehaviour
             return;
         }
 
-        float x = invertHorizontal ? 1f : 0f;
-        float y = invertVertical ? 1f : 0f;
-        float w = invertHorizontal ? -1f : 1f;
-        float h = invertVertical ? -1f : 1f;
+        float crop = Mathf.Clamp(edgeCrop, 0f, 0.05f);
+        float uMin = crop;
+        float uMax = 1f - crop;
+        float vMin = crop;
+        float vMax = 1f - crop;
+
+        float x = invertHorizontal ? uMax : uMin;
+        float y = invertVertical ? vMax : vMin;
+        float w = invertHorizontal ? -(uMax - uMin) : (uMax - uMin);
+        float h = invertVertical ? -(vMax - vMin) : (vMax - vMin);
+
         _rawImage.uvRect = new Rect(x, y, w, h);
     }
 
@@ -268,6 +280,8 @@ public class MainMenuVideoBackground : MonoBehaviour
         ReleaseRenderTexture();
         _renderTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
         _renderTexture.name = "MainMenuVideo_RT";
+        _renderTexture.wrapMode = TextureWrapMode.Clamp;
+        _renderTexture.filterMode = FilterMode.Bilinear;
         _renderTexture.Create();
 
         // Clear RenderTexture to solid black so it doesn't show transparent/uninitialized pixels while VideoPlayer prepares on Android
