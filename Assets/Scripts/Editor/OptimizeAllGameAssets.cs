@@ -47,6 +47,15 @@ public static class OptimizeAllGameAssets
                     TextureImporter importer = AssetImporter.GetAtPath(unityPath) as TextureImporter;
                     if (importer != null)
                     {
+                        // SKIP full-screen loading/splash images — they must stay at 2048 to look sharp on screen
+                        bool isFullScreenImage = unityPath.Contains("FrontPage_Game") ||
+                                                 unityPath.Contains("GravityPainterIntroPage");
+                        if (isFullScreenImage)
+                        {
+                            Debug.Log($"[OptimizeAll] Skipping full-screen image (keeping 2048): {System.IO.Path.GetFileName(unityPath)}");
+                            continue;
+                        }
+
                         int targetSize = 256;
                         TextureImporterFormat format = TextureImporterFormat.ASTC_8x8;
 
@@ -89,9 +98,8 @@ public static class OptimizeAllGameAssets
                 }
                 videoSettings.enableTranscoding = true;
                 videoSettings.codec = VideoCodec.H264;
-                // OriginalSize = full resolution — do NOT use HalfRes as it makes the loading page look blurry
-                videoSettings.resizeMode = VideoResizeMode.OriginalSize;
-                videoSettings.spatialQuality = VideoSpatialQuality.HighSpatialQuality;
+                videoSettings.resizeMode = VideoResizeMode.HalfRes;
+                videoSettings.spatialQuality = VideoSpatialQuality.MediumSpatialQuality;
 
                 videoImporter.SetTargetSettings("Android", videoSettings);
                 videoImporter.SaveAndReimport();
