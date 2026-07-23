@@ -139,24 +139,34 @@ public class MainMenuVideoBackground : MonoBehaviour
         }
     }
 
+    public bool IsFirstFrameReady { get; private set; }
+
     public void Play()
     {
         EnsureComponents();
         if (_player == null || videoClip == null)
         {
+            IsFirstFrameReady = true;
             return;
         }
 
         ApplySettings();
+        _player.sendFrameReadyEvents = true;
+        _player.frameReady -= OnFrameReady;
+        _player.frameReady += OnFrameReady;
+
         if (_player.isPrepared)
         {
             _player.Play();
+            StartCoroutine(FallbackFrameReadyTimeout());
             return;
         }
 
         _player.prepareCompleted -= OnPrepared;
         _player.prepareCompleted += OnPrepared;
         _player.Prepare();
+
+        StartCoroutine(FallbackFrameReadyTimeout());
     }
 
     public void Stop()
@@ -167,10 +177,29 @@ public class MainMenuVideoBackground : MonoBehaviour
         }
     }
 
+    private void OnFrameReady(VideoPlayer source, long frameIdx)
+    {
+        source.frameReady -= OnFrameReady;
+        IsFirstFrameReady = true;
+    }
+
     private void OnPrepared(VideoPlayer source)
     {
         source.prepareCompleted -= OnPrepared;
         source.Play();
+        StartCoroutine(MarkReadyNextFrame());
+    }
+
+    private System.Collections.IEnumerator MarkReadyNextFrame()
+    {
+        yield return null;
+        IsFirstFrameReady = true;
+    }
+
+    private System.Collections.IEnumerator FallbackFrameReadyTimeout()
+    {
+        yield return new WaitForSecondsRealtime(1.5f);
+        IsFirstFrameReady = true;
     }
 
     private void EnsureComponents()

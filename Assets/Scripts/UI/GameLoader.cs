@@ -188,8 +188,6 @@ namespace GravityPainter.UI
             FadeTransition fader = transitionCanvasObj.AddComponent<FadeTransition>();
             fader.StartCoroutine(fader.DoFade(_asyncOperation, fadeDuration, tGroup));
         }
-    }
-
     public class FadeTransition : MonoBehaviour
     {
         public IEnumerator DoFade(AsyncOperation asyncOp, float duration, CanvasGroup group)
@@ -203,10 +201,24 @@ namespace GravityPainter.UI
             
             yield return null;
 
+            // Wait until MainMenuVideoBackground has rendered its first frame (or max 1.5s timeout)
+            // so that BOTH the video and UI buttons appear simultaneously at the exact same instant!
+            float maxWait = 1.5f;
+            float waitTimer = 0f;
+            MainMenuVideoBackground videoBg = FindFirstObjectByType<MainMenuVideoBackground>();
+            if (videoBg != null)
+            {
+                while (!videoBg.IsFirstFrameReady && waitTimer < maxWait)
+                {
+                    waitTimer += Time.unscaledDeltaTime;
+                    yield return null;
+                }
+            }
+
             float counter = 0f;
             while (counter < duration)
             {
-                counter += Time.deltaTime;
+                counter += Time.unscaledDeltaTime;
                 float t = counter / duration;
                 group.alpha = Mathf.Lerp(1f, 0f, t);
                 yield return null;
