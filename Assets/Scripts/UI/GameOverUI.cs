@@ -12,8 +12,11 @@ public class GameOverUI : MonoBehaviour
 #if UNITY_EDITOR
         if (sp == null)
             sp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(
-                "Assets/Art/Sprites/UI/Pause_Page/" + fileName + ".png");
+                "Assets/Resources/UI/Pause_Page/" + fileName + ".png");
 #endif
+        if (sp == null)
+            Debug.LogError($"[GameOverUI] Sprite '{fileName}' not found in Resources/UI/Pause_Page/. " +
+                           "Make sure the file exists there and is imported as a Sprite (textureType=8).");
         return sp;
     }
 
@@ -172,5 +175,13 @@ public class GameOverUI : MonoBehaviour
 
         MainMenu.RequestOpenLevelSelect();
         SceneManager.LoadScene("MainMenu");
+    }
+
+    private void OnDestroy()
+    {
+        // Clear the static ref when this canvas is destroyed (scene reload, etc.)
+        // so the next call to Show() always creates a fresh canvas.
+        if (_canvas == gameObject)
+            _canvas = null;
     }
 }
