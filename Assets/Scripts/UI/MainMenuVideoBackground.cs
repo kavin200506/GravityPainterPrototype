@@ -240,6 +240,12 @@ public class MainMenuVideoBackground : MonoBehaviour
         _renderTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
         _renderTexture.name = "MainMenuVideo_RT";
         _renderTexture.Create();
+
+        // Clear RenderTexture to solid black so it doesn't show transparent/uninitialized pixels while VideoPlayer prepares on Android
+        RenderTexture activeRt = RenderTexture.active;
+        RenderTexture.active = _renderTexture;
+        GL.Clear(true, true, Color.black);
+        RenderTexture.active = activeRt;
     }
 
     private void ReleaseRenderTexture()
