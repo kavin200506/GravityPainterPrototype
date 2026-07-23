@@ -459,9 +459,14 @@ public class LevelCompleteUI : MonoBehaviour
         Sprite s = Resources.Load<Sprite>("UI/Level_Complete/clock");
         if (s == null) s = Resources.Load<Sprite>("UI/clock");
 #if UNITY_EDITOR
-        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Level_Complete/clock.png");
+        if (s == null) s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/UI/Level_Complete/clock.png");
 #endif
-        if (s == null) s = LoadCoinIconSprite();
+        if (s == null)
+        {
+            // NOTE: If you see the coin icon in the time section on device, the clock.png
+            // is not imported as Sprite (textureType must be 8 in the .meta file).
+            Debug.LogError("[LevelCompleteUI] clock sprite NOT found in Resources/UI/Level_Complete/clock — check .meta textureType=8 (Sprite).");
+        }
         return s;
     }
 
