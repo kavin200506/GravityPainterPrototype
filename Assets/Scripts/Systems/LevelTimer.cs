@@ -2,11 +2,11 @@ using UnityEngine;
 
 /// <summary>
 /// Static timer that counts down from a par time calculated from tile count.
-/// Par time = tileCount * SecondsPerTile (3.5s default).
+/// Par time = tileCount * SecondsPerTile (2.5s default).
 /// </summary>
 public static class LevelTimer
 {
-    private const float SecondsPerTile = 3.5f;
+    private const float SecondsPerTile = 2.5f;
     private const float MinParTime = 15f;
     private const float MaxParTime = 300f;
 

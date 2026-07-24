@@ -16,6 +16,9 @@ public class GameHUD : MonoBehaviour
     private int _lastTotalCoins = -1;
     private int _lastLevelNumber = -1;
     private string _lastTimerString = "";
+    private int _lastBoostsRemaining = -1;
+    private TextMeshProUGUI _boostCountText;
+    private BallController _cachedBall;
 
     private void Awake()
     {
@@ -137,6 +140,90 @@ public class GameHUD : MonoBehaviour
         hud.SetupUI();
     }
 
+    private void CreateBoostButton()
+    {
+        GameObject boostObj = new GameObject("BoostButton");
+        boostObj.transform.SetParent(transform, false);
+        RectTransform boostRect = boostObj.AddComponent<RectTransform>();
+        boostRect.anchorMin = new Vector2(1f, 0f);
+        boostRect.anchorMax = new Vector2(1f, 0f);
+        boostRect.pivot = new Vector2(1f, 0f);
+        boostRect.anchoredPosition = new Vector2(-50f, 50f);
+        boostRect.sizeDelta = new Vector2(150f, 150f);
+
+        Image bgImage = boostObj.AddComponent<Image>();
+        Sprite boostSprite = Resources.Load<Sprite>("UI/BoostButton");
+        if (boostSprite != null)
+        {
+            bgImage.sprite = boostSprite;
+            bgImage.color = Color.white;
+        }
+        else
+        {
+            bgImage.color = new Color(1f, 0.5f, 0f, 0.9f);
+        }
+
+        Button btn = boostObj.AddComponent<Button>();
+        btn.onClick.AddListener(() =>
+        {
+            BallController ball = FindFirstObjectByType<BallController>();
+            if (ball != null)
+            {
+                ball.ActivateBoost();
+            }
+        });
+
+        GameObject textObj = new GameObject("Text");
+        textObj.transform.SetParent(boostObj.transform, false);
+        RectTransform textRt = textObj.AddComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
+        // Only show text if the sprite is missing
+        if (boostSprite == null)
+        {
+            tmp.text = "BOOST";
+        }
+        else
+        {
+            tmp.text = "";
+        }
+        tmp.fontSize = 50f;
+        tmp.color = Color.white;
+        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.fontStyle = FontStyles.Bold;
+
+        TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        if (font != null)
+        {
+            tmp.font = font;
+        }
+
+        GameObject countObj = new GameObject("BoostCountText");
+        countObj.transform.SetParent(transform, false);
+        RectTransform countRt = countObj.AddComponent<RectTransform>();
+        countRt.anchorMin = new Vector2(1f, 0f);
+        countRt.anchorMax = new Vector2(1f, 0f);
+        countRt.pivot = new Vector2(1f, 0f);
+        countRt.anchoredPosition = new Vector2(-220f, 75f);
+        countRt.sizeDelta = new Vector2(100f, 100f);
+
+        _boostCountText = countObj.AddComponent<TextMeshProUGUI>();
+        _boostCountText.text = "0/5";
+        _boostCountText.fontSize = 48f;
+        _boostCountText.color = Color.white;
+        _boostCountText.alignment = TextAlignmentOptions.MidlineRight;
+        _boostCountText.fontStyle = FontStyles.Bold;
+
+        if (font != null)
+        {
+            _boostCountText.font = font;
+        }
+    }
+
     private void SetupUI()
     {
         Sprite heartSprite = Resources.Load<Sprite>("UI/heart_full");
@@ -216,6 +303,7 @@ public class GameHUD : MonoBehaviour
 
         CreateLevelDisplay();
         CreateTimerDisplay();
+        CreateBoostButton();
 
         UpdateFromState();
     }
@@ -410,9 +498,27 @@ public class GameHUD : MonoBehaviour
         }
     }
 
+    private void UpdateBoostCountDisplay()
+    {
+        if (_boostCountText == null) return;
+        
+        if (_cachedBall == null)
+        {
+            _cachedBall = FindFirstObjectByType<BallController>();
+        }
+
+        int used = _cachedBall != null ? _cachedBall.BoostsUsed : 0;
+        if (used != _lastBoostsRemaining)
+        {
+            _lastBoostsRemaining = used;
+            _boostCountText.text = used.ToString() + "/5";
+        }
+    }
+
     private void Update()
     {
         LevelTimer.Tick();
+        UpdateBoostCountDisplay();
 
         int lives = LifeManager.CurrentLives;
         if (lives != _lastLives)

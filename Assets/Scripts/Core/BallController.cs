@@ -53,6 +53,15 @@ public class BallController : MonoBehaviour
     private Vector3 _spawnPosition;
     private bool _hasSpawnPosition;
 
+    [Header("Boost")]
+    public bool IsBoosting { get; private set; }
+    private int _boostTilesRemaining;
+    private Vector3 _boostDirection;
+    private TileZone _lastBoostTile;
+    private int _boostsUsedInLevel;
+    public int BoostsRemaining => Mathf.Max(0, 5 - _boostsUsedInLevel);
+    public int BoostsUsed => _boostsUsedInLevel;
+
     private void Awake()
     {
         if (!useSciFiBallVisual)
@@ -145,6 +154,7 @@ public class BallController : MonoBehaviour
 
         _fallElapsed = 0f;
         _restarting = false;
+        _boostsUsedInLevel = 0;
     }
 
     /// <summary>Enables physics after the level and colliders are ready.</summary>
@@ -542,6 +552,7 @@ public class BallController : MonoBehaviour
     {
         _restarting = true;
         Time.timeScale = 1f;
+        _boostsUsedInLevel = 0;
 
         if (_powerUpManager != null)
         {
@@ -616,7 +627,14 @@ public class BallController : MonoBehaviour
         bool onPaintedTile = currentZone != null && currentZone.zoneType != ZoneType.None;
         bool inRetention = timeSinceLastZoneContact <= zoneRetentionTime;
 
-        if (onPaintedTile)
+        if (IsBoosting)
+        {
+            float effectiveForce = forceStrength * _skinSpeedMultiplier * 2f;
+            if (_powerUpManager != null)
+                effectiveForce *= _powerUpManager.CurrentSpeedMultiplier;
+            rb.AddForce(_boostDirection * effectiveForce, ForceMode.Acceleration);
+        }
+        else if (onPaintedTile)
         {
             Vector3 direction = currentZone.GetForceDirection();
             direction = AdjustRedDirectionForContinuity(direction);
@@ -660,6 +678,16 @@ public class BallController : MonoBehaviour
 
         if (best != null)
         {
+            if (IsBoosting && best != _lastBoostTile)
+            {
+                _lastBoostTile = best;
+                _boostTilesRemaining--;
+                if (_boostTilesRemaining <= 0)
+                {
+                    EndBoost();
+                }
+            }
+
             currentZone = best;
             timeSinceLastZoneContact = 0f;
         }
@@ -818,6 +846,7 @@ public class BallController : MonoBehaviour
         Vector3 planarVelocity = new Vector3(velocity.x, 0f, velocity.z);
 
         float effectiveMaxSpeed = maxPlanarSpeed * _skinSpeedMultiplier;
+        if (IsBoosting) effectiveMaxSpeed *= 2f;
         if (_powerUpManager != null)
             effectiveMaxSpeed *= _powerUpManager.CurrentSpeedMultiplier;
 
@@ -843,5 +872,56 @@ public class BallController : MonoBehaviour
         if (all == null || all.Length == 0)
             return new System.Collections.Generic.List<BallSkinData>();
         return new System.Collections.Generic.List<BallSkinData>(all);
+    }
+
+    public void ActivateBoost()
+    {
+        if (IsBoosting) return;
+
+        if (_boostsUsedInLevel >= 5) return;
+
+        if (!CoinManager.SpendCoins(5))
+        {
+            Debug.Log("[BallController] Not enough total coins for boost.");
+            return;
+        }
+
+        _boostsUsedInLevel++;
+        IsBoosting = true;
+        _boostTilesRemaining = 2;
+        _lastBoostTile = currentZone;
+
+        Vector3 velDir = rb.linearVelocity;
+        velDir.y = 0f;
+
+        if (velDir.sqrMagnitude > 0.1f)
+        {
+            _boostDirection = velDir.normalized;
+        }
+        else if (currentZone != null)
+        {
+            _boostDirection = currentZone.GetForceDirection();
+            if (_boostDirection.sqrMagnitude < 0.1f)
+            {
+                _boostDirection = currentZone.GetPlanarForward();
+            }
+        }
+        else
+        {
+            _boostDirection = Vector3.forward;
+        }
+        
+        _boostDirection.y = 0f;
+        if (_boostDirection.sqrMagnitude > 0.001f)
+            _boostDirection.Normalize();
+
+        rb.WakeUp();
+    }
+
+    private void EndBoost()
+    {
+        IsBoosting = false;
+        _boostTilesRemaining = 0;
+        _lastBoostTile = null;
     }
 }
