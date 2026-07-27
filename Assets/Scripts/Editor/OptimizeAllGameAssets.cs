@@ -26,7 +26,10 @@ public static class OptimizeAllGameAssets
 
         // 1. Walk through all folders and compress textures for Android
         List<string> targetFolders = new List<string> {
-            "Assets/Art/Sprites"
+            "Assets/Art/Models/GLB",
+            "Assets/Art/Sprites",
+            "Assets/Art/Icons",
+            "Assets/ThirdParty/Fantasy Skybox FREE"
         };
 
         int compressedCount = 0;
@@ -44,33 +47,27 @@ public static class OptimizeAllGameAssets
                     TextureImporter importer = AssetImporter.GetAtPath(unityPath) as TextureImporter;
                     if (importer != null)
                     {
-                        // SKIP full-screen loading/splash images — they must stay at 2048 to look sharp on screen
-                        bool isFullScreenImage = unityPath.Contains("FrontPage_Game") ||
-                                                 unityPath.Contains("GravityPainterIntroPage");
-                        if (isFullScreenImage)
-                        {
-                            Debug.Log($"[OptimizeAll] Skipping full-screen image (keeping 2048): {System.IO.Path.GetFileName(unityPath)}");
-                            continue;
-                        }
-
-                        int targetSize = 256;
-                        TextureImporterFormat format = TextureImporterFormat.ASTC_8x8;
-
-                        if (unityPath.Contains("Fantasy Skybox FREE"))
-                        {
-                            targetSize = 1024;
-                            format = TextureImporterFormat.ASTC_6x6;
-                        }
-                        else if (unityPath.Contains("Sprites") || unityPath.Contains("Icons"))
-                        {
-                            targetSize = 512;
-                            format = TextureImporterFormat.ASTC_8x8;
-                        }
-
                         TextureImporterPlatformSettings androidSettings = importer.GetPlatformTextureSettings("Android");
-                        androidSettings.overridden = true;
-                        androidSettings.maxTextureSize = targetSize;
-                        androidSettings.format = format;
+
+                        if (unityPath.Contains("Sprites") || unityPath.Contains("Icons"))
+                        {
+                            // Restore original quality for 2D UI images by disabling the Android override
+                            androidSettings.overridden = false;
+                        }
+                        else if (unityPath.Contains("Fantasy Skybox FREE"))
+                        {
+                            // Compress Skybox
+                            androidSettings.overridden = true;
+                            androidSettings.maxTextureSize = 1024;
+                            androidSettings.format = TextureImporterFormat.ASTC_6x6;
+                        }
+                        else
+                        {
+                            // Compress heavy 3D Models
+                            androidSettings.overridden = true;
+                            androidSettings.maxTextureSize = 256;
+                            androidSettings.format = TextureImporterFormat.ASTC_8x8;
+                        }
 
                         importer.SetPlatformTextureSettings(androidSettings);
                         importer.SaveAndReimport();
@@ -79,7 +76,7 @@ public static class OptimizeAllGameAssets
                 }
             }
         }
-        Debug.Log($"[OptimizeAll] Compressed {compressedCount} total textures (UI sprites) to optimized Android settings.");
+        Debug.Log($"[OptimizeAll] Processed {compressedCount} total textures (Compressed GLB models & Skybox, restored original quality for Sprites/Icons).");
 
         // 1.5 Transcode Video for Android (fixes black screen/playback issues on mobile)
         string videoPath = "Assets/Art/Video/Mainmenu.mp4";
