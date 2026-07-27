@@ -26,10 +26,7 @@ public static class OptimizeAllGameAssets
 
         // 1. Walk through all folders and compress textures for Android
         List<string> targetFolders = new List<string> {
-            "Assets/Art/Models/GLB",
-            "Assets/Art/Sprites",
-            "Assets/Art/Icons",
-            "Assets/ThirdParty/Fantasy Skybox FREE"
+            "Assets/Art/Sprites"
         };
 
         int compressedCount = 0;
@@ -82,7 +79,7 @@ public static class OptimizeAllGameAssets
                 }
             }
         }
-        Debug.Log($"[OptimizeAll] Compressed {compressedCount} total textures (GLB models, UI sprites, and skybox) to optimized Android settings.");
+        Debug.Log($"[OptimizeAll] Compressed {compressedCount} total textures (UI sprites) to optimized Android settings.");
 
         // 1.5 Transcode Video for Android (fixes black screen/playback issues on mobile)
         string videoPath = "Assets/Art/Video/Mainmenu.mp4";
