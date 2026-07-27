@@ -51,8 +51,10 @@ public static class OptimizeAllGameAssets
 
                         if (unityPath.Contains("Sprites") || unityPath.Contains("Icons"))
                         {
-                            // Restore original quality for 2D UI images by disabling the Android override
-                            androidSettings.overridden = false;
+                            // Force high resolution (2048) and Uncompressed (RGBA32) to guarantee perfect UI quality
+                            androidSettings.overridden = true;
+                            androidSettings.maxTextureSize = 2048;
+                            androidSettings.format = TextureImporterFormat.RGBA32;
                         }
                         else if (unityPath.Contains("Fantasy Skybox FREE"))
                         {
