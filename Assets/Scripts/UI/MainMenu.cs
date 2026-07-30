@@ -400,6 +400,11 @@ public class MainMenu : MonoBehaviour
         if (parentBtn != null)
             DestroyImmediate(parentBtn);
 
+        UIButtonAnimator animator = czTransform.GetComponent<UIButtonAnimator>();
+        if (animator == null)
+            animator = czTransform.gameObject.AddComponent<UIButtonAnimator>();
+        animator.targetTransform = btnRect;
+
         Image czImage = czTransform.GetComponent<Image>();
         if (czImage == null)
             czImage = czTransform.gameObject.AddComponent<Image>();
