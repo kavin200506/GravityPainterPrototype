@@ -72,8 +72,8 @@ public static class ProceduralPathGeneratorTest
 
         Debug.Log(
             overlapFailures == 0
-                ? "200-SEED MAIN TILE OVERLAP TEST PASSED"
-                : "200-SEED MAIN TILE OVERLAP TEST FAILED (" + overlapFailures + " seeds)");
+                ? "200-SEED FULL TILE OVERLAP TEST PASSED"
+                : "200-SEED FULL TILE OVERLAP TEST FAILED (" + overlapFailures + " seeds)");
     }
 
     [MenuItem("Gravity Painter/Wire Level Gen Config Prefabs")]

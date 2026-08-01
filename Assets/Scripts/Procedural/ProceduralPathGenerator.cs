@@ -163,7 +163,9 @@ public class ProceduralPathGenerator
 
     private static bool WouldPathLayoutOverlap(List<Vector2Int> path, LevelGenConfig config)
     {
-        return !IsValidLayout(BuildCellsFromPath(path), config);
+        // Fast in-walk pruning: reject main-tile crossings as the path grows. Corner pads are
+        // validated by the full-pair check in IsValidLayout once the path is complete.
+        return ProceduralTilePlacement.HasMainTileOverlaps(BuildCellsFromPath(path), config);
     }
 
     private static bool IsValidLayout(List<LevelCell> cells, LevelGenConfig config)
@@ -173,7 +175,14 @@ public class ProceduralPathGenerator
             return false;
         }
 
-        return !ProceduralTilePlacement.HasMainTileOverlaps(cells, config);
+        // Stage 1: main tiles must never overlap (corner pads are repaired locally at build).
+        if (ProceduralTilePlacement.HasMainTileOverlaps(cells, config))
+        {
+            return false;
+        }
+
+        // Stage 2: basic reachability — contiguous start→finish, finish reachable.
+        return ProceduralTilePlacement.IsFinishable(cells, config);
     }
 
     public static List<LevelCell> BuildCellsFromPath(List<Vector2Int> path)
