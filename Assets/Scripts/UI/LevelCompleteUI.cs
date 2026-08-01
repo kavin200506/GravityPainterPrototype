@@ -36,6 +36,8 @@ public class LevelCompleteUI : MonoBehaviour
     [SerializeField] private float buttonsAnchoredY = 520f;
     [Tooltip("Gap between the title text and the button row.")]
     [SerializeField] private float titleGap = 36f;
+    [Tooltip("Scale of the background image (the new Level Completed panel).")]
+    [SerializeField] private float backgroundScale = 0.9f;
 
     private Button _restartButton;
     private Button _nextLevelButton;
@@ -192,8 +194,9 @@ public class LevelCompleteUI : MonoBehaviour
         {
             image.sprite = bgToUse;
             image.type = Image.Type.Simple;
-            image.preserveAspect = false;
+            image.preserveAspect = true;
             image.color = Color.white;
+            image.rectTransform.localScale = new Vector3(backgroundScale, backgroundScale, 1f);
             Debug.Log("[LevelCompleteUI] Background sprite applied: " + bgToUse.name);
         }
         else if (image.sprite != null)
@@ -246,6 +249,9 @@ public class LevelCompleteUI : MonoBehaviour
         titleRect.anchoredPosition = new Vector2(0f, titleY);
 
         titleRect.SetAsLastSibling();
+        
+        // Hide the title text since the new background image already has "LEVEL COMPLETED!"
+        titleRect.gameObject.SetActive(false);
     }
 
     private void UpdateProceduralTitle()
@@ -290,7 +296,8 @@ public class LevelCompleteUI : MonoBehaviour
         containerRect.anchorMax = new Vector2(0.5f, 0.5f);
         containerRect.pivot = new Vector2(0.5f, 0.5f);
         containerRect.sizeDelta = new Vector2(600f, 200f);
-        containerRect.anchoredPosition = new Vector2(0f, 141f);
+        // Move stars down to fit in the new image's empty space below "LEVEL COMPLETED!"
+        containerRect.anchoredPosition = new Vector2(0f, 40f);
 
         _starImages = new Image[3];
         float starSize = 150f;
@@ -358,9 +365,10 @@ public class LevelCompleteUI : MonoBehaviour
         coinsRt.anchorMin = new Vector2(0.5f, 0.5f);
         coinsRt.anchorMax = new Vector2(0.5f, 0.5f);
         coinsRt.pivot = new Vector2(0.5f, 0.5f);
-        coinsRt.anchoredPosition = new Vector2(-103f, -202f);
+        // Position exactly inside the left box of the new image
+        coinsRt.anchoredPosition = new Vector2(-119f, -286f);
         coinsRt.sizeDelta = new Vector2(240f, 80f);
-        coinsRt.localScale = new Vector3(1.909358f, 1.909358f, 1.909358f);
+        coinsRt.localScale = new Vector3(1.586f, 1.50813f, 1.3f);
 
         GameObject coinIconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
         coinIconObj.transform.SetParent(coinsBadge.transform, false);
@@ -368,8 +376,8 @@ public class LevelCompleteUI : MonoBehaviour
         cIconRt.anchorMin = new Vector2(0f, 0.5f);
         cIconRt.anchorMax = new Vector2(0f, 0.5f);
         cIconRt.pivot = new Vector2(0f, 0.5f);
-        cIconRt.anchoredPosition = new Vector2(0f, 0f);
-        cIconRt.sizeDelta = new Vector2(60f, 60f);
+        cIconRt.anchoredPosition = new Vector2(-23f, 0f);
+        cIconRt.sizeDelta = new Vector2(80f, 80f);
 
         Image coinIconImg = coinIconObj.GetComponent<Image>();
         coinIconImg.sprite = coinIconSprite;
@@ -388,7 +396,7 @@ public class LevelCompleteUI : MonoBehaviour
 
         _coinsText = coinTextObj.GetComponent<TextMeshProUGUI>();
         if (font != null) _coinsText.font = font;
-        _coinsText.fontSize = 42f;
+        _coinsText.fontSize = 50f;
         _coinsText.fontStyle = FontStyles.Bold;
         _coinsText.color = Color.white;
         _coinsText.alignment = TextAlignmentOptions.MidlineLeft;
@@ -402,9 +410,10 @@ public class LevelCompleteUI : MonoBehaviour
         timeRt.anchorMin = new Vector2(0.5f, 0.5f);
         timeRt.anchorMax = new Vector2(0.5f, 0.5f);
         timeRt.pivot = new Vector2(0.5f, 0.5f);
-        timeRt.anchoredPosition = new Vector2(245f, -202f);
+        // Position exactly inside the right box of the new image
+        timeRt.anchoredPosition = new Vector2(253f, -287f);
         timeRt.sizeDelta = new Vector2(240f, 80f);
-        timeRt.localScale = new Vector3(1.909358f, 1.909358f, 1.909358f);
+        timeRt.localScale = new Vector3(1.365f, 1.391f, 1.3f);
 
         GameObject timeIconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
         timeIconObj.transform.SetParent(timeBadge.transform, false);
@@ -412,8 +421,8 @@ public class LevelCompleteUI : MonoBehaviour
         tIconRt.anchorMin = new Vector2(0f, 0.5f);
         tIconRt.anchorMax = new Vector2(0f, 0.5f);
         tIconRt.pivot = new Vector2(0f, 0.5f);
-        tIconRt.anchoredPosition = new Vector2(0f, 0f);
-        tIconRt.sizeDelta = new Vector2(60f, 60f);
+        tIconRt.anchoredPosition = new Vector2(-21f, 0f);
+        tIconRt.sizeDelta = new Vector2(80f, 80f);
 
         Image timeIconImg = timeIconObj.GetComponent<Image>();
         timeIconImg.sprite = clockIconSprite;
@@ -432,7 +441,7 @@ public class LevelCompleteUI : MonoBehaviour
 
         _timeText = timeTextObj.GetComponent<TextMeshProUGUI>();
         if (font != null) _timeText.font = font;
-        _timeText.fontSize = 42f;
+        _timeText.fontSize = 50f;
         _timeText.fontStyle = FontStyles.Bold;
         _timeText.color = Color.white;
         _timeText.alignment = TextAlignmentOptions.MidlineLeft;
