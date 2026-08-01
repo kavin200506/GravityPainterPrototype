@@ -13,5 +13,6 @@ public static class GlbModelPaths
     public const string FinishLine = Folder + "Finish_Line/Untitled.gltf";
     public const string Coins = Folder + "coins/Untitled.gltf";
     public const string Magnet = Folder + "Magnet/Untitled.gltf";
-
+    public const string SpeedUp = Folder + "speed/Untitled.gltf";
 }
+

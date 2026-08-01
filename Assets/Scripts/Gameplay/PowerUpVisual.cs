@@ -101,14 +101,16 @@ public class PowerUpVisual : MonoBehaviour
             return true;
         }
 
-        prefab = Resources.Load<GameObject>(DefaultResourcePath);
+        string resourcePath = name.Contains("Speed") ? "Prefabs/SpeedUpVisual" : DefaultResourcePath;
+        prefab = Resources.Load<GameObject>(resourcePath);
         if (prefab != null)
         {
             return true;
         }
 
 #if UNITY_EDITOR
-        prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(GlbModelPaths.Magnet);
+        string fallbackPath = name.Contains("Speed") ? GlbModelPaths.SpeedUp : GlbModelPaths.Magnet;
+        prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(fallbackPath);
         if (prefab != null)
         {
             return true;
@@ -116,7 +118,7 @@ public class PowerUpVisual : MonoBehaviour
 #endif
 
         Debug.LogWarning(
-            "PowerUpVisual: missing model prefab. Run Gravity Painter → Apply Magnet GLB To Prefab.");
+            "PowerUpVisual: missing model prefab for " + name);
         return false;
     }
 

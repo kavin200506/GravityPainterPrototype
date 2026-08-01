@@ -4,19 +4,34 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Imports SpeedUp.glb, builds a runtime prefab, and wires PowerUpVisual on the SpeedCore pickup prefab.
+/// Imports speed/Untitled.gltf, builds a runtime prefab, and wires PowerUpVisual on the SpeedCore pickup prefab.
 /// </summary>
 public static class ApplySpeedUpModel
 {
-    private const string GlbAssetPath = "Assets/Art/Models/GLB/SpeedUp.glb";
+    private const string GlbAssetPath = GlbModelPaths.SpeedUp;
     private const string SpeedCorePrefabPath = "Assets/Prefabs/PowerUps/SpeedCore.prefab";
     private const string VisualPrefabPath = "Assets/Prefabs/Visuals/SpeedUpVisual.prefab";
     private const string ResourcesPrefabPath = "Assets/Resources/Prefabs/SpeedUpVisual.prefab";
 
-    [MenuItem("Gravity Painter/Apply SpeedUp GLB To Prefab")]
-    public static void ApplyToSpeedUpPrefab()
+    [InitializeOnLoadMethod]
+    private static void AutoApplyOnLoad()
     {
-        GameObject visualPrefab = BuildOrUpdateVisualPrefab();
+        // Only run if the visual prefab hasn't been created yet or needs update
+        if (!File.Exists(ResourcesPrefabPath) && File.Exists(GlbAssetPath))
+        {
+            ApplyToSpeedUpPrefab(silent: true);
+        }
+    }
+
+    [MenuItem("Gravity Painter/Apply SpeedUp GLB To Prefab")]
+    public static void ApplyToSpeedUpPrefabMenu()
+    {
+        ApplyToSpeedUpPrefab(silent: false);
+    }
+
+    public static void ApplyToSpeedUpPrefab(bool silent = false)
+    {
+        GameObject visualPrefab = BuildOrUpdateVisualPrefab(silent);
         if (visualPrefab == null)
         {
             return;
@@ -24,7 +39,7 @@ public static class ApplySpeedUpModel
 
         if (!File.Exists(SpeedCorePrefabPath))
         {
-            EditorUtility.DisplayDialog("Missing prefab", "Could not find:\n" + SpeedCorePrefabPath, "OK");
+            if (!silent) EditorUtility.DisplayDialog("Missing prefab", "Could not find:\n" + SpeedCorePrefabPath, "OK");
             return;
         }
 
@@ -35,8 +50,6 @@ public static class ApplySpeedUpModel
         Transform rootTransform = speedCoreRoot.transform;
         rootTransform.localPosition = Vector3.zero;
         rootTransform.localRotation = Quaternion.identity;
-        // The scale could be adjusted by the user later if needed, leaving it as 1 or original
-        // Let's set it to 2f for now as a default
         rootTransform.localScale = Vector3.one * 2f;
 
         PrefabUtility.SaveAsPrefabAsset(speedCoreRoot, SpeedCorePrefabPath);
@@ -45,11 +58,16 @@ public static class ApplySpeedUpModel
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        EditorUtility.DisplayDialog(
-            "SpeedUp model applied",
-            "Created/updated:\n" + ResourcesPrefabPath + "\n\n" +
-            "Updated gameplay prefab:\n" + SpeedCorePrefabPath,
-            "OK");
+        Debug.Log("[ApplySpeedUpModel] ✅ SpeedUp GLTF model applied to SpeedCore prefab.");
+
+        if (!silent)
+        {
+            EditorUtility.DisplayDialog(
+                "SpeedUp model applied",
+                "Created/updated:\n" + ResourcesPrefabPath + "\n\n" +
+                "Updated gameplay prefab:\n" + SpeedCorePrefabPath,
+                "OK");
+        }
     }
 
     private static void WirePowerUpVisual(GameObject root, GameObject visualPrefab)
@@ -88,14 +106,17 @@ public static class ApplySpeedUpModel
         }
     }
 
-    private static GameObject BuildOrUpdateVisualPrefab()
+    private static GameObject BuildOrUpdateVisualPrefab(bool silent = false)
     {
         if (!File.Exists(GlbAssetPath))
         {
-            EditorUtility.DisplayDialog(
-                "Missing GLB",
-                "Place SpeedUp.glb in:\n" + GlbAssetPath,
-                "OK");
+            if (!silent)
+            {
+                EditorUtility.DisplayDialog(
+                    "Missing GLB",
+                    "Place model in:\n" + GlbAssetPath,
+                    "OK");
+            }
             return null;
         }
 
@@ -109,7 +130,7 @@ public static class ApplySpeedUpModel
 
         if (glbRoot == null)
         {
-            EditorUtility.DisplayDialog("GLB import failed", "Could not load SpeedUp.glb.", "OK");
+            if (!silent) EditorUtility.DisplayDialog("GLB import failed", "Could not load " + GlbAssetPath, "OK");
             return null;
         }
 
