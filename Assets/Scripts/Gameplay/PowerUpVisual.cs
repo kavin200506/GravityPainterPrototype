@@ -40,9 +40,11 @@ public class PowerUpVisual : MonoBehaviour
         {
             if (!UsesBrokenVisual(existing))
             {
+                Debug.Log($"[PowerUpVisual] '{name}' already has a valid visual child '{existing.name}'.");
                 return;
             }
 
+            Debug.Log($"[PowerUpVisual] Destroying stale/primitive visual for '{name}' to rebuild 3D model.");
             if (Application.isPlaying)
             {
                 Destroy(existing.gameObject);
@@ -53,8 +55,9 @@ public class PowerUpVisual : MonoBehaviour
             }
         }
 
-        if (!TryResolvePrefab(out GameObject prefab))
+        if (!TryResolvePrefab(out GameObject prefab) || prefab == null)
         {
+            Debug.LogError($"[PowerUpVisual] ❌ Failed to resolve 3D model prefab for '{name}'. Check GlbModelPaths.SpeedUp and Resources/Prefabs/SpeedUpVisual.");
             return;
         }
 
@@ -64,7 +67,15 @@ public class PowerUpVisual : MonoBehaviour
         root.transform.localRotation = Quaternion.identity;
         root.transform.localScale = Vector3.one;
 
-        GameObject model = Instantiate(prefab, root.transform);
+        GameObject model = InstantiateGameObject(prefab, root.transform);
+        if (model == null)
+        {
+            Debug.LogError($"[PowerUpVisual] ❌ InstantiateGameObject returned null for prefab '{prefab.name}' on '{name}'.");
+            if (Application.isPlaying) Destroy(root);
+            else DestroyImmediate(root);
+            return;
+        }
+
         model.name = prefab.name;
         model.transform.localPosition = Vector3.zero;
         model.transform.localRotation = Quaternion.identity;
@@ -73,6 +84,37 @@ public class PowerUpVisual : MonoBehaviour
         StripPhysics(model);
         TileMeshMaterialUtility.FixRenderersToUrpPreservingModelLook(model);
         FitModelToTargetBounds(model, targetLocalBoundsSize);
+
+        Debug.Log($"[PowerUpVisual] ✅ Successfully created 3D visual '{model.name}' for pickup '{name}'.");
+    }
+
+    private static GameObject InstantiateGameObject(UnityEngine.Object source, Transform parent)
+    {
+        if (source == null) return null;
+
+        try
+        {
+            if (source is GameObject go)
+            {
+                return Instantiate(go, parent);
+            }
+
+            UnityEngine.Object instantiated = Instantiate(source, parent);
+            if (instantiated is GameObject instantiatedGo)
+            {
+                return instantiatedGo;
+            }
+            if (instantiated is Component comp)
+            {
+                return comp.gameObject;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[PowerUpVisual] Safe instantiate failed for {source.name}: {ex.Message}");
+        }
+
+        return null;
     }
 
     public void RebuildVisual()
@@ -96,35 +138,52 @@ public class PowerUpVisual : MonoBehaviour
     private bool TryResolvePrefab(out GameObject prefab)
     {
         prefab = modelPrefab;
-        if (prefab != null)
+        if (prefab != null && prefab is GameObject)
         {
+            Debug.Log($"[PowerUpVisual] Resolved modelPrefab from SerializedField for '{name}' -> '{prefab.name}'.");
             return true;
         }
 
-        string resourcePath = name.Contains("Speed") ? "Prefabs/SpeedUpVisual" : DefaultResourcePath;
+        bool isSpeed = name.Contains("Speed") || 
+                       (transform.parent != null && transform.parent.name.Contains("Speed"));
+
+        PowerUpPickup pickup = GetComponent<PowerUpPickup>();
+        if (pickup != null && pickup.powerUpType == PowerUpType.Speed)
+        {
+            isSpeed = true;
+        }
+
+        string resourcePath = isSpeed ? "Prefabs/SpeedUpVisual" : DefaultResourcePath;
         prefab = Resources.Load<GameObject>(resourcePath);
         if (prefab != null)
         {
+            Debug.Log($"[PowerUpVisual] Resolved model prefab from Resources: '{resourcePath}' for '{name}'.");
             return true;
         }
 
 #if UNITY_EDITOR
-        string fallbackPath = name.Contains("Speed") ? GlbModelPaths.SpeedUp : GlbModelPaths.Magnet;
+        string fallbackPath = isSpeed ? GlbModelPaths.SpeedUp : GlbModelPaths.Magnet;
         prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(fallbackPath);
         if (prefab != null)
         {
+            Debug.Log($"[PowerUpVisual] Resolved model prefab from AssetDatabase: '{fallbackPath}' for '{name}'.");
             return true;
         }
 #endif
 
-        Debug.LogWarning(
-            "PowerUpVisual: missing model prefab for " + name);
+        Debug.LogError($"[PowerUpVisual] ❌ Could NOT resolve any model prefab for '{name}' (isSpeed={isSpeed}).");
         return false;
     }
 
     private static bool UsesBrokenVisual(Transform visualRoot)
     {
-        foreach (Renderer renderer in visualRoot.GetComponentsInChildren<Renderer>(true))
+        Renderer[] renderers = visualRoot.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+        {
+            return true; // Force rebuild if no renderer
+        }
+
+        foreach (Renderer renderer in renderers)
         {
             Material[] materials = renderer.sharedMaterials;
             if (materials == null || materials.Length == 0)
@@ -134,12 +193,7 @@ public class PowerUpVisual : MonoBehaviour
 
             foreach (Material material in materials)
             {
-                if (material == null)
-                {
-                    return true;
-                }
-
-                if (material.shader == null)
+                if (material == null || material.shader == null)
                 {
                     return true;
                 }
@@ -150,7 +204,9 @@ public class PowerUpVisual : MonoBehaviour
                     return true;
                 }
 
-                if (material.name.StartsWith("MagnetMaterial"))
+                if (material.name.StartsWith("MagnetMaterial") || 
+                    material.name.StartsWith("SpeedCoreMaterial") ||
+                    material.name.Contains("SpeedCore"))
                 {
                     return true;
                 }
@@ -194,6 +250,7 @@ public class PowerUpVisual : MonoBehaviour
         Renderer[] renderers = model.GetComponentsInChildren<Renderer>(true);
         if (renderers.Length == 0)
         {
+            Debug.LogWarning($"[PowerUpVisual] No renderers found in model '{model.name}'.");
             return;
         }
 
