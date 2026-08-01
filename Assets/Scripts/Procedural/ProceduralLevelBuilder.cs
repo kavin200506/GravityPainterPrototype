@@ -229,35 +229,18 @@ public class ProceduralLevelBuilder : MonoBehaviour
             ball.ClearCheckpoint();
 
         _generator ??= new ProceduralPathGenerator();
-
-        List<LevelCell> cells = null;
-        int actualSeed = buildSeed;
-        int maxOverlapAttempts = 4;
-        int overlapAttempt = 0;
-
-        while (overlapAttempt < maxOverlapAttempts)
-        {
-            cells = _generator.GenerateWithRetry(_activeConfig, buildSeed, out actualSeed, maxAttempts: 50);
-
-            bool hasOverlaps = (cells == null || cells.Count == 0 ||
-                                ProceduralTilePlacement.HasMainTileOverlaps(cells, _activeConfig) ||
-                                ProceduralTilePlacement.HasAnyTileOverlaps(cells, _activeConfig));
-
-            if (!hasOverlaps)
-            {
-                break;
-            }
-
-            overlapAttempt++;
-            Debug.LogWarning($"[ProceduralLevelBuilder] Expanding grid dimensions ({_activeConfig.gridWidth + 2}x{_activeConfig.gridDepth + 2}) to guarantee non-overlapping layout...");
-            _activeConfig.gridWidth += 2;
-            _activeConfig.gridDepth += 2;
-            _activeConfig.SyncFootprintFromTileScale();
-        }
-
+        List<LevelCell> cells = _generator.GenerateWithRetry(_activeConfig, buildSeed, out int actualSeed);
         if (cells == null || cells.Count == 0)
         {
             Debug.LogError("ProceduralLevelBuilder: path generation failed for seed " + buildSeed);
+            return false;
+        }
+
+        if (ProceduralTilePlacement.HasMainTileOverlaps(cells, _activeConfig))
+        {
+            Debug.LogError(
+                "ProceduralLevelBuilder: overlap-free path generation failed for seed "
+                + buildSeed + " (used " + actualSeed + ").");
             return false;
         }
 
@@ -632,7 +615,11 @@ public class ProceduralLevelBuilder : MonoBehaviour
             return cornerCoinCount;
         }
 
-        var placed = ProceduralTilePlacement.BuildPlacementPlan(cells, _activeConfig);
+        // Local repair fallback: pads that would overlap a tile they are not edge-aligned
+        // with are dropped; the main path is never changed. Shared with the generator so the
+        // built level exactly matches what validation accepted.
+        List<ProceduralTilePlacement.PlacedTile> repaired =
+            ProceduralTilePlacement.BuildRepairedPlan(cells, _activeConfig);
 
         for (int i = 2; i < cells.Count; i++)
         {
@@ -644,13 +631,18 @@ public class ProceduralLevelBuilder : MonoBehaviour
             int padCount = ProceduralTilePlacement.CountCornerPadsForTurn(i, cells, _activeConfig);
             for (int padIndex = 0; padIndex < padCount; padIndex++)
             {
-                Vector3 padCenter = ProceduralTilePlacement.ComputeCornerPadPosition(
-                    i, padIndex, padCount, cells, _activeConfig);
-                float padRotation = cells[i - 1].YRotation;
-                Bounds padBounds = ProceduralTileFootprint.ComputeWorldBounds(padCenter, padRotation, _activeConfig);
+                bool survived = false;
+                for (int r = 0; r < repaired.Count; r++)
+                {
+                    ProceduralTilePlacement.PlacedTile tile = repaired[r];
+                    if (tile.IsCornerPad && tile.TurnIndex == i && tile.PadIndex == padIndex)
+                    {
+                        survived = true;
+                        break;
+                    }
+                }
 
-                // Allow pads to meet the incoming/outgoing turn tiles; block parallel-path stacking.
-                if (WouldOverlapNonNeighborMainTiles(padBounds, placed, _activeConfig, i))
+                if (!survived)
                 {
                     continue;
                 }
@@ -671,47 +663,9 @@ public class ProceduralLevelBuilder : MonoBehaviour
                     CampaignCoinPlacement.SnapCoinToTile(coinObj.transform, pad.transform);
                     cornerCoinCount++;
                 }
-
-                placed.Add(new ProceduralTilePlacement.PlacedTile
-                {
-                    Center = padCenter,
-                    YRotation = padRotation,
-                    IsCornerPad = true
-                });
             }
         }
         return cornerCoinCount;
-    }
-
-    private static bool WouldOverlapNonNeighborMainTiles(
-        Bounds candidate,
-        IReadOnlyList<ProceduralTilePlacement.PlacedTile> placed,
-        LevelGenConfig levelConfig,
-        int turnMainIndex)
-    {
-        const float margin = 0.04f;
-        int incomingMainIndex = turnMainIndex - 1;
-
-        for (int i = 0; i < placed.Count; i++)
-        {
-            ProceduralTilePlacement.PlacedTile other = placed[i];
-            if (other.IsCornerPad || i == incomingMainIndex || i == turnMainIndex)
-            {
-                continue;
-            }
-
-            Bounds otherBounds = ProceduralTileFootprint.ComputeWorldBounds(
-                other.Center,
-                other.YRotation,
-                levelConfig);
-
-            if (ProceduralTileFootprint.BoundsOverlap(candidate, otherBounds, margin))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private Dictionary<int, ObstacleKind> BuildObstaclePlan(

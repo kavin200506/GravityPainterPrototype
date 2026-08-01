@@ -16,6 +16,8 @@ public static class ProceduralTilePlacement
         public float YRotation;
         public bool IsCornerPad;
         public int PathIndex;
+        public int TurnIndex;
+        public int PadIndex;
     }
 
     public static Vector3 ComputeCenterPosition(int index, IReadOnlyList<LevelCell> cells, LevelGenConfig config)
@@ -60,7 +62,9 @@ public static class ProceduralTilePlacement
                 Center = ComputeCenterPosition(i, cells, config),
                 YRotation = cells[i].YRotation,
                 IsCornerPad = false,
-                PathIndex = i
+                PathIndex = i,
+                TurnIndex = -1,
+                PadIndex = -1
             });
         }
 
@@ -85,7 +89,9 @@ public static class ProceduralTilePlacement
                     Center = ComputeCornerPadPosition(turnIndex, padIndex, padCount, cells, config),
                     YRotation = padRotation,
                     IsCornerPad = true,
-                    PathIndex = turnIndex
+                    PathIndex = -1,
+                    TurnIndex = turnIndex,
+                    PadIndex = padIndex
                 });
             }
         }
@@ -101,6 +107,99 @@ public static class ProceduralTilePlacement
     public static bool HasAnyTileOverlaps(IReadOnlyList<LevelCell> cells, LevelGenConfig config)
     {
         return HasOverlaps(BuildPlacementPlan(cells, config), config, includeCornerPads: true);
+    }
+
+    /// <summary>
+    /// Stage 2 basic reachability: the ball can reach the finish only if the main path is
+    /// contiguous (every consecutive pair is a single grid step) and every consecutive main
+    /// tile is edge-aligned so the ball cannot fall through a seam. Dropped corner pads never
+    /// strand the ball because the main path stays connected.
+    /// </summary>
+    public static bool IsFinishable(IReadOnlyList<LevelCell> cells, LevelGenConfig config)
+    {
+        if (cells == null || cells.Count < 2 || config == null)
+        {
+            return false;
+        }
+
+        for (int i = 1; i < cells.Count; i++)
+        {
+            Vector2Int diff = cells[i].GridPos - cells[i - 1].GridPos;
+            if (Mathf.Abs(diff.x) + Mathf.Abs(diff.y) != 1)
+            {
+                return false;
+            }
+        }
+
+        List<PlacedTile> plan = BuildPlacementPlan(cells, config);
+        for (int i = 1; i < cells.Count; i++)
+        {
+            if (!AreEdgeAlignedNeighbors(plan[i - 1], plan[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Final build plan after the local pad-drop repair: identical to the runtime builder's
+    /// output. Any corner pad that would truly overlap a tile it is not edge-aligned with is
+    /// dropped (that is the overlap fallback); the main path is never changed. Generator and
+    /// builder share this so Stage 1/Stage 2 validation can never disagree with the build.
+    /// </summary>
+    public static List<PlacedTile> BuildRepairedPlan(IReadOnlyList<LevelCell> cells, LevelGenConfig config)
+    {
+        List<PlacedTile> plan = BuildPlacementPlan(cells, config);
+        var repaired = new List<PlacedTile>();
+        if (plan == null || plan.Count == 0)
+        {
+            return repaired;
+        }
+
+        for (int i = 0; i < plan.Count; i++)
+        {
+            PlacedTile candidate = plan[i];
+            if (WouldOverlapAny(candidate, repaired, config))
+            {
+                continue;
+            }
+
+            repaired.Add(candidate);
+        }
+
+        return repaired;
+    }
+
+    private static bool WouldOverlapAny(PlacedTile candidate, IReadOnlyList<PlacedTile> placed, LevelGenConfig config)
+    {
+        const float margin = 0.04f;
+        Bounds candidateBounds = ProceduralTileFootprint.ComputeWorldBounds(
+            candidate.Center,
+            candidate.YRotation,
+            config);
+
+        for (int i = 0; i < placed.Count; i++)
+        {
+            PlacedTile other = placed[i];
+            if (AreEdgeAlignedNeighbors(candidate, other))
+            {
+                continue;
+            }
+
+            Bounds otherBounds = ProceduralTileFootprint.ComputeWorldBounds(
+                other.Center,
+                other.YRotation,
+                config);
+
+            if (ProceduralTileFootprint.BoundsOverlap(candidateBounds, otherBounds, margin))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static bool IsTurnIndex(int index, IReadOnlyList<LevelCell> cells)
@@ -242,9 +341,7 @@ public static class ProceduralTilePlacement
                     continue;
                 }
 
-                // Directly connected or same-turn adjacent tiles are meant to touch/connect.
-                // Only reject non-adjacent tiles that loop back or cross into each other.
-                if (Mathf.Abs(tileA.PathIndex - tileB.PathIndex) <= 1)
+                if (AreEdgeAlignedNeighbors(tileA, tileB))
                 {
                     continue;
                 }
@@ -258,6 +355,29 @@ public static class ProceduralTilePlacement
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// True when two placed tiles are intentionally edge-aligned (they meet along an edge
+    /// with only the configured gap between them) and must be allowed to touch:
+    /// consecutive main path tiles, pads of the same turn, and a pad with its own
+    /// incoming/turn main tile. Every other pair must not overlap.
+    /// </summary>
+    public static bool AreEdgeAlignedNeighbors(PlacedTile a, PlacedTile b)
+    {
+        if (!a.IsCornerPad && !b.IsCornerPad)
+        {
+            return Mathf.Abs(a.PathIndex - b.PathIndex) == 1;
+        }
+
+        if (a.IsCornerPad && b.IsCornerPad)
+        {
+            return a.TurnIndex == b.TurnIndex;
+        }
+
+        PlacedTile pad = a.IsCornerPad ? a : b;
+        PlacedTile main = a.IsCornerPad ? b : a;
+        return main.PathIndex == pad.TurnIndex || main.PathIndex == pad.TurnIndex - 1;
     }
 
     private static Vector3 ComputeStepOffset(int index, IReadOnlyList<LevelCell> cells, LevelGenConfig config)
