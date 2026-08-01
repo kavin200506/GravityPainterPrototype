@@ -15,6 +15,7 @@ public static class ProceduralTilePlacement
         public Vector3 Center;
         public float YRotation;
         public bool IsCornerPad;
+        public int PathIndex;
     }
 
     public static Vector3 ComputeCenterPosition(int index, IReadOnlyList<LevelCell> cells, LevelGenConfig config)
@@ -58,7 +59,8 @@ public static class ProceduralTilePlacement
             {
                 Center = ComputeCenterPosition(i, cells, config),
                 YRotation = cells[i].YRotation,
-                IsCornerPad = false
+                IsCornerPad = false,
+                PathIndex = i
             });
         }
 
@@ -82,7 +84,8 @@ public static class ProceduralTilePlacement
                 {
                     Center = ComputeCornerPadPosition(turnIndex, padIndex, padCount, cells, config),
                     YRotation = padRotation,
-                    IsCornerPad = true
+                    IsCornerPad = true,
+                    PathIndex = turnIndex
                 });
             }
         }
@@ -221,38 +224,33 @@ public static class ProceduralTilePlacement
             return false;
         }
 
-        var bounds = new List<Bounds>(tiles.Count);
-        int mainCount = 0;
-
-        for (int i = 0; i < tiles.Count; i++)
+        for (int a = 0; a < tiles.Count; a++)
         {
-            PlacedTile tile = tiles[i];
-            if (!includeCornerPads && tile.IsCornerPad)
+            PlacedTile tileA = tiles[a];
+            if (!includeCornerPads && tileA.IsCornerPad)
             {
                 continue;
             }
 
-            if (!tile.IsCornerPad)
+            Bounds boundsA = ProceduralTileFootprint.ComputeWorldBounds(tileA.Center, tileA.YRotation, config);
+
+            for (int b = a + 1; b < tiles.Count; b++)
             {
-                mainCount++;
-            }
+                PlacedTile tileB = tiles[b];
+                if (!includeCornerPads && tileB.IsCornerPad)
+                {
+                    continue;
+                }
 
-            bounds.Add(ProceduralTileFootprint.ComputeWorldBounds(tile.Center, tile.YRotation, config));
-        }
+                // Directly connected or same-turn adjacent tiles are meant to touch/connect.
+                // Only reject non-adjacent tiles that loop back or cross into each other.
+                if (Mathf.Abs(tileA.PathIndex - tileB.PathIndex) <= 1)
+                {
+                    continue;
+                }
 
-        for (int a = 0; a < bounds.Count; a++)
-        {
-            int startB = a + 1;
-
-            // Edge-aligned neighbors are meant to touch; only reject true crossings.
-            if (!includeCornerPads && a < mainCount)
-            {
-                startB = a + 2;
-            }
-
-            for (int b = startB; b < bounds.Count; b++)
-            {
-                if (ProceduralTileFootprint.BoundsOverlap(bounds[a], bounds[b], OverlapMargin))
+                Bounds boundsB = ProceduralTileFootprint.ComputeWorldBounds(tileB.Center, tileB.YRotation, config);
+                if (ProceduralTileFootprint.BoundsOverlap(boundsA, boundsB, OverlapMargin))
                 {
                     return true;
                 }

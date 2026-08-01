@@ -229,18 +229,35 @@ public class ProceduralLevelBuilder : MonoBehaviour
             ball.ClearCheckpoint();
 
         _generator ??= new ProceduralPathGenerator();
-        List<LevelCell> cells = _generator.GenerateWithRetry(_activeConfig, buildSeed, out int actualSeed);
+
+        List<LevelCell> cells = null;
+        int actualSeed = buildSeed;
+        int maxOverlapAttempts = 4;
+        int overlapAttempt = 0;
+
+        while (overlapAttempt < maxOverlapAttempts)
+        {
+            cells = _generator.GenerateWithRetry(_activeConfig, buildSeed, out actualSeed, maxAttempts: 50);
+
+            bool hasOverlaps = (cells == null || cells.Count == 0 ||
+                                ProceduralTilePlacement.HasMainTileOverlaps(cells, _activeConfig) ||
+                                ProceduralTilePlacement.HasAnyTileOverlaps(cells, _activeConfig));
+
+            if (!hasOverlaps)
+            {
+                break;
+            }
+
+            overlapAttempt++;
+            Debug.LogWarning($"[ProceduralLevelBuilder] Expanding grid dimensions ({_activeConfig.gridWidth + 2}x{_activeConfig.gridDepth + 2}) to guarantee non-overlapping layout...");
+            _activeConfig.gridWidth += 2;
+            _activeConfig.gridDepth += 2;
+            _activeConfig.SyncFootprintFromTileScale();
+        }
+
         if (cells == null || cells.Count == 0)
         {
             Debug.LogError("ProceduralLevelBuilder: path generation failed for seed " + buildSeed);
-            return false;
-        }
-
-        if (ProceduralTilePlacement.HasMainTileOverlaps(cells, _activeConfig))
-        {
-            Debug.LogError(
-                "ProceduralLevelBuilder: overlap-free path generation failed for seed "
-                + buildSeed + " (used " + actualSeed + ").");
             return false;
         }
 

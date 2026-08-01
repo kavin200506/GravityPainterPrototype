@@ -173,7 +173,17 @@ public class ProceduralPathGenerator
             return false;
         }
 
-        return !ProceduralTilePlacement.HasMainTileOverlaps(cells, config);
+        if (ProceduralTilePlacement.HasMainTileOverlaps(cells, config))
+        {
+            return false;
+        }
+
+        if (config != null && config.addCornerPads && ProceduralTilePlacement.HasAnyTileOverlaps(cells, config))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public static List<LevelCell> BuildCellsFromPath(List<Vector2Int> path)
@@ -352,8 +362,14 @@ public class ProceduralPathGenerator
             }
         }
 
-        List<Vector2Int> shortestSnake = BuildSimpleSnake(config.minPathLength, config, Right);
-        return BuildCellsFromPath(shortestSnake);
+        List<Vector2Int> straightPath = new List<Vector2Int>(config.minPathLength);
+        Vector2Int pos = Vector2Int.zero;
+        for (int i = 0; i < config.minPathLength; i++)
+        {
+            straightPath.Add(pos);
+            pos += Right;
+        }
+        return BuildCellsFromPath(straightPath);
     }
 
     private static List<Vector2Int> BuildSimpleSnake(int length, LevelGenConfig config, Vector2Int firstDirection)
