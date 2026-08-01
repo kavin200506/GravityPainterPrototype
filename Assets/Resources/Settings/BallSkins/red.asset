@@ -17,6 +17,8 @@ MonoBehaviour:
   price: 900
   unlockedByDefault: 0
   prefabResourcePath: Prefabs/BallSkins/Ai_Nova_Red
-  speedMultiplier: 1.5
+  speedMultiplier: 1.4
+  abilityName: Flame Nitro Boost
+  abilityDescription: +40% Speed boost to sprint across hazard paths.
+  whyToBuy: High-speed power ball! Perfect for beating timer challenges and outrunning traps.
   icon: {fileID: 21300000, guid: d3a6fb9907ce6d1488011313b1873ce4, type: 3}
-  abilityDescription: +50% Speed Boost

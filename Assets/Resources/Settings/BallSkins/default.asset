@@ -18,5 +18,7 @@ MonoBehaviour:
   unlockedByDefault: 1
   prefabResourcePath: Prefabs/BallSkins/Default
   speedMultiplier: 1
-  abilityDescription: Balanced Handling - No Bonus
+  abilityName: Standard Control
+  abilityDescription: Balanced baseline handling & speed.
+  whyToBuy: Default starter ball. Safe and reliable handling for learning paths.
   icon: {fileID: 21300000, guid: ac63f182c5620c143a791481144a8ee6, type: 3}
