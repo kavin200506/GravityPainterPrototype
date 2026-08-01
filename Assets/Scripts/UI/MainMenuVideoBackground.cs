@@ -57,12 +57,39 @@ public class MainMenuVideoBackground : MonoBehaviour
 
     private void Awake()
     {
-        EnsureComponents();
-        ApplySettings();
-
-        if (Application.isPlaying && playOnAwake && videoClip != null)
+        VideoPlayer player = GetComponent<VideoPlayer>();
+        if (player != null)
         {
-            Play();
+            player.Stop();
+            player.enabled = false;
+        }
+
+        RawImage rawImage = GetComponent<RawImage>();
+        if (rawImage != null)
+        {
+            rawImage.enabled = false;
+        }
+
+        Image image = GetComponent<Image>();
+        if (image == null)
+        {
+            image = gameObject.AddComponent<Image>();
+        }
+
+        image.enabled = true;
+        image.raycastTarget = false;
+        image.color = Color.white;
+
+        Sprite menuSprite = Resources.Load<Sprite>("UI/Mainmenu");
+#if UNITY_EDITOR
+        if (menuSprite == null)
+        {
+            menuSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Mainmenu.png");
+        }
+#endif
+        if (menuSprite != null)
+        {
+            image.sprite = menuSprite;
         }
     }
 

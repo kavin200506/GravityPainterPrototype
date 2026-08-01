@@ -80,11 +80,13 @@ public class BallCardUI : MonoBehaviour
             });
         }
 
+        EnsureRectTransformLayout();
         RefreshDisplay();
     }
 
     public void RefreshDisplay()
     {
+        EnsureRectTransformLayout();
         LoadSpritesIfMissing();
         if (currentBall == null) return;
 
@@ -202,6 +204,39 @@ public class BallCardUI : MonoBehaviour
             {
                 actionText.rectTransform.offsetMin = Vector2.zero;
                 actionText.rectTransform.offsetMax = Vector2.zero;
+            }
+        }
+    }
+
+    private void EnsureRectTransformLayout()
+    {
+        if (actionButton != null)
+        {
+            RectTransform btnRt = actionButton.GetComponent<RectTransform>();
+            if (btnRt != null)
+            {
+                btnRt.anchorMin = new Vector2(0.5f, 0f);
+                btnRt.anchorMax = new Vector2(0.5f, 0f);
+                btnRt.pivot = new Vector2(0.5f, 0f);
+                btnRt.anchoredPosition = new Vector2(0f, 2.936005f);
+                btnRt.sizeDelta = new Vector2(235f, 70f);
+                btnRt.localScale = new Vector3(0.8146776f, 1.4875f, 1f);
+                btnRt.localRotation = Quaternion.identity;
+            }
+        }
+
+        if (ballImage != null)
+        {
+            RectTransform bRt = ballImage.GetComponent<RectTransform>();
+            if (bRt != null)
+            {
+                bRt.anchorMin = new Vector2(0.5f, 0.5f);
+                bRt.anchorMax = new Vector2(0.5f, 0.5f);
+                bRt.pivot = new Vector2(0.5f, 0.5f);
+                bRt.anchoredPosition = new Vector2(0f, 15f);
+                bRt.sizeDelta = new Vector2(170f, 170f);
+                bRt.localScale = Vector3.one;
+                bRt.localRotation = Quaternion.identity;
             }
         }
     }
