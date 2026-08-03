@@ -410,6 +410,7 @@ public static class SetupNewStoreUI
         bRt.pivot = new Vector2(0.5f, 0.5f);
         bRt.anchoredPosition = new Vector2(0f, 15f);
         bRt.sizeDelta = new Vector2(170f, 170f);
+        bRt.localScale = Vector3.one;
         Image bImg = ballImgObj.GetComponent<Image>();
         Sprite ballSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Store_Page/White_ball.png");
         if (ballSprite != null) bImg.sprite = ballSprite;
@@ -424,8 +425,9 @@ public static class SetupNewStoreUI
         RectTransform btnRt = btnObj.GetComponent<RectTransform>();
         btnRt.anchorMin = new Vector2(0.5f, 0f); btnRt.anchorMax = new Vector2(0.5f, 0f);
         btnRt.pivot = new Vector2(0.5f, 0f);
-        btnRt.anchoredPosition = new Vector2(0f, 20f);
+        btnRt.anchoredPosition = new Vector2(0f, 2.936005f);
         btnRt.sizeDelta = new Vector2(235f, 70f);
+        btnRt.localScale = new Vector3(0.8146776f, 1.4875f, 1f);
 
         Image btnImg = btnObj.GetComponent<Image>();
         Sprite pricePanelSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites/UI/Store_Page/price_panel.png");

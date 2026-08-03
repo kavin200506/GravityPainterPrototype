@@ -12,6 +12,7 @@ MemoryCaptures/
 *.aab
 new_BackUpThisFolder_ButDontShipItWithYourGame/
 .utmp/
+*_BurstDebugInformation_DoNotShip/
 
 # Unity package installers — import locally, do not commit
 *.unitypackage

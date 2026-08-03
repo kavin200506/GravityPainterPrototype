@@ -11,7 +11,12 @@ public class BallData : ScriptableObject
     public string prefabResourcePath = "";
     public float speedMultiplier = 1f;
 
-    // Helper Accessors to match the user's exact specification
+    [Header("Ability & Value Pitch")]
+    public string abilityName = "Balanced Handling";
+    public string abilityDescription = "Standard speed and baseline control.";
+    public string whyToBuy = "Standard starter ball.";
+
+    // Helper Accessors
     public string ballId => skinId;
     public string ballName => skinName;
     public bool isDefault => unlockedByDefault;

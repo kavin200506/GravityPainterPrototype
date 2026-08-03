@@ -1,0 +1,43 @@
+fileFormatVersion: 2
+guid: 8d0633c1efee041c3a0011ce8072ecfe
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 715df9372183c47e389bb6e19fbc3b52, type: 3}
+  editorImportSettings:
+    generateSecondaryUVSet: 0
+  importSettings:
+    nodeNameMethod: 1
+    animationMethod: 2
+    generateMipMaps: 1
+    texturesReadable: 0
+    defaultMinFilterMode: 9729
+    defaultMagFilterMode: 9729
+    anisotropicFilterLevel: 1
+  instantiationSettings:
+    mask: -1
+    layer: 0
+    skinUpdateWhenOffscreen: 1
+    lightIntensityFactor: 1
+    sceneObjectCreation: 2
+  assetDependencies:
+  - type: 0
+    originalUri: Assets/Art/Models/GLB/speed/Untitled.bin
+    assetPath: Assets/Art/Models/GLB/speed/Untitled.bin
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/speed/Image_3.jpg
+    assetPath: Assets/Art/Models/GLB/speed/Image_3.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/speed/Image_2.jpg
+    assetPath: Assets/Art/Models/GLB/speed/Image_2.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/speed/Image_0.jpg
+    assetPath: Assets/Art/Models/GLB/speed/Image_0.jpg
+  - type: 1
+    originalUri: Assets/Art/Models/GLB/speed/Image_1.jpg
+    assetPath: Assets/Art/Models/GLB/speed/Image_1.jpg
+  reportItems: []

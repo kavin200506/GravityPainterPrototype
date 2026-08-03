@@ -17,6 +17,8 @@ MonoBehaviour:
   price: 1300
   unlockedByDefault: 0
   prefabResourcePath: Prefabs/BallSkins/Ai_Nova_Yellow
-  speedMultiplier: 1.6
+  speedMultiplier: 1.75
+  abilityName: Hyperdrive Warp
+  abilityDescription: +75% Maximum Speed & hyper-responsiveness!
+  whyToBuy: The ultimate store ball! Maximum velocity and top performance to dominate every level!
   icon: {fileID: 21300000, guid: bbd784f9d275ce6458644e02d58f92ae, type: 3}
-  abilityDescription: +60% Speed Boost

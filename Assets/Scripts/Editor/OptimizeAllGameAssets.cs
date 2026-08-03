@@ -119,6 +119,9 @@ public static class OptimizeAllGameAssets
         // Magnet
         ApplyMagnetModel.ApplyToMagnetPrefab();
 
+        // SpeedUp / SpeedCore
+        ApplySpeedUpModel.ApplyToSpeedUpPrefab();
+
         // Finish Line
         ApplyFinishLineModel.ApplyToLevels();
 

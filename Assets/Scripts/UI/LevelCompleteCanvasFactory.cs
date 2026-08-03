@@ -10,9 +10,9 @@ public static class LevelCompleteCanvasFactory
 {
     public const string CanvasObjectName = "LevelCompleteCanvas";
     private const string BackgroundResource = "UI/LevelCompleteUI/complete";
-    private const string BackgroundResourceFallback = "UI/LevelCompleteUI/level_complete";
+    private const string BackgroundResourceFallback = "UI/LevelCompleteUI/Level_Completed";
     private const string BackgroundAssetPath = "Assets/Art/Sprites/UI/Level_Complete/complete.png";
-    private const string BackgroundAssetPathFallback = "Assets/Art/Sprites/UI/Level_Complete/level_complete.png";
+    private const string BackgroundAssetPathFallback = "Assets/Resources/UI/LevelCompleteUI/Level_Completed.png";
 
     public static GameObject EnsureCanvas(ProceduralLevelBuilder builder)
     {

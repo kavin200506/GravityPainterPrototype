@@ -17,6 +17,8 @@ MonoBehaviour:
   price: 700
   unlockedByDefault: 0
   prefabResourcePath: Prefabs/BallSkins/Ai_Nova_Blue
-  speedMultiplier: 1
+  speedMultiplier: 1.15
+  abilityName: Shield Aura & Agility
+  abilityDescription: +15% Speed boost with enhanced tile grip.
+  whyToBuy: Great early upgrade! Offers faster movement and smooth steering on tight turns.
   icon: {fileID: 21300000, guid: 711899ce4a1701745a1bbf33992bce92, type: 3}
-  abilityDescription: Balanced Handling - No Bonus

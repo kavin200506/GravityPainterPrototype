@@ -101,6 +101,7 @@ public class TutorialIndicator : MonoBehaviour
         renderer.material = GetOrCreateParticleMaterial();
 
         // Main
+        _ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         var main = _ps.main;
         main.loop            = true;
         main.duration        = 1f;

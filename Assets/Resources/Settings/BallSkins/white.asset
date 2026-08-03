@@ -17,6 +17,8 @@ MonoBehaviour:
   price: 1100
   unlockedByDefault: 0
   prefabResourcePath: Prefabs/BallSkins/Ai_Nova_White
-  speedMultiplier: 1
+  speedMultiplier: 1.55
+  abilityName: Quantum Magnet Core
+  abilityDescription: +55% Speed boost & friction-free movement.
+  whyToBuy: Premium quantum orb! Delivers blistering speed and effortless control across all levels.
   icon: {fileID: 21300000, guid: f817797375b54774aa2a4e9969ab43d3, type: 3}
-  abilityDescription: Balanced Handling - No Bonus

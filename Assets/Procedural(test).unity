@@ -9659,6 +9659,7 @@ MonoBehaviour:
   buttonSpacing: 48
   buttonsAnchoredY: 520
   titleGap: 36
+  backgroundScale: 1.1
 --- !u!114 &1362423299
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -23,8 +23,8 @@ public class LevelMenu : MonoBehaviour
     [SerializeField] private Vector2 popUpPosition = new Vector2(0f, -40f);
 
     [Header("Scroll Area Layout")]
-    [SerializeField] private Vector2 scrollAreaSize = new Vector2(560f, 650f);
-    [SerializeField] private Vector2 scrollAreaPosition = new Vector2(0f, -65f);
+    [SerializeField] private Vector2 scrollAreaSize = new Vector2(560f, 760f);
+    [SerializeField] private Vector2 scrollAreaPosition = new Vector2(0f, -120f);
     [SerializeField] private Color completedColor = Color.white;
     [SerializeField] private Color focusColor = new Color(0.8f, 0.9f, 1f, 1f);
     [SerializeField] private Color lockedColor = new Color(0.4f, 0.4f, 0.4f, 1f);
@@ -147,8 +147,11 @@ public class LevelMenu : MonoBehaviour
             RectTransform sRt = existingScroll.GetComponent<RectTransform>();
             if (sRt != null)
             {
-                scrollAreaSize = sRt.sizeDelta;
-                scrollAreaPosition = sRt.anchoredPosition;
+                sRt.anchorMin = new Vector2(0.5f, 0.5f);
+                sRt.anchorMax = new Vector2(0.5f, 0.5f);
+                sRt.pivot = new Vector2(0.5f, 0.5f);
+                sRt.anchoredPosition = scrollAreaPosition;
+                sRt.sizeDelta = scrollAreaSize;
             }
         }
 
@@ -423,11 +426,11 @@ public class LevelMenu : MonoBehaviour
                 GameObject iconObj = new GameObject("LockIcon", typeof(RectTransform), typeof(Image));
                 iconObj.transform.SetParent(parent, false);
                 RectTransform iconRect = iconObj.GetComponent<RectTransform>();
-                iconRect.anchorMin = new Vector2(0.5f, 0f);
-                iconRect.anchorMax = new Vector2(0.5f, 0f);
-                iconRect.pivot = new Vector2(0.5f, 0f);
-                iconRect.anchoredPosition = new Vector2(0f, 15f);
-                iconRect.sizeDelta = new Vector2(40f, 40f);
+                iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+                iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+                iconRect.pivot = new Vector2(0.5f, 0.5f);
+                iconRect.anchoredPosition = new Vector2(0f, -20f);
+                iconRect.sizeDelta = new Vector2(30f, 30f);
                 
                 Image iconImg = iconObj.GetComponent<Image>();
                 iconImg.sprite = lockIconSprite;
@@ -436,8 +439,9 @@ public class LevelMenu : MonoBehaviour
         }
 
         label.alignment = TextAlignmentOptions.Center;
-        label.fontSize = 54f;
+        label.fontSize = 44f;
         label.fontStyle = FontStyles.Bold;
+        label.lineSpacing = 0f;
         label.raycastTarget = false;
     }
 

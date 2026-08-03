@@ -15,6 +15,16 @@ public class PowerUpPickup : MonoBehaviour
 
     private Vector3 _basePosition;
 
+    private void Awake()
+    {
+        PowerUpVisual visual = GetComponent<PowerUpVisual>();
+        if (visual == null)
+        {
+            visual = gameObject.AddComponent<PowerUpVisual>();
+        }
+        visual.EnsureVisual();
+    }
+
     private void Start()
     {
         _basePosition = transform.position;
