@@ -3,14 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Manages the Subway-Surfers-style tutorial for Level 1.
-///
-/// Behaviour:
-///  • Only runs on Level 1 (first-time players).
-///  • Uses a hardcoded lookup of tile names → hint type (Left / Right / Forward).
-///  • Shows a glowing particle indicator + hint text over the current tile.
-///  • Advances automatically as the ball moves tile-to-tile.
-///  • Permanently dismissed via PlayerPrefs when the level completes.
+/// Manages gameplay tutorials for Level 1 (movement & turns) and Level 2 (double-tap jump).
+/// Level 6 tutorial is completely removed.
 /// </summary>
 [DefaultExecutionOrder(100)]   // run after builder (-200) and ball controller
 public class TutorialManager : MonoBehaviour
@@ -25,11 +19,9 @@ public class TutorialManager : MonoBehaviour
     private const string MsgRight   = "Tap the RIGHT SIDE\nof the tile to turn right";
 
     // ── Hardcoded tile-name → hint lookup for Level 1 ─────────────────
-    // Only corner tiles need explicit hints; all others default to Forward.
     private static readonly Dictionary<string, TapHint> TileHints =
         new Dictionary<string, TapHint>(System.StringComparer.OrdinalIgnoreCase)
     {
-        // ── LEFT turn tiles ────────────────────────────────────────────
         { "Tile_corner_4_0_-3_0",   TapHint.Left },
         { "Tile_corner_4_1_-3_0",   TapHint.Left },
         { "Tile_corner_6_0_-3_-2",  TapHint.Left },
@@ -41,7 +33,6 @@ public class TutorialManager : MonoBehaviour
         { "Tile_corner_13_0_0_-2",  TapHint.Left },
         { "Tile_corner_13_1_0_-2",  TapHint.Left },
 
-        // ── RIGHT turn tiles ───────────────────────────────────────────
         { "Tile_corner_7_0_-2_-2",  TapHint.Right },
         { "Tile_corner_7_1_-2_-2",  TapHint.Right },
         { "Tile_corner_11_0_-1_-1", TapHint.Right },
@@ -64,10 +55,12 @@ public class TutorialManager : MonoBehaviour
     private Coroutine _beginDelayCoroutine;
     private Coroutine _watchCoroutine;
 
-    // ─────────────────────────────────────────────────────────────────
+    // ── Level 2 specific variables ───────────────────────────────────
+    private bool _level2Triggered = false;
+    private GameObject _level2TargetTile = null;
+
     private void Awake()
     {
-        // Do not disable gameObject in Awake so TutorialManager can listen to level build events.
     }
 
     private void Start()
@@ -89,7 +82,7 @@ public class TutorialManager : MonoBehaviour
         // Always listen for level builds (including Next Level rebuilds)
         _builder.OnLevelBuilt += OnLevelBuilt;
 
-        // Check if level was built prior to Start (Awake order -200)
+        // Check if level was built prior to Start
         if (_builder.LastBuiltSeed >= 0 && _builder.SpawnedTiles != null && _builder.SpawnedTiles.Count > 0)
         {
             EvaluateCurrentLevelAndStartIfNeeded();
@@ -120,6 +113,8 @@ public class TutorialManager : MonoBehaviour
 
         _active = false;
         _currentTileIndex = -1;
+        _level2Triggered = false;
+        _level2TargetTile = null;
 
         if (_indicator != null)
         {
@@ -127,7 +122,8 @@ public class TutorialManager : MonoBehaviour
         }
 
         _levelNumber = LevelProgress.GetSelectedMenuLevel();
-        if (_levelNumber != 1 && _levelNumber != 6)
+        // Tutorial only runs on Level 1 and Level 2. (Level 6 tutorial removed)
+        if (_levelNumber != 1 && _levelNumber != 2)
         {
             return;
         }
@@ -154,23 +150,83 @@ public class TutorialManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         _active = true;
-        ShowHintForTile(0);
+        if (_levelNumber == 1)
+        {
+            ShowHintForTile(0);
+        }
     }
 
-    // ── Update — track ball → closest tile ────────────────────────────
+    // ── Update — track ball position & tutorial state ────────────────
     private void Update()
     {
         if (!_active || _tiles == null || _tiles.Count == 0 || _ball == null) return;
 
-        int closest = FindClosestTileIndex(_ball.transform.position);
-        if (closest != _currentTileIndex && closest >= 0)
+        if (_levelNumber == 1)
         {
-            _currentTileIndex = closest;
-            ShowHintForTile(_currentTileIndex);
+            int closest = FindClosestTileIndex(_ball.transform.position);
+            if (closest != _currentTileIndex && closest >= 0)
+            {
+                _currentTileIndex = closest;
+                ShowHintForTile(_currentTileIndex);
+            }
+        }
+        else if (_levelNumber == 2)
+        {
+            UpdateLevel2Tutorial();
         }
     }
 
-    // ── Show hint for the tile at index ───────────────────────────────
+    private void UpdateLevel2Tutorial()
+    {
+        if (_level2TargetTile == null)
+        {
+            foreach (GameObject t in _tiles)
+            {
+                if (t != null && t.name.IndexOf("Tile_15_0_-1", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    _level2TargetTile = t;
+                    break;
+                }
+            }
+
+            // Fallback if specific tile name format differs slightly
+            if (_level2TargetTile == null && _tiles.Count > 15)
+            {
+                _level2TargetTile = _tiles[15];
+            }
+        }
+
+        if (_level2TargetTile == null) return;
+
+        Vector3 tileCenter = GetTileCenter(_level2TargetTile);
+
+        if (!_level2Triggered)
+        {
+            float dist = Vector3.Distance(_ball.transform.position, tileCenter);
+            if (dist < 1.6f)
+            {
+                _level2Triggered = true;
+                Vector3 freezePos = tileCenter + Vector3.up * 0.5f;
+                _ball.FreezeForTutorial(freezePos);
+
+                TapHint hint = TapHint.Jump;
+                string message = "Double tap on left or right side to JUMP";
+                Debug.Log("[Tutorial] Level 2 frozen for tutorial on tile=" + _level2TargetTile.name);
+                _indicator.ShowAt(freezePos, hint, message);
+            }
+        }
+        else
+        {
+            // Once ball cross-slides (jumps) or unfreezes, tutorial completes!
+            if (_ball.IsCrossSliding || !_ball.IsTutorialFrozen)
+            {
+                _indicator?.Hide();
+                DismissTutorial();
+            }
+        }
+    }
+
+    // ── Show hint for Level 1 ─────────────────────────────────────────
     private void ShowHintForTile(int index)
     {
         if (_tiles == null || index < 0 || index >= _tiles.Count) return;
@@ -180,7 +236,6 @@ public class TutorialManager : MonoBehaviour
 
         if (_levelNumber == 1)
         {
-            // Look up the hint by tile name — default to Forward if not listed
             TapHint hint = TileHints.TryGetValue(tile.name, out TapHint h) ? h : TapHint.Forward;
 
             string message = hint == TapHint.Left  ? MsgLeft
@@ -192,28 +247,9 @@ public class TutorialManager : MonoBehaviour
             Vector3 indicatorPos = GetIndicatorWorldPos(tile, hint);
             _indicator.ShowAt(indicatorPos, hint, message);
         }
-        else if (_levelNumber == 6)
-        {
-            // Level 6 specific: only show on Tile_2_0_2 or Tile_11_0_3 (case-insensitive)
-            if (tile.name.IndexOf("Tile_2_0_2", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                tile.name.IndexOf("Tile_11_0_3", System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                TapHint hint = TapHint.Jump;
-                string message = "double tap on left or right side to jump";
-                Debug.Log("[Tutorial] Level 6 Tile=" + tile.name + " Hint=" + hint);
-                Vector3 indicatorPos = GetIndicatorWorldPos(tile, hint);
-                _indicator.ShowAt(indicatorPos, hint, message);
-            }
-            else
-            {
-                _indicator.Hide();
-            }
-        }
     }
 
     // ── Position helpers ──────────────────────────────────────────────
-
-    /// <summary>Returns world position of the indicator tap zone on the tile.</summary>
     private Vector3 GetIndicatorWorldPos(GameObject tile, TapHint hint)
     {
         Vector3 center = GetTileCenter(tile);
@@ -301,9 +337,6 @@ public class TutorialManager : MonoBehaviour
     {
         _active = false;
         _indicator?.Hide();
-        // IMPORTANT: use _levelNumber (cached at Awake time) — NOT LevelProgress.GetSelectedMenuLevel().
-        // By the time the level-complete screen shows, the selected level may already point to the
-        // next level, which would wrongly mark that next level's tutorial as seen.
         string shownKey = "TutorialShown_Level" + _levelNumber;
         PlayerPrefs.SetInt(shownKey, 1);
         PlayerPrefs.Save();

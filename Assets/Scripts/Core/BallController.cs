@@ -417,12 +417,45 @@ public class BallController : MonoBehaviour
 
     public bool IsCrossSliding => _crossSlideActive;
 
+    private bool _tutorialFrozen = false;
+    public bool IsTutorialFrozen => _tutorialFrozen;
+
+    public void FreezeForTutorial(Vector3 freezePosition)
+    {
+        _tutorialFrozen = true;
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+        }
+        transform.position = freezePosition;
+    }
+
+    public void UnfreezeTutorial()
+    {
+        if (!_tutorialFrozen) return;
+        _tutorialFrozen = false;
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.WakeUp();
+        }
+    }
+
     /// <summary>Auto-slide the ball diagonally to the northwest or northeast tile corner (double-tap).</summary>
     public void StartCrossSlideToEdge(TileZone zone, bool toNorthWestCorner)
     {
         if (zone == null)
         {
             return;
+        }
+
+        if (_tutorialFrozen)
+        {
+            UnfreezeTutorial();
         }
 
         _crossSlideActive = true;
