@@ -55,13 +55,49 @@ public class InputManager : MonoBehaviour
     {
         if (!TryRaycastTile(screenPosition, out TileZone tile, out Vector3 hitPoint))
         {
+            ResetSideDoubleTap();
             return;
         }
 
+        bool isLeft = tile.IsLeftSideTap(hitPoint);
+        bool isRight = tile.IsRightSideTap(hitPoint);
+
+        if (isLeft || isRight)
+        {
+            HandleSideTap(tile, hitPoint, toLeftEdge: isLeft);
+            return;
+        }
+
+        ResetSideDoubleTap();
+
         ZoneType previousZone = tile.zoneType;
         tile.SetZoneFromWorldPoint(hitPoint);
-        Debug.Log("[InputManager] Tile tapped: " + tile.gameObject.name
+        Debug.Log("[InputManager] Center tile tapped: " + tile.gameObject.name
             + " zone changed: " + previousZone + " -> " + tile.zoneType);
+    }
+
+    private void HandleSideTap(TileZone tile, Vector3 hitPoint, bool toLeftEdge)
+    {
+        int tileId = tile.gameObject.GetInstanceID();
+        float now = Time.unscaledTime;
+        bool isDoubleTap = tileId == _lastSideTapTileId
+            && now - _lastSideTapUnscaledTime <= DoubleTapMaxDelay;
+
+        _lastSideTapTileId = tileId;
+        _lastSideTapUnscaledTime = now;
+
+        // Apply zone change IMMEDIATELY (0ms delay) on every tap so single tap changes model and 2nd tap toggles back!
+        ZoneType previousZone = tile.zoneType;
+        tile.SetZoneFromWorldPoint(hitPoint);
+        Debug.Log("[InputManager] Side tile tapped: " + tile.gameObject.name
+            + " zone changed: " + previousZone + " -> " + tile.zoneType);
+
+        // If double-tapped, ALSO trigger the ball jump / cross-slide!
+        if (isDoubleTap)
+        {
+            TryStartCrossSlide(tile, toLeftEdge);
+            ResetSideDoubleTap();
+        }
     }
 
     private void ScheduleSidePaint(TileZone tile, Vector3 hitPoint)
