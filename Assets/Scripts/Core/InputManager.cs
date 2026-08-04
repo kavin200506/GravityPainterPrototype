@@ -55,50 +55,13 @@ public class InputManager : MonoBehaviour
     {
         if (!TryRaycastTile(screenPosition, out TileZone tile, out Vector3 hitPoint))
         {
-            CancelPendingSidePaint();
-            ResetSideDoubleTap();
             return;
         }
-
-        if (tile.IsLeftSideTap(hitPoint))
-        {
-            HandleSideTap(tile, hitPoint, toLeftEdge: true);
-            return;
-        }
-
-        if (tile.IsRightSideTap(hitPoint))
-        {
-            HandleSideTap(tile, hitPoint, toLeftEdge: false);
-            return;
-        }
-
-        CancelPendingSidePaint();
-        ResetSideDoubleTap();
 
         ZoneType previousZone = tile.zoneType;
         tile.SetZoneFromWorldPoint(hitPoint);
         Debug.Log("[InputManager] Tile tapped: " + tile.gameObject.name
             + " zone changed: " + previousZone + " -> " + tile.zoneType);
-    }
-
-    private void HandleSideTap(TileZone tile, Vector3 hitPoint, bool toLeftEdge)
-    {
-        int tileId = tile.gameObject.GetInstanceID();
-        float now = Time.unscaledTime;
-        bool isDoubleTap = tileId == _lastSideTapTileId
-            && now - _lastSideTapUnscaledTime <= DoubleTapMaxDelay;
-
-        if (isDoubleTap)
-        {
-            CancelPendingSidePaint();
-            TryStartCrossSlide(tile, toLeftEdge);
-            ResetSideDoubleTap();
-            return;
-        }
-
-        _lastSideTapTileId = tileId;
-        _lastSideTapUnscaledTime = now;
-        ScheduleSidePaint(tile, hitPoint);
     }
 
     private void ScheduleSidePaint(TileZone tile, Vector3 hitPoint)
