@@ -6260,8 +6260,8 @@ MonoBehaviour:
   smoothTime: 0.25
   minSpeedForVelocityHeading: 0.35
   enableSwipeOffset: 1
-  maxSwipeOffset: 3
-  swipeSensitivity: 0.005
+  maxSwipeOffset: 8
+  swipeSensitivity: 0.02
   autoReturnToCenter: 1
   returnDelay: 3
   returnToCenterSpeed: 4

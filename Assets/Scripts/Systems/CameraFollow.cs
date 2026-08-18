@@ -24,9 +24,9 @@ public class CameraFollow : MonoBehaviour
     [Tooltip("Enable slight camera horizontal shift when swiping left/right on screen.")]
     [SerializeField] private bool enableSwipeOffset = true;
     [Tooltip("Maximum horizontal distance the camera can shift.")]
-    [SerializeField] private float maxSwipeOffset = 3f;
+    [SerializeField] private float maxSwipeOffset = 8f;
     [Tooltip("Sensitivity of swipe drag to camera shift.")]
-    [SerializeField] private float swipeSensitivity = 0.005f;
+    [SerializeField] private float swipeSensitivity = 0.02f;
     [Tooltip("Automatically smooth camera back to center when swipe ends.")]
     [SerializeField] private bool autoReturnToCenter = true;
     [Tooltip("Delay in seconds after swiping before returning to default center position.")]
