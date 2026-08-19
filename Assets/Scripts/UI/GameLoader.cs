@@ -14,6 +14,7 @@ namespace GravityPainter.UI
         [Header("Loading Settings")]
         [SerializeField] private float minimumLoadingTime = 2.0f;
         [SerializeField] private float fadeDuration = 0.5f;
+        [SerializeField] private Sprite loadingBgSprite;
 
         private AsyncOperation _asyncOperation;
         private TextMeshProUGUI _progressText;
@@ -43,6 +44,28 @@ namespace GravityPainter.UI
             overlayRect.anchorMax = Vector2.one;
             overlayRect.offsetMin = Vector2.zero;
             overlayRect.offsetMax = Vector2.zero;
+
+            // Create background image
+            GameObject bgObj = new GameObject("LoadingBackground", typeof(RectTransform));
+            bgObj.transform.SetParent(overlayObj.transform, false);
+            bgObj.transform.SetAsFirstSibling();
+
+            Image bgImg = bgObj.AddComponent<Image>();
+            if (loadingBgSprite != null)
+            {
+                bgImg.sprite = loadingBgSprite;
+                bgImg.color = Color.white;
+            }
+            else
+            {
+                bgImg.color = Color.black;
+            }
+
+            RectTransform bgRect = bgImg.rectTransform;
+            bgRect.anchorMin = Vector2.zero;
+            bgRect.anchorMax = Vector2.one;
+            bgRect.offsetMin = Vector2.zero;
+            bgRect.offsetMax = Vector2.zero;
 
             // Create progress bar track at bottom
             GameObject trackObj = new GameObject("ProgressBarTrack", typeof(RectTransform));
